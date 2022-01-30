@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <title> {{title}} | Hackle's blog </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
+        <link rel="stylesheet" href="/static/styles.css" />
+    </head>
+    <body class="markdown-body">
+        <header>
+            <a class="title" href="/">Hackle's blog</a>
+            <br>
+            <span class="subtitle">between the abstractions we want and the abstractions we get.</span>
+        </header>
+        <h1>{{title}}</h1>
+        {{{meta}}}
+        
+        <p>
+            Share on
+            <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fwww.hacklewayne.com%2F{{slug}}&text={{title}}">Twitter</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fwww.hacklewayne.com%2F{{slug}}&text={{title}}">Facebook</a>
+            <a href="http://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fwww.hacklewayne.com%2F{{slug}}&title={{title}}">LinkedIn</a>
+        </p>
+        <p>
+            See also
+            <ul>
+                {{#each see_also }}
+                    <li><a href="/{{1}}">{{0}}</a></li>
+                {{/each}}
+            </ul>
+        </p>
+        <hr>
+        <a href="/about">About me and this blog, or get in touch</a>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/prism.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-haskell.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-csharp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-fsharp.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-css.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-javascript.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/components/prism-typescript.min.js"></script>
+        <script src="/static/prism-idris.js"></script>
+    </body>
+</html>

@@ -1,0 +1,37 @@
+.markdown-body {
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 45px;
+}
+
+@media (max-width: 767px) {
+    .markdown-body {
+        padding: 0 15px;
+    }
+}
+
+a.title:link,
+a.title:visited,
+a.title:hover,
+a.title:active
+{
+    font-size: 32px;
+    text-decoration: none;
+    color: #6ac81e;
+    font-weight: normal;
+}
+
+.subtitle {
+    color: darkgreen;
+    font-style: italic;
+}
+
+.token.operator {
+  background-color: inherit;
+}
+
+.markdown-body img {
+    border: 1px solid gray;
+}
