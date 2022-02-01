@@ -85,7 +85,7 @@ pub fn make_blog(slug: &str, md_dir: &PathBuf) -> Blog {
 
     let see_also = blog_posts
         .into_iter()
-        .map(|(t, p)| (t.to_string(), p.to_string()))
+        .map(|(t, p)| (t.to_string(), to_slug(t).to_string()))
         .filter(|(title, _)| title != &current_post.title)
         .collect();
 
@@ -96,20 +96,20 @@ pub fn make_blog(slug: &str, md_dir: &PathBuf) -> Blog {
     }
 }
 
-fn to_slug(raw: &&str) -> String {
+fn to_slug(raw: &str) -> String {
     let no_whitespace_regex = Regex::new(r"[^a-zA-Z]+").unwrap();
     let no_ws = no_whitespace_regex.replace_all(raw.trim(), r"-").into_owned();
 
     return no_ws.trim_matches(|c| c == '-').to_ascii_lowercase();
 }
 
-fn find_post_for_slug(posts: &Vec<Post>, slug: &str) -> Post {
+fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
     assert!(posts.len() > 0);
 
     let mut iter = posts.into_iter();
     let _default = iter.nth(0).unwrap();
 
-    let found = iter.find(|Post { slug,.. } | slug == slug);
+    let found = iter.find(|Post { slug,.. } | slug == slug_to_find);
 
     return found.unwrap_or(_default).to_owned();
 }
