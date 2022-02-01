@@ -35,10 +35,10 @@ fn blog_post(slug: &str) -> Template {
 
     let mut context: BTreeMap<&str, HandlebarsValue> = BTreeMap::new();
     
-    context.insert("meta", HandlebarsValue::String(blog.Content));
-    context.insert("title", HandlebarsValue::String(blog.Title));
-    context.insert("slug", HandlebarsValue::String(blog.Slug));
-    context.insert("see_also", HandlebarsValue::Array(blog.SeeAlso));
+    context.insert("meta", HandlebarsValue::String(blog.content));
+    context.insert("title", HandlebarsValue::String(blog.current_post.title));
+    context.insert("slug", HandlebarsValue::String(blog.current_post.slug));
+    context.insert("see_also", HandlebarsValue::Array(blog.see_also));
 
     return Template::render("main", &context);
 }

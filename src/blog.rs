@@ -1,12 +1,20 @@
 use std::path::PathBuf;
 use comrak::{ComrakOptions, markdown_to_html};
 use regex::Regex;
+use rocket::form::validate::Len;
 
+#[derive(Clone, Debug)]
 pub struct Blog {
-    pub Slug: String,
-    pub Title: String,
-    pub Content: String,
-    pub SeeAlso: Vec<(String, String)>,
+    pub current_post: Post,
+    pub content: String,
+    pub see_also: Vec<(String, String)>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Post {
+    pub slug: String,
+    pub title: String,
+    pub path: PathBuf,
 }
 
 pub fn make_blog(slug: &str, md_dir: &PathBuf) -> Blog {
@@ -58,32 +66,33 @@ pub fn make_blog(slug: &str, md_dir: &PathBuf) -> Blog {
         ("About Hackle's blog", "about.md")
     ];
 
-    let mut all_posts: Vec<(&str, &str)> = vec![&blog_posts[..], &secondary_posts[..]].concat();
+    let all_posts = vec![&blog_posts[..], &secondary_posts[..]]
+        .concat()
+        .iter()
+        .map(|(t, p)| Post {
+            title: String::from(t.to_owned()),
+            slug: to_slug(t),
+            path: md_dir.join(p)
+        })
+        .collect();
 
-    let slugs = to_slugs(all_posts);
-
-    let (title, slug, path) = find_post_for_slug(&slugs, slug, &md_dir);
-    let markdown = std::fs::read_to_string(&path);
+    let current_post = find_post_for_slug(&all_posts, slug);
+    let markdown = std::fs::read_to_string(&current_post.path);
 
     let content = markdown
         .map(|md| markdown_to_html(&md.to_string(), &ComrakOptions::default()))
-        .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &path, err.to_string()));
+        .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &current_post.path, err.to_string()));
 
-    // let secondary_posts_iter = secondary_posts.into_iter();
-    let see_also_slugs = to_slugs(
-        blog_posts
-            .into_iter()
-            .filter(|(t, _)| title != t.to_string())
-            .collect()
-    );
-
-    let see_also = make_see_also_links(&see_also_slugs);
+    let see_also = blog_posts
+        .into_iter()
+        .map(|(t, p)| (t.to_string(), p.to_string()))
+        .filter(|(title, _)| title != &current_post.title)
+        .collect();
 
     Blog {
-        Slug: slug,
-        Title: title,
-        Content: content,
-        SeeAlso: see_also
+        current_post,
+        content,
+        see_also
     }
 }
 
@@ -94,32 +103,16 @@ fn to_slug(raw: &&str) -> String {
     return no_ws.trim_matches(|c| c == '-').to_ascii_lowercase();
 }
 
-fn find_post_for_slug(slugs: &Vec<(String, String, PathBuf)>, slug: &str, current_dir: &PathBuf) -> (String, String, PathBuf) {
-    let _default = &slugs[0];
-    let mut iter = slugs.into_iter();
+fn find_post_for_slug(posts: &Vec<Post>, slug: &str) -> Post {
+    assert!(posts.len() > 0);
 
-    let found = iter.find(|(_, s, _)| s == slug);
-    let (title, slug, path) = found.unwrap_or(_default);
+    let mut iter = posts.into_iter();
+    let _default = iter.nth(0).unwrap();
 
-    return (String::from(title.to_owned()), slug.to_owned(), current_dir.join(path.to_owned()));
+    let found = iter.find(|Post { slug,.. } | slug == slug);
+
+    return found.unwrap_or(_default).to_owned();
 }
-
-fn to_slugs(posts: Vec<(&str, &str)>) -> Vec<(String, String, PathBuf)> {
-    return posts
-        .iter()
-        .map(|(t, p)| (String::from(t.to_owned()), to_slug(t), PathBuf::from(p)))
-        .collect();
-}
-
-fn make_see_also_links(all_posts: &Vec<(String, String, PathBuf)>) -> Vec<(String, String)> {
-    let links: Vec<(String, String)> =
-        all_posts.into_iter()
-            .map(|(t, s, _)| (t.to_owned(), s.to_owned()))
-            .collect();
-
-    return links;
-}
-
 
 #[cfg(test)]
 mod tests {
