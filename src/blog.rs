@@ -2,6 +2,7 @@ use std::path::PathBuf;
 use comrak::{ComrakOptions, markdown_to_html};
 use regex::Regex;
 use rocket::form::validate::Len;
+use serde::{Deserialize};
 
 #[derive(Clone, Debug)]
 pub struct Blog {
@@ -15,78 +16,46 @@ pub struct Post {
     pub slug: String,
     pub title: String,
     pub path: PathBuf,
+    pub hidden: bool,
 }
 
-pub fn make_blog(slug: &str, md_dir: &PathBuf) -> Blog {
-    let mut blog_posts = vec![
-        ("A few things about unit testing", "presso-pragmatic-unit-testing.md")
-        , ("LINQ, infinity, laziness and oh my!", "linq-tips.md")
-        , ("Lens (really record viewer / updater) in TypeScript", "lens-typescript.md")
-        , ("Fin", "fin.md")
-        , ("Coding an alternative Vect.index, Type-Driven Development in Idris", "index-fin-alternative.md")
-        , ("callCC in Haskell, and my ultimate Monad", "call-cc-my-ultimate-monad.md")
-        , ("My take on (unit) testing", "my-take-on-unit-testing.md")
-        , ("Serialize like javascript - MergeJSON in Idris!", "serialize-like-javascript-the-prototype.md")
-        , ("Serialize like javascript - the idea", "serialize-like-javascript.md")
-        , ("foldl in terms of foldr", "foldr-in-foldl.md")
-        , ("Inject functions, not interfaces", "no-interface-just-use-functions.md")
-        , ("Make unit testing a breeze by segregating complexity", "test-complex-keep-rest-simple.md")
-        , ("Don't null check, just continue!", "dont-pattern-match-just-pass-function.md")
-        , ("2-layer architecture", "two-layer-architecture.md")
-        , ("Types and tests: JavaScript 10, Idris 0", "types-and-tests.md")
-        , ("Types, names, and type superstition", "type-superstition.md")
-        , ("Out-of-context string template is an anti-pattern", "out-of-context-string-template.md")
-        , ("the magic Const, Identity and tuple", "the-const-trickery.md")
-        , ("Covariance and contravariance", "contravariant.md")
-        , ("T.D.D. is most practical data-driven with pure functions", "tdd-data-driven-and-functional.md")
-        , ("Nesting and positions in covariance and contravariance, ", "contravariant-positions.md")
-        , ("Reducer to reduce, with lens in OO flavour", "lens-for-reducer.md")
-        , ("Dependent types in TypeScript?", "dependent-types-typescript.md")
-        , ("The Diamond, squashed and recovered", "the-diamond-kata.md")
-        , ("Tuck-away and take-one, whatever it takes to look declarative", "anything-to-be-declarative.md")
-        , ("Good code does not matter... not that much", "good-code-does-not-matter.md")
-        , ("Setting CAP loose in real life", "cap.md")
-        , ("Placement by functionality, not technical concerns", "where-to-place-x.md")
-        , ("Plain and simple state management", "plain-state-management.md")
-        , ("Self-referenced JSON?", "self-reference-json.md")
-        , ("Also on Comonad and Conway's game of life", "conway-comonad.md")
-        , ("Dependent Types in TypeScript, Seriously", "dependent-types-typescript-seriously.md")
-        , ("Literal type preservation with TypeScript", "type-preservation.md")
-        , ("A truly strongly-typed printf in TypeScript", "printf.md")
-        , ("On accidental code deletion as reason for unit testing", "what-if-my-code-is-deleted.md")
-        , ("The TypeScript Handbook, Optional Parameters and Postel's Law", "the-typescript-handbook-and-postels-law.md")
-        , ("Linq is Lazier, not by too much, just within Range", "linq-gets-lazier.md")
-        , ("Dependency hell? Not if we use functions! For library authors", "use-functions-keep-it-open.md")
-        , ("Your tests may belong elsewhere", "where-have-all-the-tests-gone.md")
-    ];
-    blog_posts.reverse();
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+pub struct Registry<'a> {
+    pub title: &'a str,
+    pub markdown: &'a str,
+    #[serde(default)]
+    pub hidden: bool
+}
 
-    let secondary_posts = vec![
-        ("How is this blog put together", "blog-architecture.md"),
-        ("About Hackle's blog", "about.md")
-    ];
+pub fn read_manifest(md_dir: &PathBuf) -> Vec<Post> {
+    let manifest = std::fs::read_to_string(md_dir.join("manifest.json")).unwrap();
+    let registries: Vec<Registry> = serde_json::from_str(&manifest).unwrap();
 
-    let all_posts = vec![&blog_posts[..], &secondary_posts[..]]
-        .concat()
-        .iter()
-        .map(|(t, p)| Post {
-            title: String::from(t.to_owned()),
-            slug: to_slug(t),
-            path: md_dir.join(p)
+    return registries.iter()
+        .map(|Registry{ title, markdown, hidden } | Post {
+            title: String::from(title.to_owned()),
+            slug: to_slug(title),
+            path: md_dir.join(markdown),
+            hidden: *hidden,
         })
+        .rev()
         .collect();
+}
 
+pub fn make_blog<F>(slug: &str, all_posts: &Vec<Post>, read_file: F) -> Blog where
+    F: FnOnce(&PathBuf) -> std::io::Result<String>
+{
     let current_post = find_post_for_slug(&all_posts, slug);
-    let markdown = std::fs::read_to_string(&current_post.path);
+    let markdown = read_file(&current_post.path);
 
     let content = markdown
         .map(|md| markdown_to_html(&md.to_string(), &ComrakOptions::default()))
         .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &current_post.path, err.to_string()));
 
-    let see_also = blog_posts
-        .into_iter()
-        .map(|(t, p)| (t.to_string(), to_slug(t).to_string()))
-        .filter(|(title, _)| title != &current_post.title)
+    let see_also = all_posts
+        .iter()
+        .filter(|Post{ title, hidden, .. }| !*hidden && title != &current_post.title)
+        .map(|Post{ title,.. }| (title.to_string(), to_slug(title).to_string()))
         .collect();
 
     Blog {
@@ -106,12 +75,11 @@ fn to_slug(raw: &str) -> String {
 fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
     assert!(posts.len() > 0);
 
-    let mut iter = posts.into_iter();
-    let _default = iter.nth(0).unwrap();
-
-    let found = iter.find(|Post { slug,.. } | slug == slug_to_find);
-
-    return found.unwrap_or(_default).to_owned();
+    return posts
+        .iter()
+        .find(|Post { slug,.. } | slug == slug_to_find)
+        .unwrap_or_else(|| posts.iter().filter(|Post{hidden, ..}| !*hidden).nth(0).unwrap())
+        .to_owned();
 }
 
 #[cfg(test)]
@@ -136,5 +104,20 @@ mod tests {
         // assert_eq!(find_post_for_slug("non-existent", &PathBuf::from("src/")), PathBuf::from("src/anything-to-be-declarative.md"));
         // assert_eq!(find_post_for_slug(&mut posts, "anything-to-be-declarative", &PathBuf::from("src/")), (String::from("Anything to be declarative"), PathBuf::from("src/anything-to-be-declarative.md")));
         // assert_eq!(find_post_for_slug(&mut posts, "types-and-tests", &PathBuf::from("src/")), (String::from("Types and tests"), PathBuf::from("src/types-and-tests.md")));
+    }
+
+    #[test]
+    fn test_deserialise_registry() {
+        let raw = r#"[
+{ "title": "A few things about unit testing", "markdown": "presso-pragmatic-unit-testing.md" },
+{ "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md", "hidden": true }
+]"#;
+        let expected = vec![
+            Registry { title: "A few things about unit testing", markdown: "presso-pragmatic-unit-testing.md", hidden: false },
+            Registry { title: "LINQ, infinity, laziness and oh my!", markdown: "linq-tips.md", hidden: true },
+        ];
+        let posts: Vec<Registry> = serde_json::from_str(&raw).unwrap();
+
+        assert_eq!(posts, expected)
     }
 }

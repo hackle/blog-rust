@@ -1,3 +1,5 @@
+#![feature(io_read_to_string)]
+
 mod blog;
 
 use rocket::serde::{Serialize};
@@ -10,6 +12,7 @@ use comrak::{markdown_to_html, ComrakOptions};
 use rocket_dyn_templates::Template;
 use std::collections::BTreeMap;
 use rocket::fs::FileServer;
+use lambda_web::{is_running_on_lambda, launch_rocket_on_lambda, LambdaError};
 
 #[derive(Serialize)]
 #[serde(untagged)]
@@ -31,7 +34,8 @@ fn blog_post(slug: &str) -> Template {
     let mut md_dir = env::current_dir().unwrap();
     md_dir.push("raw");
 
-    let blog = blog::make_blog(slug, &md_dir);
+    let manifest = blog::read_manifest(&md_dir);
+    let blog = blog::make_blog(slug, &manifest, |p: &PathBuf| std::fs::read_to_string(p));
 
     let mut context: BTreeMap<&str, HandlebarsValue> = BTreeMap::new();
     
@@ -43,10 +47,18 @@ fn blog_post(slug: &str) -> Template {
     return Template::render("main", &context);
 }
 
-#[rocket::launch]
-fn router() -> _ {
-    rocket::build()
+#[rocket::main]
+async fn main() -> Result<(), LambdaError> {
+    let rocket = rocket::build()
         .mount("/static", FileServer::from("static"))
         .mount("/", routes![index, blog_post])
-        .attach(Template::fairing())
+        .attach(Template::fairing());
+
+    if is_running_on_lambda() {
+        launch_rocket_on_lambda(rocket).await?;
+    } else {
+        rocket.launch().await?;
+    }
+
+    Ok(())
 }

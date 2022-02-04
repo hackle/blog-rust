@@ -3,13 +3,17 @@ name = "blog-rust"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "bootstrap"
+path = "src/main.rs"
 
 [dependencies]
 rocket = "0.5.0-rc.1"
+lambda-web = { version = "0.1.8", features=["rocket05"] }
 regex = "1"
 comrak = "0.12"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.59"
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0-rc.1"
