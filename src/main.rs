@@ -1,5 +1,3 @@
-#![feature(io_read_to_string)]
-
 mod blog;
 
 use rocket::serde::{Serialize};
