@@ -1,0 +1,15 @@
+service: blogger1
+
+provider:
+  name: aws
+  region: ap-southeast-2
+  state: prod
+
+package:
+  individually: true
+
+functions:
+  rust:
+    runtime: provided
+    package:
+      artifact: build/deploy.zip
