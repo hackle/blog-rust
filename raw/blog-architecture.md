@@ -1,5 +1,22 @@
 For me this blog is not just some place I post my learnings and ideas, but also somewhere I can put them into practice. Here is a brief overview of what I used for this blog, and some notable facts.
 
+## Update Feb 6, 2022
+Like many others I have had the Rust envy for a long time. Came the holiday season recently, I eventually overcome my laziness and started chipping away on a rewrite of this blog.
+
+Rust turned out to be an absolute delight but I should have expected that the infrastructure and ops concerns took up way more time than I would have liked. However it is now done and I want to put an architecture diagram here. 
+
+![blog architecture](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/blog.jpg)
+
+Points of interest,
+
+* Route 53 can only resolve to CloudFront if the latter has "alternative domain names" defined with SSL certificates with the same domain names; these domain names must be validated to be owned by me, in practice it means they are the same domain names as used for this blog.
+* The API gateway has an HTTP API. There were too many quirks and restrictions with the REST API. For a few,
+  * the HTTP API allows defining a $default stage and a $default route, so the invocation URL does not have to have a path, e.g. `aws-invocationurl.../prod`.
+  * the REST API somehow always returns the response in base64 format, which was OK if it's opened through Chrome; but via the API gateway the base64 shows up directly on the browser. No amount of fussing could remedy this.
+* the api gateway has custom domain names defined, each must have valid certificates with the SAME domain names.
+* Github Actions continue to be a breeze to use. Same goes for the serverless framework. Although it's noted the runtime must be `provided.al2` which stands for Amazon Linux 2, a docker image to build the executables upon.
+* Rust is such a strong language - I get almost the same feeling of "if it compiles, it works" as that from using Haskell. With multiple times faster compile time! Another post to follow.
+
 ## Update August 3, 2021
 Tiredness with manually deploying this blog and keeping AWS credentials on my machine led me to bite the bullet and adopt GitHub Actions for building and publishing. I was pleasantly surprised how flat and smooth the learning curve is and I really appreciated the open-source integrations available for various aspects of the pipeline. Even for building a Haskell application. Sure it's a sign of prime time to come?
 
