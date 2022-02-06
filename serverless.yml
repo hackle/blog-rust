@@ -1,4 +1,4 @@
-service: blogger1
+service: blog
 
 provider:
   name: aws
@@ -10,6 +10,7 @@ package:
 
 functions:
   rust:
-    runtime: provided
+    runtime: provided.al2
+    handler: hello.handler
     package:
-      artifact: build/deploy.zip
+      artifact: deploy.zip

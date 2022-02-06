@@ -9,8 +9,12 @@ use std::env;
 use comrak::{markdown_to_html, ComrakOptions};
 use rocket_dyn_templates::Template;
 use std::collections::BTreeMap;
-use rocket::fs::FileServer;
+use rocket::fs::{FileServer};
 use lambda_web::{is_running_on_lambda, launch_rocket_on_lambda, LambdaError};
+use rocket_include_static_resources::{EtagIfNoneMatch, StaticContextManager, StaticResponse};
+
+#[macro_use]
+extern crate rocket_include_static_resources;
 
 #[derive(Serialize)]
 #[serde(untagged)]
@@ -45,11 +49,18 @@ fn blog_post(slug: &str) -> Template {
     return Template::render("main", &context);
 }
 
+static_response_handler! {
+    "/favicon.ico" => favicon => "favicon",
+}
+
 #[rocket::main]
 async fn main() -> Result<(), LambdaError> {
     let rocket = rocket::build()
+        .attach(static_resources_initializer!(
+            "favicon" => "static/favicon.ico",
+        ))
         .mount("/static", FileServer::from("static"))
-        .mount("/", routes![index, blog_post])
+        .mount("/", routes![favicon, index, blog_post])
         .attach(Template::fairing());
 
     if is_running_on_lambda() {

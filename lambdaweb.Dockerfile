@@ -21,7 +21,7 @@ CMD cargo build --release --target-dir target_lambda && \
   cd target_lambda/release && \
   cp -r ../../templates ./templates && \
   cp -r ../../static ./static && \
-  cp -r ../../raw ./aw && \
+  cp -r ../../raw ./raw && \
   cp -r ../../Rocket.toml ./Rocket.toml && \
   zip -9 -r ./deploy.zip bootstrap static raw templates Rocket.toml && \
   cp deploy.zip /build/deploy.zip
