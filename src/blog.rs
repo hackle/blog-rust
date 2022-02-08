@@ -1,8 +1,10 @@
+use std::env;
+use std::future::Future;
 use std::path::PathBuf;
 use comrak::{ComrakOptions, markdown_to_html};
 use regex::Regex;
-use rocket::form::validate::Len;
 use serde::{Deserialize};
+use crate::blog;
 
 #[derive(Clone, Debug)]
 pub struct Blog {
@@ -15,42 +17,71 @@ pub struct Blog {
 pub struct Post {
     pub slug: String,
     pub title: String,
-    pub path: PathBuf,
+    pub path: String,
     pub hidden: bool,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
-pub struct Registry<'a> {
-    pub title: &'a str,
-    pub markdown: &'a str,
+pub struct Registry {
+    pub title: String,
+    pub markdown: String,
     #[serde(default)]
     pub hidden: bool
 }
 
-pub fn read_manifest(md_dir: &PathBuf) -> Vec<Post> {
-    let manifest = std::fs::read_to_string(md_dir.join("manifest.json")).unwrap();
-    let registries: Vec<Registry> = serde_json::from_str(&manifest).unwrap();
+pub struct GithubSource {
+    pub base_url: String
+}
 
+pub struct LocalSource {
+    pub directory: PathBuf
+}
+
+impl LocalSource {
+    pub fn get_manifest(&self) -> Result<Vec<Registry>, String> {
+        let manifest = std::fs::read_to_string(&self.directory.join("manifest.json")).unwrap();
+        let manifest: Vec<Registry> = serde_json::from_str(&manifest).unwrap();
+        Ok(manifest)
+    }
+
+    pub fn read_content(&self, p: &String) -> Result<String, String> {
+        std::fs::read_to_string(&self.directory.join(p))
+            .map_err(|_| String::from("Cannot read markdown"))
+    }
+}
+
+impl GithubSource {
+    pub async fn get_manifest(&self) -> Result<Vec<Registry>, String> {
+        let url = format!("{}/{}", self.base_url, "manifest.json");
+        return match reqwest::get(&url).await {
+            Err(_) => Err(String::from("Cannot read remote manifest")),
+            Ok(response) => response.json::<Vec<Registry>>().await.map_err(|err| String::from(format!("Cannot deserialize response, {:?}, {:?}", &url, err)))
+        };
+    }
+
+    pub async fn read_content(&self, markdown: &String) -> Result<String, String> {
+        return match reqwest::get(format!("{}/{}", &self.base_url, &markdown)).await {
+            Err(_) => Err(String::from("Cannot read remote markdown file")),
+            Ok(response) => response.text().await.map_err(|_| String::from("Cannot read remote markdown content"))
+        }
+    }
+}
+
+pub fn to_posts(registries: &Vec<Registry>) -> Vec<Post> {
     return registries.iter()
         .map(|Registry{ title, markdown, hidden } | Post {
-            title: String::from(title.to_owned()),
+            title: title.to_owned(),
             slug: to_slug(title),
-            path: md_dir.join(markdown),
+            path: markdown.to_owned(),
             hidden: *hidden,
         })
         .rev()
         .collect();
 }
 
-pub fn make_blog<F>(slug: &str, all_posts: &Vec<Post>, read_file: F) -> Blog where
-    F: FnOnce(&PathBuf) -> std::io::Result<String>
-{
-    let current_post = find_post_for_slug(&all_posts, slug);
-    let markdown = read_file(&current_post.path);
-
-    let content = markdown
-        .map(|md| markdown_to_html(&md.to_string(), &ComrakOptions::default()))
-        .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &current_post.path, err.to_string()));
+pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) -> Blog {
+    let content =  markdown_to_html(&markdown.to_string(), &ComrakOptions::default());
+        // .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &current_post.path, err.to_string()));
 
     let see_also = all_posts
         .iter()
@@ -59,7 +90,7 @@ pub fn make_blog<F>(slug: &str, all_posts: &Vec<Post>, read_file: F) -> Blog whe
         .collect();
 
     Blog {
-        current_post,
+        current_post: current_post.to_owned(),
         content,
         see_also
     }
@@ -72,7 +103,7 @@ fn to_slug(raw: &str) -> String {
     return no_ws.trim_matches(|c| c == '-').to_ascii_lowercase();
 }
 
-fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
+pub fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
     assert!(posts.len() > 0);
 
     return posts
@@ -113,8 +144,8 @@ mod tests {
 { "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md", "hidden": true }
 ]"#;
         let expected = vec![
-            Registry { title: "A few things about unit testing", markdown: "presso-pragmatic-unit-testing.md", hidden: false },
-            Registry { title: "LINQ, infinity, laziness and oh my!", markdown: "linq-tips.md", hidden: true },
+            Registry { title: String::from("A few things about unit testing"), markdown: String::from("presso-pragmatic-unit-testing.md"), hidden: false },
+            Registry { title: String::from("LINQ, infinity, laziness and oh my!"), markdown: String::from("linq-tips.md"), hidden: true },
         ];
         let posts: Vec<Registry> = serde_json::from_str(&raw).unwrap();
 

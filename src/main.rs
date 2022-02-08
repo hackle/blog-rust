@@ -1,17 +1,15 @@
 mod blog;
 
 use rocket::serde::{Serialize};
-use std::path::PathBuf;
-use rocket::{routes, get, Config, Rocket, Build};
-use regex::Regex;
+use rocket::{routes, get};
 use std::string::String;
 use std::env;
-use comrak::{markdown_to_html, ComrakOptions};
 use rocket_dyn_templates::Template;
 use std::collections::BTreeMap;
+use std::future::Future;
 use rocket::fs::{FileServer};
 use lambda_web::{is_running_on_lambda, launch_rocket_on_lambda, LambdaError};
-use rocket_include_static_resources::{EtagIfNoneMatch, StaticContextManager, StaticResponse};
+use crate::blog::{GithubSource, LocalSource, to_posts};
 
 #[macro_use]
 extern crate rocket_include_static_resources;
@@ -27,26 +25,42 @@ enum HandlebarsValue {
 fn health() -> String { return String::from("OK") }
 
 #[get("/")]
-fn index() -> Template {
-    return blog_post("")
+async fn index() -> Template {
+    return blog_post("").await
 }
 
 #[get("/<slug>")]
-fn blog_post(slug: &str) -> Template {
-    let mut md_dir = env::current_dir().unwrap();
-    md_dir.push("raw");
+async fn blog_post(slug: &str) -> Template {
+    let remote_url = std::env::var("REMOTE_MARKDOWN_PATH").ok();
 
-    let manifest = blog::read_manifest(&md_dir);
-    let blog = blog::make_blog(slug, &manifest, |p: &PathBuf| std::fs::read_to_string(p));
+    let (current_post, all_posts, markdown) = if let Some(remote_url) = remote_url {
+        let source = GithubSource { base_url: remote_url };
+        let manifest = source.get_manifest().await.unwrap();
+        let all_posts = to_posts(&manifest);
+        let current_post = blog::find_post_for_slug(&all_posts, slug);
+        let markdown = source.read_content(&current_post.path).await.unwrap();
 
-    let mut context: BTreeMap<&str, HandlebarsValue> = BTreeMap::new();
-    
-    context.insert("meta", HandlebarsValue::String(blog.content));
-    context.insert("title", HandlebarsValue::String(blog.current_post.title));
-    context.insert("slug", HandlebarsValue::String(blog.current_post.slug));
-    context.insert("see_also", HandlebarsValue::Array(blog.see_also));
+        (current_post, all_posts, markdown)
+    } else {
+        let source = LocalSource { directory: std::env::current_dir().unwrap().join("raw") };
+        let manifest = source.get_manifest().unwrap();
+        let all_posts = to_posts(&manifest);
+        let current_post = blog::find_post_for_slug(&all_posts, slug);
+        let markdown = source.read_content(&current_post.path).unwrap();
 
-    return Template::render("main", &context);
+        (current_post, all_posts, markdown)
+    };
+
+    let blog = blog::make_blog(&current_post, &all_posts, &markdown);
+
+    let context: BTreeMap<&str, HandlebarsValue> = BTreeMap::from([
+        ("meta", HandlebarsValue::String(blog.content)),
+        ("title", HandlebarsValue::String(blog.current_post.title)),
+        ("slug", HandlebarsValue::String(blog.current_post.slug)),
+        ("see_also", HandlebarsValue::Array(blog.see_also)),
+    ]);
+
+    Template::render("main", &context)
 }
 
 static_response_handler! {
@@ -60,7 +74,7 @@ async fn main() -> Result<(), LambdaError> {
             "favicon" => "static/favicon.ico",
         ))
         .mount("/static", FileServer::from("static"))
-        .mount("/", routes![favicon, index, blog_post])
+        .mount("/", routes![favicon, health, index, blog_post])
         .attach(Template::fairing());
 
     if is_running_on_lambda() {
