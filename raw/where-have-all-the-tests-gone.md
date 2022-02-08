@@ -132,4 +132,4 @@ But we need not restrict ourselves here. Putting tests (either inlined or as sep
 
 One would argue the size of the package may increase with all tests being included. Sure thing if a few extra MBs really make a difference, as it may be for drivers, embedded or some systems software. But is it really the case for most web, desktop or even mobile applications?
 
-We get all these benefits by bringing existing code and test closer, without introducing new libraries or dependencies. Why not?
+We get all these benefits by bringing existing code and test closer, without introducing new libraries or dependencies. Why not?!
