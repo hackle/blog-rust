@@ -12,5 +12,7 @@ functions:
   rust:
     runtime: provided.al2
     handler: hello.handler
+    environment:
+      REMOTE_MARKDOWN_PATH: https://raw.githubusercontent.com/hackle/blog-rust/master/raw
     package:
       artifact: deploy.zip
