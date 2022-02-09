@@ -31,38 +31,12 @@ async fn index() -> Template {
     return blog_post("").await
 }
 
-async fn load_remote(remote_url: &String, slug: &str) -> Result<(Post, Vec<Post>, String), String> {
-    let source = GithubSource { base_url: remote_url.to_owned() };
-
-    return match source.get_manifest().await {
-        Err(_) => Err(String::from("Loading manifest failed")),
-        Ok(manifest) => {
-            let all_posts = to_posts(&manifest);
-            let current_post = blog::find_post_for_slug(&all_posts, slug);
-
-            return match source.read_content(&current_post.path).await {
-                Err(_) => Err(String::from("Reading current post failed")),
-                Ok(content) => Ok((current_post, all_posts, content))
-            };
-        }
-    };
-}
-
-fn load_local(slug: &str) -> Result<(Post, Vec<Post>, String), String> {
-        let source = LocalSource { directory: std::env::current_dir().unwrap().join("raw") };
-        return source.get_manifest().and_then(|manifest| {
-            let all_posts = to_posts(&manifest);
-            let current_post = blog::find_post_for_slug(&all_posts, slug);
-            return source.read_content(&current_post.path).map(|content| (current_post, all_posts, content));
-        });
-}
-
 #[get("/<slug>")]
 async fn blog_post(slug: &str) -> Template {
     let source = match std::env::var("REMOTE_MARKDOWN_PATH") {
         Err(str) => Err(String::from("REMOTE_MARKDOWN_PATH not set")),
-        Ok(remote_url) => load_remote(&remote_url, slug).await
-    }.or_else(|_| load_local(slug));
+        Ok(remote_url) => blog::load_remote(&remote_url, slug).await
+    }.or_else(|_| blog::load_local(slug));
 
     // if remote fails, use local anyway
     let context: BTreeMap<&str, HandlebarsValue> =
