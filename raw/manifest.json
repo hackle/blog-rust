@@ -1,4 +1,6 @@
 [
+    { "title": "How is this blog put together", "markdown": "blog-architecture.md", "hidden": true },
+    { "title": "About", "markdown": "about.md", "hidden": true },
     { "title": "A few things about unit testing", "markdown": "presso-pragmatic-unit-testing.md" },
     { "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md" },
     { "title": "Lens (really record viewer / updater) in TypeScript", "markdown": "lens-typescript.md" },
@@ -37,7 +39,5 @@
     { "title": "The TypeScript Handbook, Optional Parameters and Postel's Law", "markdown": "the-typescript-handbook-and-postels-law.md" },
     { "title": "Linq is Lazier, not by too much, just within Range", "markdown": "linq-gets-lazier.md" },
     { "title": "Dependency hell? Not if we use functions! For library authors", "markdown": "use-functions-keep-it-open.md" },
-    { "title": "Your tests may belong elsewhere", "markdown": "where-have-all-the-tests-gone.md" },
-    { "title": "How is this blog put together", "markdown": "blog-architecture.md", "hidden": true },
-    { "title": "About", "markdown": "about.md", "hidden": true }
+    { "title": "Your tests may belong elsewhere", "markdown": "where-have-all-the-tests-gone.md" }
 ]
