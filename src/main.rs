@@ -1,3 +1,5 @@
+#![feature(async_closure)]
+
 mod blog;
 
 use rocket::serde::{Serialize};
@@ -9,7 +11,7 @@ use std::collections::BTreeMap;
 use std::future::Future;
 use rocket::fs::{FileServer};
 use lambda_web::{is_running_on_lambda, launch_rocket_on_lambda, LambdaError};
-use crate::blog::{GithubSource, LocalSource, to_posts};
+use crate::blog::{GithubSource, LocalSource, Post, to_posts};
 
 #[macro_use]
 extern crate rocket_include_static_resources;
@@ -29,36 +31,55 @@ async fn index() -> Template {
     return blog_post("").await
 }
 
+async fn load_remote(remote_url: &String, slug: &str) -> Result<(Post, Vec<Post>, String), String> {
+    let source = GithubSource { base_url: remote_url.to_owned() };
+
+    return match source.get_manifest().await {
+        Err(_) => Err(String::from("Loading manifest failed")),
+        Ok(manifest) => {
+            let all_posts = to_posts(&manifest);
+            let current_post = blog::find_post_for_slug(&all_posts, slug);
+
+            return match source.read_content(&current_post.path).await {
+                Err(_) => Err(String::from("Reading current post failed")),
+                Ok(content) => Ok((current_post, all_posts, content))
+            };
+        }
+    };
+}
+
+fn load_local(slug: &str) -> Result<(Post, Vec<Post>, String), String> {
+        let source = LocalSource { directory: std::env::current_dir().unwrap().join("raw") };
+        return source.get_manifest().and_then(|manifest| {
+            let all_posts = to_posts(&manifest);
+            let current_post = blog::find_post_for_slug(&all_posts, slug);
+            return source.read_content(&current_post.path).map(|content| (current_post, all_posts, content));
+        });
+}
+
 #[get("/<slug>")]
 async fn blog_post(slug: &str) -> Template {
-    let remote_url = std::env::var("REMOTE_MARKDOWN_PATH").ok();
+    let source = match std::env::var("REMOTE_MARKDOWN_PATH") {
+        Err(str) => Err(String::from("REMOTE_MARKDOWN_PATH not set")),
+        Ok(remote_url) => load_remote(&remote_url, slug).await
+    }.or_else(|_| load_local(slug));
 
-    let (current_post, all_posts, markdown) = if let Some(remote_url) = remote_url {
-        let source = GithubSource { base_url: remote_url };
-        let manifest = source.get_manifest().await.unwrap();
-        let all_posts = to_posts(&manifest);
-        let current_post = blog::find_post_for_slug(&all_posts, slug);
-        let markdown = source.read_content(&current_post.path).await.unwrap();
+    // if remote fails, use local anyway
+    let context: BTreeMap<&str, HandlebarsValue> =
+        if let Ok((current_post, all_posts, markdown)) = source {
+            let blog = blog::make_blog(&current_post, &all_posts, &markdown);
 
-        (current_post, all_posts, markdown)
-    } else {
-        let source = LocalSource { directory: std::env::current_dir().unwrap().join("raw") };
-        let manifest = source.get_manifest().unwrap();
-        let all_posts = to_posts(&manifest);
-        let current_post = blog::find_post_for_slug(&all_posts, slug);
-        let markdown = source.read_content(&current_post.path).unwrap();
-
-        (current_post, all_posts, markdown)
-    };
-
-    let blog = blog::make_blog(&current_post, &all_posts, &markdown);
-
-    let context: BTreeMap<&str, HandlebarsValue> = BTreeMap::from([
-        ("meta", HandlebarsValue::String(blog.content)),
-        ("title", HandlebarsValue::String(blog.current_post.title)),
-        ("slug", HandlebarsValue::String(blog.current_post.slug)),
-        ("see_also", HandlebarsValue::Array(blog.see_also)),
-    ]);
+             BTreeMap::from([
+                ("meta", HandlebarsValue::String(blog.content)),
+                ("title", HandlebarsValue::String(blog.current_post.title)),
+                ("slug", HandlebarsValue::String(blog.current_post.slug)),
+                ("see_also", HandlebarsValue::Array(blog.see_also)),
+            ])
+        } else {
+            BTreeMap::from([
+                ("meta", HandlebarsValue::String(String::from("Oh no! Something is not right")))
+            ])
+        };
 
     Template::render("main", &context)
 }
