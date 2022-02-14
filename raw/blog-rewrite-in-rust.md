@@ -158,6 +158,8 @@ fn double_or_nothing(double: bool) -> Box<dyn Fn(i32) -> i32> {
 
 ## async and sync don't easily splice
 
+This section is mostly a rant.
+
 If you have not been put off using functions yet, surely `async / await` and `Future` will. To start off, `Rocket`, the web framework I use for this blog, does not allow blocking http request, at least with the `reqwest` crate (library) I am using. This is sure great for best practices but it took me a while to get [the tell-off](https://rust-lang.github.io/async-book/01_getting_started/03_state_of_async_rust.html#compatibility-considerations) that it's not the easiest to combine async and sync code. Now this does not really surprise me that much - C# enforces that pretty well, if not at the language level, the community does a great job at promoting the idea "async all the way". So I have reasons to believe this is a good thing.
 
 I had the toughest time trying to return something like `impl Fn() -> Future<Output=String>`. First of all this is not valid syntax, it needs to be `impl Fn() -> impl Future<Output=String>` but nested `impl`s are not allowed so a type alias needs to be created for the `Future` type.
@@ -165,6 +167,8 @@ I had the toughest time trying to return something like `impl Fn() -> Future<Out
 Then in no uncertain terms it's made clear that a closure that returns a `Future` only allows `move |x| ...`, which also makes sense, as threading and asynchrony is involved here. But boy did that take a lot of struggle.
 
 The saving grace is `Rocket` supports `async` really well. One example being handlers functions can be either sync or async, and can be combined heterogenously `.mount("/", routes![health, index, blog_post])`.
+
+For what seems to be an arbitrary decision, `async` cannot be used in an trait. This again caught me off guard as I was trying to create a common "interface" for loading markdown files from one of two sources: the local file system (sync) and over HTTP (async). This is not a big problem and the alternative is a slight bit of code duplication but imagine this can be a source of annoyance if one has to deal with `async` a lot.
 
 # struct and implementation
 
