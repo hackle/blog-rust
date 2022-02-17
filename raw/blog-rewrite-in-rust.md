@@ -2,21 +2,21 @@ An anecdote when talking about programming langauges. I once sumbmitted to talk 
 
 I've always wanted to give Rust a go, and what better time than while I also have Python and Kotlin on the plate for my day job (Nervous laughter)?
 
-This blog was previously written in Haskell without using a web framework. Make no mistake, that worked a charm, and this rewrite it doesn't take away my affection for Haskell. And I will most definitely be doing another rewrite in Haskell, this time with a web framework.
+This blog was previously written in Haskell without using a web framework. Make no mistake, that worked a charm, and this rewrite doesn't take away my affection for Haskell. And I will most definitely be doing another rewrite in Haskell - with a web framework.
 
-Big caveats, I have never done systems programming in anger, and arguably rewriting a blog, as web service in nature, is not the exemplary use of Rust. But do note I would never consider a rewrite in C or C++, considering the comparisons made against these two fairly old systems languages. Also, it's a super simple project concerned with serving markdowns over HTML.
+Big caveats, I have never done systems programming in anger; and arguably rewriting a blog, as web service in nature, is not the exemplary use of Rust. But do note I would never consider a rewrite in C or C++, considering the comparisons made against these two fairly classical systems languages. Also, it's a super simple project concerned with serving markdowns over HTML.
 
-It One thing that's quite clear is Rust is not like any other language I've used. There are moments of joy and others of frustration, especially with async and Future.
+One thing is quite clear - Rust is not like any other language I've used. There are moments of joy and others of frustration, especially with async and Future.
 
-I went in with "systems" always in mind, thinking that would be enough to prepare me for the oddness - after all, what could possibly be that different? Turns out I couldn't have been more wrong.
+I went in with "systems" always in mind, thinking that would be enough to prepare me for any oddness - after all, what could possibly be that different? Turns out I couldn't have been more wrong.
 
-A welcoming sight for a Haskell aficionado is immutability as default, and the presence of proper union types  in the form of enum. Look here, Kotlin, Go! It's not that hard for a systems language, what's your excuses? 
+A welcoming sight for a Haskell aficionados is immutability as default, and the presence of proper union types  in the form of enum. Look here, Kotlin, Go! It's not that hard for a systems language, what's your excuses? 
 
 # lifetime, wow!
 
-As an encouraging sign, iterators are centre-stage these days in most languages, leading to increasing popularity of declarative data-driven programming versus imperative for loops.
+Quite encouragingly, iterators are centre-stage these days in most languages, leading to increasing popularity of declarative data-driven programming versus imperative for loops.
 
-Consider [this](https://play.kotlinlang.org/#eyJ2ZXJzaW9uIjoiMS41LjMxIiwicGxhdGZvcm0iOiJqYXZhIiwiYXJncyI6IiIsIm5vbmVNYXJrZXJzIjp0cnVlLCJ0aGVtZSI6ImlkZWEiLCJjb2RlIjoiLyoqXG4gKiBZb3UgY2FuIGVkaXQsIHJ1biwgYW5kIHNoYXJlIHRoaXMgY29kZS4gXG4gKiBwbGF5LmtvdGxpbmxhbmcub3JnIFxuICovXG5cbmZ1biBtYWluKCkge1xuICAgIHZhbCBudW1iZXJzID0gbGlzdE9mKFwib25lXCIsIFwidHdvXCIsIFwidGhyZWVcIiwgXCJmb3VyXCIpXG4gICAgdmFsIG51bWJlcnNJdGVyYXRvciA9IG51bWJlcnMuaXRlcmF0b3IoKVxuICAgIFxuICAgIC8vIHRoaXMgcHJpbnRzIHRoZSBudW1iZXJzXG4gICAgbnVtYmVyc0l0ZXJhdG9yLmZvckVhY2goeyBwcmludGxuKGl0KSB9KVxuICAgIFxuICAgIC8vIHRoaXMgcHJpbnRzIG5vdGhpbmdcbiAgICBudW1iZXJzSXRlcmF0b3IuZm9yRWFjaCh7IHByaW50bG4oaXQpIH0pXG59In0=) example in Kotlin:
+Consider [this](https://play.kotlinlang.org/#eyJ2ZXJzaW9uIjoiMS41LjMxIiwicGxhdGZvcm0iOiJqYXZhIiwiYXJncyI6IiIsIm5vbmVNYXJrZXJzIjp0cnVlLCJ0aGVtZSI6ImlkZWEiLCJjb2RlIjoiLyoqXG4gKiBZb3UgY2FuIGVkaXQsIHJ1biwgYW5kIHNoYXJlIHRoaXMgY29kZS4gXG4gKiBwbGF5LmtvdGxpbmxhbmcub3JnIFxuICovXG5cbmZ1biBtYWluKCkge1xuICAgIHZhbCBudW1iZXJzID0gbGlzdE9mKFwib25lXCIsIFwidHdvXCIsIFwidGhyZWVcIiwgXCJmb3VyXCIpXG4gICAgdmFsIG51bWJlcnNJdGVyYXRvciA9IG51bWJlcnMuaXRlcmF0b3IoKVxuICAgIFxuICAgIC8vIHRoaXMgcHJpbnRzIHRoZSBudW1iZXJzXG4gICAgbnVtYmVyc0l0ZXJhdG9yLmZvckVhY2goeyBwcmludGxuKGl0KSB9KVxuICAgIFxuICAgIC8vIHRoaXMgcHJpbnRzIG5vdGhpbmdcbiAgICBudW1iZXJzSXRlcmF0b3IuZm9yRWFjaCh7IHByaW50bG4oaXQpIH0pXG59In0=) example in Kotlin, there is but a small nit-pick.
 
 ```kotlin
 fun main() {
@@ -31,9 +31,11 @@ fun main() {
 }
 ```
 
-One would say: yeah sure, the iterator has reached its end! Correctly so, but can the language tell us that? For more complex code, I would like to be warned or stopped from doing this. This innocuous question has no answer at all in most languages, except ones like Rust that implement this concept of how a value is "used up". In this case, being moved. 
+One would say: yeah sure, the iterator has reached its end! Correctly so, but can the language tell us that? For more complex code, I would like to be warned or stopped from the meaningless iteration. This innocuous question has no answer at all in most languages, except ones like Rust that implement this concept of how a value is "used up". In this case, being moved. 
 
-(In C#, peopls are not advised to use iterators directly, instead IEnumerables which hides the complexity and can be enumerated over and over (despite the performance loss and being purpose defeating). Stop signs as workarounds not as solutions.)
+(In C#, peopls are not advised to use iterators directly, instead `IEnumerable` hides the complexity and can be enumerated over and over (despite the performance loss and being purpose defeating). Stop signs (albeit smart ones) as workarounds, not as solutions.)
+
+Let's look at this in Rust,
 
 ```rust
 fn main() {
@@ -44,7 +46,7 @@ fn main() {
 }
 ```
 
-The above code results in this error,
+The above code gives an error,
 
 ```rust
 error[E0382]: use of moved value: `itr`
@@ -58,13 +60,15 @@ error[E0382]: use of moved value: `itr`
   |     ^^^ value used here after move
 ```
 
+Ah, the iterator has been moved when `for_each` is called, so it cannot be iterated over again. HOW ABOUT THAT!
+
 In my opinion this really pushes the envelop of programming languages and its the subject of envy for `Haskell` which wasn't too shy to follow up with its own implementation of affine / linear types (as they are called).
 
 # Function but not too much
 
 As a proud functional programmer I didn't hesitate before reaching out to functions, but soon I found Rust does not exactly make this easy.
 
-First of all, there is a clear distinction between functions and closures, at least to the programmer (I am fairly sure compilers have a harder time with closures than plain function pointers). Because closures capture environment values, and the values have their own lifetime, it's imperative that closures respect that - aha, so we get to choose between FnOnce vs Fn. Completely obvious! I thought. Then it bit me immediately.
+First of all, there is a clear distinction between functions and closures, at least to the programmer (I am fairly sure compilers have a harder time with closures than plain function pointers). Because closures capture environment values, and the values have their own lifetime, it's imperative that closures respect that - aha, so we get to choose between FnOnce vs Fn. Completely obvious! I thought. Then it bit me hard immediately.
 
 ## closure and lifetime
 
@@ -102,11 +106,11 @@ help: to force the closure to take ownership of `prefix` (and any other referenc
 7 |   move |name: &str| format!("{:?} {:?}", prefix, name)
 ```
 
-But the suggestion is also very clear: `prefix` cannot be used in the returned closure as it does not live long enough to match the lifetime of the closure (which is to be used by the caller who may decide when to use the closure). The fix is fairly simple in this case, we need to follow the error message and make the closure `move |name: &str| format!("{:?} {:?}", prefix, name)`.
+But the suggestion is also very clear: `prefix` cannot be used in the returned closure as it does not live long enough to match the lifetime of the closure (which is to be used by the caller who may decide when to use the closure). The fix is fairly simple in this case, we need to follow the error message and make the closure `move |name: &str| format!("{:?} {:?}", prefix, name)`. Rust is bossy, and I must listen.
 
 ## closure == closure? No such thing
 
-How about returning functions of the same type? Consider this curried `double_or_nothing` function,
+How about returning functions (closures, you know) of the same type? Consider this curried `double_or_nothing` function,
 
 ```rust
 fn double_or_nothing(double: bool) -> impl Fn(i32) -> i32 {
@@ -118,7 +122,7 @@ fn double_or_nothing(double: bool) -> impl Fn(i32) -> i32 {
 }
 ```
 
-Rust does not like it, albeit the obviously harmless and correct definition. It complains,
+Rust does not like it, albeit the obviously harmless and "correct" definition. It complains,
 
 ```rust
 error[E0308]: `if` and `else` have incompatible types
@@ -140,7 +144,7 @@ error[E0308]: `if` and `else` have incompatible types
    = help: consider boxing your closure and/or using it as a trait object
 ```
 
-The error message should be self-explanatory. The fix is rather non-trivial (for me) to explain, but in a nutshell we must box the closure. Althought it does not change the calling code - read up on the `Box<T>` type and you'll get the glorious details.
+The error message should be self-explanatory. The fix is rather non-trivial (for me) to explain, but in a nutshell we must box the closure so they are of a pointer type. Althought it does not change the calling code - read up on the `Box<T>` type and you'll get the glorious details.
 
 ```rust
 fn main() {
@@ -160,15 +164,17 @@ fn double_or_nothing(double: bool) -> Box<dyn Fn(i32) -> i32> {
 
 This section is mostly a rant.
 
-If you have not been put off using functions yet, surely `async / await` and `Future` will. To start off, `Rocket`, the web framework I use for this blog, does not allow blocking http request, at least with the `reqwest` crate (library) I am using. This is sure great for best practices but it took me a while to get [the tell-off](https://rust-lang.github.io/async-book/01_getting_started/03_state_of_async_rust.html#compatibility-considerations) that it's not the easiest to combine async and sync code. Now this does not really surprise me that much - C# enforces that pretty well, if not at the language level, the community does a great job at promoting the idea "async all the way". So I have reasons to believe this is a good thing.
+If you have not been put off using functions yet, surely `async / await` and `Future` will. To start off, `Rocket`, the web framework I use for this blog, does not allow blocking http request, at least with the `reqwest` crate (library) I am using. This is great for best practices but it took me a while to get [the tell-off](https://rust-lang.github.io/async-book/01_getting_started/03_state_of_async_rust.html#compatibility-considerations) that it's not the easiest to combine async and sync code. 
+
+Now this does not really surprise me that much - C# enforces that pretty well, if not at the language level, the community does a great job at promoting the idea "async all the way". So I have reasons to believe this is a good thing. (I am also not a fan of NOT colouring my functions.)
 
 I had the toughest time trying to return something like `impl Fn() -> Future<Output=String>`. First of all this is not valid syntax, it needs to be `impl Fn() -> impl Future<Output=String>` but nested `impl`s are not allowed so a type alias needs to be created for the `Future` type.
 
-Then in no uncertain terms it's made clear that a closure that returns a `Future` only allows `move |x| ...`, which also makes sense, as threading and asynchrony is involved here. But boy did that take a lot of struggle.
+Then in no uncertain terms it's made clear that a closure that returns a `Future` only allows `async move |x| ...`, which also makes sense, as threading and asynchrony is involved here. But boy was that a struggle.
 
 The saving grace is `Rocket` supports `async` really well. One example being handlers functions can be either sync or async, and can be combined heterogenously `.mount("/", routes![health, index, blog_post])`.
 
-For what seems to be an arbitrary decision, `async` cannot be used in an trait. This again caught me off guard as I was trying to create a common "interface" for loading markdown files from one of two sources: the local file system (sync) and over HTTP (async). This is not a big problem and the alternative is a slight bit of code duplication but imagine this can be a source of annoyance if one has to deal with `async` a lot.
+For what seems to be an arbitrary decision, `async` cannot be used in traits. This again caught me off guard as I was trying to create a common "interface" for loading markdown files from one of two sources: the local file system (sync) and over HTTP (async). This is not a big problem and the alternative is a slight bit of code duplication but imagine this can be a source of annoyance if one has to deal with `async` a lot.
 
 # struct and implementation
 
@@ -207,7 +213,7 @@ However things can get a bit dicey if we look at another example:
     // Err("Oops")
 ```
 
-Wait what? For the exact same code `results.iter().cloned().collect()`, the returned values are of different types. Does `collect` read our minds? Of course not and the "magic" is in how Rust was able to first infer the return type of each expression, and then use the inferred type to invoke the correct behaviour deterministically. If this is cryptic, consider the definition of `collect`:
+Wait what? For the exact same code `results.iter().cloned().collect()`, the returned values are of different types. Does `collect` read our minds? Of course not, and the "magic" is in how Rust was able to first infer the return type of each expression, and then use the inferred type to invoke the correct implementation of `collect` deterministically. If this is cryptic, consider the definition of `collect`:
 
 ```rust
 fn collect<B>(self) -> B
@@ -215,7 +221,7 @@ where
     B: FromIterator<Self::Item>
 ```
 
-Here is a telling difference: while in C# / Kotlin we would define an extension method, the return type must be concrete. Whereas in Rust it's kept completely open - any type that implements `FromIterator<_>` (`Item` is mostly irrelavent here) can share the same `collect` method. Such strong type inference brings near dynamic feeling and is a reminder of Haskell's type system.
+So the return type is of some trait `FromIterator<T>`. Here is a telling difference: in C# / Kotlin we would define an extension method, the return type must be concrete. Whereas in Rust it's kept completely open - any type that implements `FromIterator<_>` (`Item` is mostly irrelavent here) can share the same `collect` method. Such strong type inference brings near dynamic feeling and is a reminder of Haskell's type system.
 
 Maybe slightly more intuitively the above examples can also be written as below using the so-called "turbofish" style.
 
