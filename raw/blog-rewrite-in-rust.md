@@ -70,6 +70,28 @@ As a proud functional programmer I didn't hesitate before reaching out to functi
 
 First of all, there is a clear distinction between functions and closures, at least to the programmer (I am fairly sure compilers have a harder time with closures than plain function pointers). Because closures capture environment values, and the values have their own lifetime, it's imperative that closures respect that - aha, so we get to choose between FnOnce vs Fn. Completely obvious! I thought. Then it bit me hard immediately.
 
+## syntax what?
+
+A function is defined as,
+
+```rust
+fn foo(arg1: String) -> i32 {...}
+```
+
+And its type can be written as `Fn(String) -> i32`. So far so good. How should a lambda (closure) look like? Well, it'll be `|num| num * 2`. 
+
+It doesn't stop here, pattern matching / case split takes another form,
+
+```rust
+match (a, b) {
+  (None, None)  => "Both missing",
+  (_, _)        => "Something is there",
+}
+```
+
+Come on, make up your mind! (Ok I am sure there are good reasons for these decisions but seriously was it really necessary to be this confusing?)
+
+
 ## closure and lifetime
 
 Consider this innocuous example for any functional programmer,
