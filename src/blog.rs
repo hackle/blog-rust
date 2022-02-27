@@ -1,7 +1,7 @@
 use std::env;
 use std::future::Future;
 use std::path::PathBuf;
-use comrak::{ComrakOptions, markdown_to_html};
+use comrak::{ComrakExtensionOptions, ComrakOptions, markdown_to_html};
 use regex::Regex;
 use serde::{Deserialize};
 use crate::blog;
@@ -106,8 +106,13 @@ pub fn to_posts(registries: &Vec<Registry>) -> Vec<Post> {
 }
 
 pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) -> Blog {
-    let mut options = ComrakOptions::default();
-    options.ext_table = true;
+    let options = ComrakOptions {
+        extension: ComrakExtensionOptions {
+            table: true,
+            ..ComrakExtensionOptions::default()
+        },
+        ..ComrakOptions::default()
+    };
     let content =  markdown_to_html(&markdown.to_string(), &options);
 
     let see_also = all_posts
