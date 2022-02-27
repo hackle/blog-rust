@@ -1,17 +1,12 @@
-#![feature(async_closure)]
-
 mod blog;
 
 use rocket::serde::{Serialize};
 use rocket::{routes, get};
 use std::string::String;
-use std::env;
 use rocket_dyn_templates::Template;
 use std::collections::BTreeMap;
-use std::future::Future;
 use rocket::fs::{FileServer};
 use lambda_web::{is_running_on_lambda, launch_rocket_on_lambda, LambdaError};
-use crate::blog::{GithubSource, LocalSource, Post, to_posts};
 
 #[macro_use]
 extern crate rocket_include_static_resources;
@@ -34,7 +29,7 @@ async fn index() -> Template {
 #[get("/<slug>")]
 async fn blog_post(slug: &str) -> Template {
     let source = match std::env::var("REMOTE_MARKDOWN_PATH") {
-        Err(str) => Err(String::from("REMOTE_MARKDOWN_PATH not set")),
+        Err(_) => Err(String::from("REMOTE_MARKDOWN_PATH not set")),
         Ok(remote_url) => blog::load_remote(&remote_url, slug).await
     }.or_else(|_| blog::load_local(slug));
 

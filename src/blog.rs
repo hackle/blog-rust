@@ -1,10 +1,7 @@
-use std::env;
-use std::future::Future;
 use std::path::PathBuf;
 use comrak::{ComrakExtensionOptions, ComrakOptions, markdown_to_html};
 use regex::Regex;
 use serde::{Deserialize};
-use crate::blog;
 
 #[derive(Clone, Debug)]
 pub struct Blog {
