@@ -25,7 +25,7 @@ So here we are again, looking at the perennial discussion of file structure in a
 * IMemberRepository
 * MemberRepository
 
-Never mind the naming convention, it's not what would have but hopefully they are indicative enough. and never mind the ordering for now although it does reveals biases.
+Never mind the naming convention, it's not what I would have, but hopefully they are indicative enough. and never mind the ordering for now although it does reveals biases.
 
 First we observe each file has two aspects: the technical aspect - controller, model, service, repository, interface, implementation; and the domain aspect - payment, member(ship). Let's try to put them in a table.
 
@@ -120,4 +120,4 @@ That's normalisation broken into pieces.
 
 # Question
 
-At this point of time, let me raise this question: is application architecture the same problem as the expression problem?
+This is the time I raise the question: in the essence, is application architecture the same problem as the expression problem?
