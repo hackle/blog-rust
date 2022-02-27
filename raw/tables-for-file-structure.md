@@ -6,7 +6,7 @@ Yes, they are indeed many, maybe like flavours of cucumbers, and not nearly as t
 
 # the expression problem
 
-One of the best explanation for me about the "expression problem" is [this](https://stackoverflow.com/a/22180495/4687081) by [https://stackoverflow.com/users/58805/calmarius](Calmarius) using tables, you know, plain columns and rows. The gist is, it's easy to add data (rows), but not so changing schema (columns). Designing types is like designing schemas, they are essential activities, as we have learned in the world of relational databases.
+One of the best explanation for me about the "expression problem" is [this](https://stackoverflow.com/a/22180495/4687081) by [Calmarius](https://stackoverflow.com/users/58805/calmarius) using tables, you know, plain columns and rows. The gist is, it's easy to add data (rows), but not so changing schema (columns). Designing types is like designing schemas, they are essential activities, as we have learned in the world of relational databases.
 
 If types can be treated as data, then certainly code should be too? After all it's been a trendy thing to say, "code is data"!
 

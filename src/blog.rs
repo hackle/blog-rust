@@ -106,8 +106,9 @@ pub fn to_posts(registries: &Vec<Registry>) -> Vec<Post> {
 }
 
 pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) -> Blog {
-    let content =  markdown_to_html(&markdown.to_string(), &ComrakOptions::default());
-        // .unwrap_or_else(|err| format!("Path not valid {:?} {:?}", &current_post.path, err.to_string()));
+    let mut options = ComrakOptions::default();
+    options.ext_table = true;
+    let content =  markdown_to_html(&markdown.to_string(), &options);
 
     let see_also = all_posts
         .iter()
