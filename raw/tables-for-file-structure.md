@@ -2,15 +2,15 @@
 
 Software engineering is so diversified, excitedly they say, look at the styles of architecture for us to choose from!
 
-Yes, they are indeed many, maybe like flavours of cucumbers, and not nearly as tasteful. Also, maybe they are not that different - they are just different schema designs, you know, like in relational databases, or really, like spreadsheets.
+Yes, they are indeed many, like flavours of cucumbers, although not nearly as tasteful. Also, maybe they are not that different - they are more like different schema designs, you know, as in relational databases, or really, like spreadsheets.
 
 # the expression problem
 
-One of the best explanation for me about the "expression problem" is [this](https://stackoverflow.com/a/22180495/4687081) by [Calmarius](https://stackoverflow.com/users/58805/calmarius) using tables, you know, plain columns and rows. The gist is, it's easy to add data (rows), but not so changing schema (columns). Designing types is like designing schemas, they are essential activities, as we have learned in the world of relational databases.
+One of the best explanation for me about the "expression problem" is [this](https://stackoverflow.com/a/22180495/4687081) by [Calmarius](https://stackoverflow.com/users/58805/calmarius) using tables, you know, plain columns and rows. The gist is, it's easy to add data (rows), but not so changing schema (columns). Designing types is like designing schemas, they are essential activities in (typed) programming, as we have learned in the world of relational databases.
 
 If types can be treated as data, then certainly code should be too? After all it's been a trendy thing to say, "code is data"!
 
-So here we are again, looking at the perennial discussion of file structure in a code base. Given the following files, how should we organise them?
+So here we are again, looking at the perennial discussion of file structure - or roughly application architecture in a code-base. Given the following files, how should we organise them?
 
 * PaymentController
 * PaymentModel
@@ -25,11 +25,11 @@ So here we are again, looking at the perennial discussion of file structure in a
 * IMemberRepository
 * MemberRepository
 
-Never mind the naming convention, it's not what I would have, but hopefully they are indicative enough. and never mind the ordering for now although it does reveals biases.
+Never mind the naming convention, it's not what I would really have, but hopefully they are representative enough. and never mind the ordering for now although it does reveal biases.
 
-First we observe each file has two aspects: the technical aspect - controller, model, service, repository, interface, implementation; and the domain aspect - payment, member(ship). Let's try to put them in a table.
+First we observe each file has two aspects: the technical aspect - controller, model, service, repository, interface, implementation; and the domain aspect - payment, member(ship). That's two-dimensional, perfect for a table. Let's try to put them into one.
 
-But hold on - now we have a design a schema - which should the columns be? Let's pick the "features" first.
+Of course, now we have to design a schema - which should the columns be? Let's pick the "features" first.
 
 # A. domain aspects as columns
 
@@ -45,7 +45,7 @@ Here, each row is a folder. Note there is rigidity to table schemas, as intended
 | Model                	| PaymentModel       	| MemberModel       	|
 
 
-You may be surprised, but this could be by far the most popular way to organise source code. Don't believe me? Check if your solution has any of these folders,
+You may be surprised, but this could be by far the most popular way to organise source code. Don't believe me? Check if your code-base has any of these folders,
 
 * controllers
 * services
