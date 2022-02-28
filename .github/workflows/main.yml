@@ -13,22 +13,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
-        with:
-          path: |
-            /var/lib/docker
-          key: ${{ runner.os }}-hacks-blogger-rust-docker
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: |
-          ${GITHUB_WORKSPACE}/build.sh
-      - name: artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: deploy.zip
-          path: ./
       - name: Invalidate CloudFront Distribution
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTR_ID }} --paths "/*" "/"
@@ -45,11 +29,12 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: fetch artifact
-        uses: actions/download-artifact@v2
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
         with:
-          name: deploy.zip
-          path: ./
+          path: |
+            /var/lib/docker
+          key: ${{ runner.os }}-hacks-blogger-rust-docker
       - name: deploy with serverless
         uses: serverless/github-action@master
         with:
