@@ -9,7 +9,7 @@ We know out of the main types of polymorphism, subtyping is the most flexible: w
 
 Then there is parametric polymorphism or generics with which we can typically define operations over "structures" instead of specifics of element types, such as `map: (a -> b) -> [a] -> [b]` is generic over list, and does not care what specific types `a` or `b` is, at least when `map` is defined.
 
-Worth mentioning combining subtyping and parametricity gives rise to some appalling patterns: overly generic `IRepository<T>`, `IQuery<T>` or `IHandler<T>`.
+(Worth mentioning, combining subtyping and parametricity gives rise to some appalling patterns: overly generic `IRepository<T>`, `IQuery<T>` or `IHandler<T>`, together with dependency injectors, are reasons behind some of the worst "abstractions" especially in the C# world.)
 
 Let's not linger and get to the subject: Ad-hoc polymorphism is no stranger to us - in any language with more nuanced numeric types than JavaScript, it's common to use the same operator `+` for addition. In C# for example,
 
