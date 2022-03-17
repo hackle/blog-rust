@@ -1,13 +1,17 @@
-If `"foo" + "bar" == ["foo", "bar"]`, can it also be `"foo" + "bar" == False`? Yes indeed, if you are using a language like Rust or Haskell. The same expression ``"foo" + "foo"`` can return either a boolean or a list. This is ad-hoc polymorphism at its best (or worst depending on your view) messing with us!
+If `"foo" + "bar" == ["foo", "bar"]`, can it also be `"foo" + "bar" == False`? 
+
+Yes indeed, if you are using a language like Rust or Haskell. The same expression ``"foo" + "foo"`` can return either a boolean or a list. This is ad-hoc polymorphism at its best (or worst depending on your view) messing with us!
 (The example is attached at the end).
 
 # Don't be a stranger
 
-We know out of the main types of polymorphism, subtyping is the most flexible: we can swap out implementations completely as long as the common interface is satisfied, which isn't that hard, especially with classes anything implementation-specific parameters can be shoved into a constructor (a form of currying for the cheat). So we can almost define a common interface for any operation: `do(): void`.
+We know out of the main types of polymorphism, subtyping is the most flexible: we can swap out implementations completely as long as the common interface is satisfied. So by calling `animal.Feed()` could be invoking a harmless `Cow.Feed()` that results in shortening of grass, or `Lion.Feed()` that results in loss of life of another animal. 
 
 Then there is parametric polymorphism or generics with which we can typically define operations over "structures" instead of specifics of element types, such as `map: (a -> b) -> [a] -> [b]` is generic over list, and does not care what specific types `a` or `b` is, at least when `map` is defined.
 
-Ad-hoc polymorphism is no stranger to us - in any language with more numeric types than `JavaScript`, it's common to use the same operator `+` for addition. In C# for example,
+Worth mentioning combining subtyping and parametricity gives rise to some appalling patterns: overly generic `IRepository<T>`, `IQuery<T>` or `IHandler<T>`.
+
+Let's not linger and get to the subject: Ad-hoc polymorphism is no stranger to us - in any language with more nuanced numeric types than JavaScript, it's common to use the same operator `+` for addition. In C# for example,
 
 ```CSharp
 Console.WriteLine((1 + 2).GetType());   // System.Int32
