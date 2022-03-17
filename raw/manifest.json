@@ -41,5 +41,6 @@
     { "title": "Dependency hell? Not if we use functions! For library authors", "markdown": "use-functions-keep-it-open.md" },
     { "title": "Your tests may belong elsewhere", "markdown": "where-have-all-the-tests-gone.md" },
     { "title": "A taste of Rust", "markdown": "blog-rewrite-in-rust.md" },
-    { "title": "Architecture? You mean spreadsheets?", "markdown": "tables-for-file-structure.md" }
+    { "title": "Architecture? You mean spreadsheets?", "markdown": "tables-for-file-structure.md" },
+    { "title": "Ad-hoc polymorphism: Same input, different output, still pure", "markdown": "ad-hoc-polymorphism.md" }
 ]
