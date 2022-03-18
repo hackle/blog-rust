@@ -155,7 +155,7 @@ add : String    -> String   -> Bool     -> (a: String)      -> (b: String)  -> B
 add : String    -> String   -> [String] -> (a: String)      -> (b: String)  -> [String]     // Haskell
 ```
 
-Ready for a big reveal? If we leave out the return types, each type signature is unique and adequate to identify a unique implementation. This is no more than method overloading by varying parameter types, as [it's routine in C#](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/member-overloading). 
+Ready for a big reveal? If we leave out the last type (the return type) from each variant, each signature of `add` is unique enough to identify a unique implementation. This is no more magical than method overloading by varying parameter types, as [it's routine in C#](https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/member-overloading). 
 
 Let's not stop here. This trick also applies to subtyping. See how `feed` becomes uniquely determinable if we add the type of implementation into the type signature. (Note the tautology here: a signature should be unique.)
 
