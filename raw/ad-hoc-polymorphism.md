@@ -1,6 +1,6 @@
 First we see `"foo" + "bar" == ["foo", "bar"]`, then `"foo" + "bar" == False`. What?!
 
-Yes indeed! If we are using a language like Rust or Haskell. The same expression ``"foo" + "foo"`` can return either a boolean or a list. This is ad-hoc polymorphism at its best (or worst, depending on your view) messing with us!
+Yes indeed! If we are using a language like Rust or Haskell. The same expression ``"foo" + "bar"`` can return either a boolean or a list. This is ad-hoc polymorphism at its best (or worst, depending on your view) messing with us!
 (Read on for an implementation of this strangeness).
 
 # Polymorphism Recap
