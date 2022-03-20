@@ -171,4 +171,4 @@ It's easy to get carried away here and try to use the same technique on generics
 
 As if operator overloading is not deceptively mind-bending enough, Rust and Haskell take it to the next level with fully-on function overloading. But now we should see, technically it's a matter of keeping tab of unique combinations of types to help identify unique implementations; this should be possible for any statically typed languages - if they ever care to go that far.
 
-Have you heard of that saying? Sources unknown: (of any programming topics) it's either a compiler or a database. In this case, it's a ... database. Right? Right?
+Have you heard of that saying? Sources unknown: (of any programming topics) it's either a compiler or a database. In this case, it's ... a database?
