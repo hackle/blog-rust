@@ -1,6 +1,6 @@
-Some design decisions are quite simple. This one is: keep it open, or keep it closed.
+Some design decisions are quite simple. For example: keep it open, or keep it closed.
 
-If `Animal` is the base type for `Tiger` and `Cow`, then case splitting by matching on subtypes is a bad idea if it appears repeatedly.
+A routine example: if `Animal` is the base type for `Tiger` and `Cow`, then matching on the subtypes (by type or ad-hoc flags) is a bad idea, especially if it appears repeatedly.
 
 ```Kotlin
 fun move(animal: Animal) = when (animal) {

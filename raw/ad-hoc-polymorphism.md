@@ -21,7 +21,7 @@ void Feed(Animal animal) {
 }
 ```
 
-Is the `animal` parameter a `Tiger` or a `Cow`? The point is, it could be either, and the `Feed` method shouldn't care as long as its implementation is concerned. `animal.Feed()` could be invoking a harmless `Cow.Feed()` that results in shortening of grass, or `Lion.Feed()` that results in loss of life of another animal. This big attitude of "don't know, don't care" is fully endorsed by "polymorphism", and is further supported by famous idea like the Liskov Substitution Principle (in my opinion the only principle in SOLID with any substance). Subtyping is really flexible, and is easily abused by drunk programmers. 
+Is the `animal` parameter a `Tiger` or a `Cow`? The point is, it could be either, and the `Feed` method shouldn't care as long as its implementation is concerned. `animal.Feed()` could be invoking a harmless `Cow.Feed()` that results in shortening of grass, or `Tiger.Feed()` that results in loss of life of another animal. This big attitude of "don't know, don't care" is fully endorsed by "polymorphism", and is further supported by famous idea like the Liskov Substitution Principle (in my opinion the only principle in SOLID with any substance). Subtyping is really flexible, and is easily abused by drunk programmers. 
 
 **Parametric polymorphism** or generics allows us to define operations over "structures" instead of specifics of element types. Consider `filter : (T -> bool) -> [T] -> [T]` in JavaScript,
 
@@ -30,7 +30,7 @@ const odds = [1, 2, 3].filter(n => n % 2 == 0);
 const caps = ['A', 'b', 'C'].filter(c => c >= 'A' && c <= 'Z');
 ```
 
-There needs ot be only one implementation of `filter`, but this one implementation can handle a list of number, string or really any type. There is the same big attitude: its implementation knows nothing, nor does it care about the type of the elements of the list. This intentional ignorance can't be a bigger blessing; it gives rise to amazing things like [theorems for free!](https://www.google.com/search?q=theorm+for+free&rlz=1C5CHFA_enNZ878NZ878&oq=theorm+for+free&aqs=chrome..69i57j0i13j0i22i30l4.2885j0j4&sourceid=chrome&ie=UTF-8). 
+There needs to be only one implementation of `filter`, but this one implementation can handle a list of number, string or really any type. There is the same big attitude: its implementation knows nothing, nor does it care about the type of the elements of the list. This intentional ignorance can't be a bigger blessing; it gives rise to amazing things like [theorems for free!](https://www.google.com/search?q=theorm+for+free&rlz=1C5CHFA_enNZ878NZ878&oq=theorm+for+free&aqs=chrome..69i57j0i13j0i22i30l4.2885j0j4&sourceid=chrome&ie=UTF-8). 
 
 Worth mentioning, combining subtyping and parametricity gives rise to some appalling patterns: overly generic `IRepository<T>`, `IQuery<T>` or `IHandler<T>`, together with dependency injectors, are reasons behind some of the worst "abstractions" especially in the C# world.
 
