@@ -139,3 +139,5 @@ In other words, `paymentInfo` is **open** to new types (let's not say "subtypes"
 # Summary
 
 It's a rather plain message: stick through with a design once it's made, don't self-sabotage by **opening up** what's **closed**, or **close off** what's **open**; although modern languages provide features to do so, and X-language "experts" will make such features and practices look cutting-edge and cool.
+
+A bitter lesson for functional zealots who try to simulate pattern matching with a subtyping - stop trying! it will never work as well as union types. It's fools' gold.
