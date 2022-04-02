@@ -137,7 +137,7 @@ pub fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
 
     return posts
         .iter()
-        .find(|Post { slug,.. } | slug == slug_to_find)
+        .find(|Post { slug, path,.. } | slug == slug_to_find || *path == format!("{}.md", slug_to_find))
         .unwrap_or_else(|| posts.iter().filter(|Post{hidden, ..}| !*hidden).nth(0).unwrap())
         .to_owned();
 }

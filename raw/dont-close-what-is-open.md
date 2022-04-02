@@ -136,6 +136,10 @@ In other words, `paymentInfo` is **open** to new types (let's not say "subtypes"
 * (the closed version of) `paymentInfo`, along with any operations on `Payment` now need also be pried open to allow us to insert handling for `Coupon`;
 * when all operations are updated, Haskell is happy, quiet is restored.
 
+# Catch-all unifies the problems
+
+You would have noticed both arguments above use `else` and `_` as counter examples, but in essence they are just the same "catch-all". How could that be? It appears as if it's half-open, and half-closed, a strange state in the middle; or such gray-area unifies both approaches, but not necessarily for greater benefits.
+
 # Summary
 
 It's a rather plain message: stick through with a design once it's made, don't self-sabotage by **opening up** what's **closed**, or **close off** what's **open**; although modern languages provide features to do so, and X-language "experts" will make such features and practices look cutting-edge and cool.
