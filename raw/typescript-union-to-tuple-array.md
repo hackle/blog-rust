@@ -1,10 +1,10 @@
-For a long time I have hold the belief that it's not possible to convert a union type to a tuple (or fixed array) in TypeScript, but during the Easter weekend this was brought into review! Is it possible? Certainly! is the solution pretty? Not necessarily.
+For a long time I held the belief that it's not possible to convert a union type to a tuple (or fixed array) in TypeScript, but during the Easter weekend I was glad to find otherwise. Is it possible? Certainly! is the solution pretty? Not necessarily.
 
-> Disclaimer: I did not invent or find the solution. See the reference section for credits. This post is an interpretation of a solution.
+> Disclaimer: I did not invent or find the solution. See the reference section for credits. This post is an interpretation.
 
 Here is the high-level algorithm to convert a union type to a tuple,
 
-1. match on the union one variant at a time (just like a tuple!), this is made possible by
+1. match on the union one variant at a time (just like on a tuple!), this is made possible by
 2. converting the union to an intersection type, which 
 3. when `infer`red, gives back the first variant
 
@@ -17,15 +17,17 @@ type Union2Tuple<T> =
         ? [T]
         : [...Union2Tuple<Exclude<T, U>>, U]    // recursion
     : never;
+    
+const so: Union2Tuple<'a'|'b'|'c'|'d'|'e'> = ['a', 'b', 'c', 'd', 'e'];
 ```
 
 You'll see `Exclude` is nothing new, and `PickOne` is all we need to make this recursive type work. So here we go! 
 
 ## co-variant to contra-variant, union to intersection
 
-First we have `Contra<T>` which moves `T` to a contra-variant position, in otherwords, make it a parameter to a function type.
+First we have `Contra<T>` which moves `T` to a contra-variant position, in other words, makes it a parameter to a function type.
 
-For comparison we also define `Cov<T>` which puts `T` in a co-variant position; although this isn't absolutely necessary as `() => T` is just like `T` in terms of its positioning.
+For comparison, we also define `Cov<T>` which puts `T` in a co-variant position; although this isn't absolutely necessary as `() => T` is just like `T` in terms of its positioning.
 
 ```TypeScript
 type Contra<T> =
@@ -39,9 +41,9 @@ type Cov<T> =
     : never;
 ```
 
-An important thing to note, `extends any` always succeeds, so why? Well, it's to distribute `T` if it happens to be a union type. Which basically means `Cov<'a'|'b'>` turns into `(() => 'a') | (() => 'b')`.
+You would have noted that `extends any` will always succeed, so why bother? Well, it's to [distribute](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types) `T` if it happens to be a union type. Which basically means `Cov<'a'|'b'>` turns into `(() => 'a') | (() => 'b')`.
 
-There are different consequences of changing the "position" of a type from co-variant to contra-variant, one of them is how `infer` behaves. This is how. When `infer`ing from (within) a union type,
+There are different consequences of changing the "position" of a type from co-variant to contra-variant, one of them is how `infer` behaves. This is how - when `infer`ing from (within) a union type as a whole,
 
 * if `infer` is in a co-variant position, a union is returned
 * `contra-variants`, an intersection is returned
@@ -57,7 +59,9 @@ type InferCov<T> =
 const t20: InferCov<Cov<'a' | 'b'>> = 'a';   // 'a' | 'b'
 ```
 
-Note I use `[T]` to stop union distribution, so the union is pattern matched as a whole. Still, no surprise with co-variant.
+Note I use `[T]` to stop union [distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types), so the union is pattern matched as a whole. Still, no surprise with co-variant.
+
+Now let's try contra-variants.
 
 ```TypeScript
 type InferContra<T> = 
@@ -70,11 +74,13 @@ const t21: InferContra<Contra<'a'|'b'>> = 'a';  // Type 'string' is not assignab
 const t22: InferContra<Contra<{ a: 'a' } | { b: 'b' }>> = { a: 'a', b: 'b' };
 ```
 
-Something significant happens - the union is turned into an intersection! That's why `t21` is `never` as `'a' & 'b' == "never"`, but `{ a: 'a' } & { b: 'b' } == { a: 'a', b: 'b' }`. (Notice how `&` behaves differently on union and product types? But that's another topic)
+Something significant happens - the union is turned into an intersection! That's why `t21` is `never` as `'a' & 'b' == never`, but `{ a: 'a' } & { b: 'b' } == { a: 'a', b: 'b' }`. (Notice how `&` behaves differently on union and product types? But that's another topic).
 
-# Pattern matching an intersection, more variance
+This was introduced way back with TypeScript 2.8. See the [handbook](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#:~:text=Likewise%2C%20multiple%20candidates%20for%20the%20same%20type%20variable%20in%20contra%2Dvariant%20positions%20causes%20an%20intersection%20type%20to%20be%20inferred%3A). 
 
-Preserving intersection types is a bit tricky. They collapse quite easily if there is no intersection to preserve.
+# Pattern matching an intersection, with more variance!
+
+Preserving intersection types is a bit tricky. They collapse quite easily if there is no "intersection" or overlap to be preserved. Consider the below example. 
 
 ```TypeScript
 const t23: 'a' & 'b' = ??   // Type 'any' is not assignable to type 'never'.ts(2322)
@@ -82,46 +88,50 @@ const t23: 'a' & 'b' = ??   // Type 'any' is not assignable to type 'never'.ts(2
 const t24: { a: 'a' } & { b: 'b' } = { a: 'a', b: 'b' };
 ```
 
-What if there is conflict / overlap from two object types?
+`'a' & 'b'` evaluates to `never` quite quickly for lack of "intersection"; more importantly, we cannot get `'a' & 'b'` back with `typeof t23` - it's "collapsed". Object types fare much better with `&`, as fields from both are preserved.
+
+What if there is conflict / overlap from two object types before intersection?
 
 ```TypeScript
+// a union for reference
 const t25: { a: 'a' } | { a: 'b' } = { a: 'a' } // or { a: 'b' }
 
 const t26: { a: 'a' } & { a: 'b' } = { a: 'a' } // Type 'string' is not assignable to type 'never'.ts(2322)
-
 ```
 
-See how quickly it collapses to `never`?
+The field `a` is preserved, but see how quickly its type is collapsed to `never`?
 
-There is however an escape hatch to all this, that's with function types.
+It would seem intersection types can't help us here, as it does not preserve types before its evaluation. However, there is an escape hatch in the form of, you guess it, function types.
 
 ```TypeScript
+// as return type: co-variant
 const t27: (() => 'a') & (() => 'b') = () => "a"; // Type 'string' is not assignable to type '"a" | "b"'.ts(2322)
 
+// as parameter: contra-variant
 const t28: ((arg: 'a') => void) & ((arg: 'b') => void) = (arg: 'a' | 'b') => { return; };
 ```
 
-Turns out `t27` is pretty hard to get right barring use of `any`, as it must return something that's both `a` and `b`! However, `t28` gets away by typing the arg `'a' | 'b'`, it's variance messing with us!
+(Turns out giving a value to `t27` is pretty hard barring the use of `any`, as it must return something that's both `a` and `b`! However, `t28` gets away by typing the arg `'a' | 'b'`, it's variance messing with us again. This is interesting stuff, and I'll take a note to explore it later on.)
 
-With that said, they are both good for pattern matching as the types are preserved. Let's try to infer the type of `arg`, using the same `InferContra<T>` defined above.
+Regardless of the difficulty on the value level, both forms are good for pattern matching as the types are preserved - exactly what we are after! Let's try to infer the type of `arg`, using the same `InferContra<T>` defined above.
 
 ```TypeScript
 const t29: InferContra<((arg: 'a') => void) & ((arg: 'b') => void)> = 'b';   // cannot be 'a'!
 ```
 
-This is quite significant: `infer` when pattern matching on an intersection type gives us back the inferred type from one of the constituent types, not all, not a union, or the intersection. What a surprise!
+This is quite significant: `infer` is used for pattern matching on an intersection type, and it gives us the inferred type from ONE and only ONE of the constituent types. What a [surprise](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#:~:text=Likewise%2C%20multiple%20candidates%20for%20the%20same%20type%20variable%20in%20contra%2Dvariant%20positions%20causes%20an%20intersection%20type%20to%20be%20inferred%3A)!
 
 # Prime time!
  
-Now we are ready to bring them all together.
+Now we are ready to bring them all together. By now there are a few small utility types handy, so let's take them for a test. 
 
 ```TypeScript
-const t30: InferContra<InferContra<Contra<Contra<'a'|'b'>>>> = 'b';
+const t30: InferContra<InferContra<Contra<Contra<'a'|'b'>>>> = 'b'; // or 'a'
 ```
 
-Here we have to double `Contra<T>` because `'a' & 'b' == never` but `((arg: 'a') => void) & ((arg: 'b') => void)` does not collapse. With double `Contra<T>` comes double `InferContra<T>`, routine.
+Here we have to double `Contra<T>`, because `'a' & 'b' == never` collapses (if we just `Contra` once), but `((arg: 'a') => void) & ((arg: 'b') => void)` does not, as we've seen in the previous section. With double `Contra<T>` comes double `InferContra<T>`, no surprise; do note though, while `Contra` is distributive, `InferContra` is not.
 
-So let's create a helper,
+The type of `t30` is actually quite handy, so let's make it a helper, a.k.a. the long-heralded `PickOne`,
 
 ```TypeScript
 type PickOne<T> = InferContra<InferContra<Contra<Contra<T>>>>;
@@ -141,7 +151,7 @@ type Union2Tuple<T> =
 const t32: Union2Tuple<'a'|'b'|'c'|'d'|'e'> = ['a', 'b', 'c', 'd', 'e'];
 ```
 
-You'll agree with me this is quite a fancy trick, and there are more than one twist to it, although it all makes sense once you've seen it. You'd also notice how variance comes into play and it probably all makes sense and were well researched and designed. All in all, I gotta say, well played, TypeScript people!
+You'll agree with me this is quite a fancy trick, and there are more than one twist to it, which I hope are making sense by now. I also love how variance comes into play (every so often!), alongside a few less well-known language features. All in all, I gotta say, well played, TypeScript!
 
 # References
 
