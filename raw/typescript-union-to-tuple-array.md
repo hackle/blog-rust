@@ -130,7 +130,7 @@ This is quite significant: `infer` is used for pattern matching on an intersecti
 Now we are ready to bring them all together. By now there are a few small utility types handy, so let's take them for a test. 
 
 ```TypeScript
-const t30: InferContra<InferContra<Contra<Contra<'a'|'b'>>>> = 'b'; // or 'a'
+const t30: InferContra<InferContra<Contra<Contra<'a'|'b'>>>> = 'b'; // but not 'a'
 ```
 
 Here we have to double `Contra<T>`, because `'a' & 'b' == never` collapses (if we just `Contra` once), but `((arg: 'a') => void) & ((arg: 'b') => void)` does not, as we've seen in the previous section. With double `Contra<T>` comes double `InferContra<T>`, no surprise; do note though, while `Contra` is distributive, `InferContra` is not.
