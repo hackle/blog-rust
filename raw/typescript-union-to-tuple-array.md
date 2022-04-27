@@ -142,7 +142,7 @@ type PickOne<T> = InferContra<InferContra<Contra<Contra<T>>>>;
 const t31: PickOne<'a'|'b'> = 'b';
 ```
 
-Now we are ready for prime time.
+Well, is the final solution jumping out of the screen yet? Here it is,
 
 ```TypeScript
 type Union2Tuple<T> =
