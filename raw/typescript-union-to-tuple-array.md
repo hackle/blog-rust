@@ -1,4 +1,4 @@
-For a long time I held the belief that it's not possible to convert a union type to a tuple (or fixed array) in TypeScript, but during the Easter weekend I was glad to find otherwise. Is it possible? Certainly! is the solution pretty? Not necessarily.
+For a long time I held the belief that it's not possible to convert a union type to a tuple (or fixed array) in TypeScript, but during the Easter weekend I was glad to find otherwise. Is it possible? Certainly! is the solution pretty? Not necessarily...
 
 > Disclaimer: I did not invent or find the solution. See the reference section for credits. This post is an interpretation.
 
@@ -27,7 +27,7 @@ You'll see `Exclude` is nothing new, and `PickOne` is all we need to make this r
 
 First we have `Contra<T>` which moves `T` to a contra-variant position, in other words, makes it a parameter to a function type.
 
-For comparison, we also define `Cov<T>` which puts `T` in a co-variant position; although this isn't absolutely necessary as `() => T` is just like `T` in terms of its positioning.
+For comparison, we also define `Cov<T>` which puts `T` in a co-variant position; although this isn't absolutely necessary as `() => T` is just like `T` in terms of positioning.
 
 ```TypeScript
 type Contra<T> =
@@ -41,9 +41,9 @@ type Cov<T> =
     : never;
 ```
 
-You would have noted that `extends any` will always succeed, so why bother? Well, it's to [distribute](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types) `T` if it happens to be a union type. Which basically means `Cov<'a'|'b'>` turns into `(() => 'a') | (() => 'b')`.
+You would have noted that `extends any` will always succeed, so why bother? Well, it's to [distribute](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types) `T` if it happens to be a union type. When put into practice, it means `Cov<'a'|'b'>` turns into `(() => 'a') | (() => 'b')`.
 
-There are different consequences of changing the "position" of a type from co-variant to contra-variant, one of them is how `infer` behaves. This is how - when `infer`ing from (within) a union type as a whole,
+There are different consequences of changing the "position" of a type from co-variant to contra-variant, one of them is how `infer` behaves. Specifically, when `infer`ing from (within) a union type as a whole,
 
 * if `infer` is in a co-variant position, a union is returned
 * `contra-variants`, an intersection is returned
@@ -59,7 +59,7 @@ type InferCov<T> =
 const t20: InferCov<Cov<'a' | 'b'>> = 'a';   // 'a' | 'b'
 ```
 
-Note I use `[T]` to stop union [distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types), so the union is pattern matched as a whole. Still, no surprise with co-variant.
+Note I use `[T]` vs a bare `T` to stop union [distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types), so the union is pattern matched as a whole. Still, no surprise with co-variant.
 
 Now let's try contra-variants.
 
@@ -74,13 +74,17 @@ const t21: InferContra<Contra<'a'|'b'>> = 'a';  // Type 'string' is not assignab
 const t22: InferContra<Contra<{ a: 'a' } | { b: 'b' }>> = { a: 'a', b: 'b' };
 ```
 
-Something significant happens - the union is turned into an intersection! That's why `t21` is `never` as `'a' & 'b' == never`, but `{ a: 'a' } & { b: 'b' } == { a: 'a', b: 'b' }`. (Notice how `&` behaves differently on union and product types? But that's another topic).
+Something significant happens - the union is turned into an intersection! That's why `t21` is `never` as `'a' & 'b' ~ never`, but `{ a: 'a' } & { b: 'b' } ~ { a: 'a', b: 'b' }`. (Notice how `&` behaves differently on union and product types? ...a whole different topic).
 
-This was introduced way back with TypeScript 2.8. See the [handbook](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#:~:text=Likewise%2C%20multiple%20candidates%20for%20the%20same%20type%20variable%20in%20contra%2Dvariant%20positions%20causes%20an%20intersection%20type%20to%20be%20inferred%3A). 
+If you think this is a cutting-edge feature, it was introduced way back with TypeScript 2.8. See the [handbook](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#:~:text=Likewise%2C%20multiple%20candidates%20for%20the%20same%20type%20variable%20in%20contra%2Dvariant%20positions%20causes%20an%20intersection%20type%20to%20be%20inferred%3A). 
+
+Check to point 2) converting the union to an intersection type; next we need to figure out 3) to pattern match on an intersection type and turn it into a tuple.
 
 # Pattern matching an intersection, with more variance!
 
-Preserving intersection types is a bit tricky. They collapse quite easily if there is no "intersection" or overlap to be preserved. Consider the below example. 
+The very first challenge is, in order to pattern match on type `A`, it must preserve and expose information to be matched on. For example, a tuple `['a', 'b']`, an object type `{ a: 'a', b: 'a' }` are both very specific, and lend to good inspection; on the other hand, `[string]`, `Record<string, string>` or `any` does not contain as much information, and does not give us as much to work on. 
+
+Preserving information for intersection types is a bit tricky - they collapse quite easily if there is no "intersection" or overlap to be preserved. Consider the below example. 
 
 ```TypeScript
 const t23: 'a' & 'b' = ??   // Type 'any' is not assignable to type 'never'.ts(2322)
