@@ -1,140 +1,202 @@
-It must be the [street-light effect](https://en.wikipedia.org/wiki/Streetlight_effect) that I keep going back to co-variants and contra-variants across a few languages. Most recently it's for the magic of [conversion from union to tuple type](/typescript-union-to-tuple-array). Some big surprises there!
+Why is `{ 'f1': string, 'f2': number } & { 'f2': number, 'f3': string }` not `{ 'f2': number }`?
 
-With this post I would like to explore this a bit more. These are the concepts to look at: union, object type, intersection, co-variant and contra-variant.
+And ready for some fireworks with the wild mix of union, intersection and variance?
 
-# Union and Intersection recap
+(It must be the [street-light effect](https://en.wikipedia.org/wiki/Streetlight_effect) that I keep going back to co-variants and contra-variants across a few languages. Most recently it's for the magic of [conversion from union to tuple type](/typescript-union-to-tuple-array).)
 
-Give two types `A` and `B`, when put in a union `A | B`, a looser type is created. If we count its values, the union type have values from `A` + values from `B`, so union types are also called sum types.  
+# Union and Intersection: count values, not fields
 
-When an intersection is created from `A & B`, a stricter / more specific type is created. It only has values that are both `A` and `B`.
+Give two types `A` and `B`, when put in a union `A | B`, a looser type is created. If we count its values, the union type have values from `A` + values from `B`, so union types are also called sum types. This feature itself is straightforward - albeit being a missing feature from many main stream languages.
 
-Let's use this Importer / Exporter example.
+When an intersection is created from `A & B`, a stricter / more specific type is created. It only has values that are both `A` and `B`. This can be confusing to many, especially when it comes to object types. 
 
-```TypeScript
-interface Businessman<T> { 
-    trade: T,
-    buys: (arg: 'money') => T;
-    sells: (arg: T) => 'money';
-}
-
-interface Importer<T> extends Businessman<T> { 
-   importsFrom: string
-}
-
-interface Exporter<T> extends Businessman<T> {
-    exportsTo: string
-}
-
-declare const importer: Importer<'socks' | 'tie'>;
-declare const exporter: Exporter<'tie' | 'hat'>;
-```
-
-A union type `Importer<'socks'> | Exporter<'socks'>` is looser, or less restrictive, as its **values** include all the **values** of`Importer<'socks'>` + all the **values** of `Exporter<'socks'>`.
-
-It also means a value of `Importer<'socks'> | Exporter<'socks'>` is not assignable to a value of `Importer<'socks'>` (or `Exporter<'socks'>`).
+Quite reminiscent of algebra, we can start by looking the intersection of unions.
 
 ```TypeScript
-declare const importerOrExporter: Importer<'socks'> | Exporter<'socks'>;
+type T1 = 'a' | 'b';
+type T2 = 'b' | 'c';
 
-// Type 'Importer<"socks"> | Exporter<"socks">' is not assignable to type 'Importer<"socks">'.
-const importer1: Importer<'socks'> = importerOrExporter;
+// type T3 = "b"
+type T3 = T1 & T2;
 ```
 
-The intersection type `Importer<'socks'> & Exporter<'socks'>` has **values** that are **both** `Importer<'socks'>` and `Exporter<'socks'>` at the same time, so it's stricter than just `Importer<'socks'>` or `Exporter<'socks'>`; as a result, a value of the intersection type can be assigned to both types.
+Very intuitive and true to the name "intersection". But how about this?
 
 ```TypeScript
-declare const importerAndExporter: Importer<'socks'> & Exporter<'socks'>;
+type T4 = { 'f1': string, 'f2': number };
+type T5 = { 'f2': number, 'f3': string };
 
-const importer2: Importer<'socks'> = importerAndExporter;
-const exporter2: Importer<'socks'> = importerAndExporter;
+type T6 = T4 & T5;
 ```
 
-Note I highlighted **values** as it's a common misconception that an intersection type of two object types result in "intersection" of fields from the components, as in `{ foo: string, bar: number } & { bar: number, baz: boolean } = { bar: number }`. This is an interesting topic but possibly would not have warranted a language feature! (But it's easy to implement, if you want to give it a go).
+Surely `T6` should be `{ 'f2': number }`?! This was exactly what I first thought. However `T6` is actually `{ 'f1': string, 'f2': number, 'f3': string }`. Why is that?
 
-An intuition with an OOP flavour surfaces if we write `interface ImporterAndExporter<T> extends Importer<T>, Exporter<T>`, which is equivalent to `type ImporterAndExporter<T> = Importer<T> & Exporter<T>`. And the code for the example can be rewritten in intersection style, `type Importer<T> = Businessman<T> & { importsFrom: string, ... }`.
+The reason is the `&` operator does not really inspect the fields of the object types, instead, the intersection applies to the values of `T4` and `T5`. What does that mean?
 
-# Intersection of properties of union
-
-It's common to act on the **common** fields of a union type. For example, the below works because `trade` field exists in both `Importer` and `Exporter`.
+Think of `T4` and `T5` not as objects, they are not! They are types. If it makes any sense, make them interfaces. 
 
 ```TypeScript
-const trades: (Importer<'socks'> | Exporter<'hats'>)['trade'] = 'hats'; // or 'socks'
+interface I4 { 'f1': string, 'f2': number };
+interface I5 { 'f2': number, 'f3': string };
+
+interface I6 extends I4, I5 {}
 ```
 
-Interesting points,
-* the fields are available are the **intersection** of the fields from both `Importer` and `Exporter`. This makes sense because `['trade']` is indexing into ALL components of the union type
-* the types of the field `trade` from both components are put in a union `'socks' | 'hats'` which is the type of `trades`
+A trained Object-oriented thinker should grok this right away. Any value of interface `I6` must have all 3 fields to satisfy both `I4` and `I5` - it's a stricter type than both.
 
-What about intersection type?
+The name "intersection" makes sense if we count the values of each type: values of `I6` is the intersection of values of `I4` and `I5`. 
+
+# Union and intersection of one
+
+The philosophical and curious will find there is an interesting case to the union and intersection duality. When standing alone, a type is both a single-case union and a single-case intersection on its own. This may appear to be a smart-ass revelation, but it can offer interesting perspectives.
 
 ```TypeScript
-// Type 'string' is not assignable to type 'never'.ts(2322)
-const tradesI: (Importer<'socks'> & Exporter<'hats'>)['trade'] = 'hats';
+type T7 = { 'f1': string };
+type T8 = { 'f2': number };
+
+type T9 = T7 | T8;
+const v9_1: T9 = { 'f1': 'a' };
+const v9_2: T9 = { 'f2': 1 };
+
+type T10 = T7 & T8;
+const v10: T10 = { 'f1': 'a', 'f2': 1 };
 ```
 
-It falls apart here: there is no way to implement `Importer<'socks'> & Exporter<'hats'>` as it results in the `trade` field being `'socks' & 'hats'` == `never`. (Despite how it makes perfect sense in real world).
-
-# Variance and Distribution of union
-
-More interesting things happen when functions are involved, in our case, `buys` and `sells`.
+By using `|` or `&` as combinator, we can build up more complex types. For example, this funny and naive `Parse` type.
 
 ```TypeScript
-buys: (arg: 'money') => T;
-sells: (arg: T) => 'money';
+type Parse<T extends string> = 
+    T extends `${infer T1} or ${infer T2}`
+    ? Parse<T1> | Parse<T2>
+    : T extends `${infer T1} and ${infer T2}`
+        ? Parse<T1> & Parse<T2>
+        : { [k in T]: true };
+
+const p1: Parse<'a and b and c'> = { 'a': true, 'b': true, 'c': true };
+const p2_a: Parse<'a or b'> = { 'a': true };
+const p2_b: Parse<'a or b'> = { 'b': true };
 ```
 
-Most importantly, in `buys`, `T` is in co-variant position and in `sells`, contra-variant. Does `T` follow the same behaviour through union / intersections as in the previous section, as indexing with `['trade']`?
+# Intersection of keys of union
 
-The results look consistent so far.
+The first proof of the closeness of intersection and union is when we try to access the properties of a union type - the available keys are the intersection of the keys of all the cases of the union type. 
 
 ```TypeScript
-// sells: ((arg: "socks") => 'money') | ((arg: "hats") => 'money')
-declare const sellsU: (Importer<'socks'> | Exporter<'hats'>)['sells'];
+// type T4 = { 'f1': string, 'f2': number };
+// type T5 = { 'f2': number, 'f3': string };
 
-// never
-declare const sellsI: (Importer<'socks'> & Exporter<'hats'>)['sells'];
+type T11 = T4 | T5;
+
+// const v11: "f2"
+declare const v11: keyof T11;
+
+// const v12: "f2", same!
+declare const v12: keyof T4 & keyof T5;
 ```
 
-Yawn, is that all...? Well, what if we get crazy here, and say these are business people in ... **functions**? Non-coincidentally, it's the classic trick when looking at co- and contra-variance.
+This makes sense: only the common keys can be safe for operations such as `T11['f2']`; but not `T11['f1']` as it fails for the `T5` case.
 
-Before we dive in we need two utility functions that extracts ("infers") the "trade" from the return type of `buys` and the parameter of `sells`. Also we use `[T]` to stop distribution when `T` is a union type. A common trick.
+# Variance, union and intersection, the fantastic mix
+
+We already know that TypeScript respects variance.
+
+With covariance, typically when `T` is the return type of a function.
 
 ```TypeScript
-type InferTradeFromBuys<T> = 
-    [T] extends [{ buys: (arg: 'money') => infer I }] ? I : never;
+type Covariant<T> = () => T;
 
-type InferTradeFromSells<T> = 
-    [T] extends [{ sells: (arg: infer I) => 'money' }] ? I : never;
+let co1: Covariant<'a' | 'b'>;
+
+declare const co2: Covariant<'a'>;
+co1 = co2; // this is ok
+
+declare const co3: Covariant<'a' | 'b' | 'c'>;
+/*
+Type 'Covariant<"a" | "b" | "c">' is not assignable to type 'Covariant<"a" | "b">'.
+  Type '"a" | "b" | "c"' is not assignable to type '"a" | "b"'.
+    Type '"c"' is not assignable to type '"a" | "b"'.ts(2322)
+*/
+co1 = co3;
 ```
 
-Now let's go...
+However, when `T` is a parameter type, then the assignability is reversed - quite the mind-bender!
 
 ```TypeScript
-// (() => 'socks') & (() => 'hats')
-declare const sellsFnU: InferTradeFromSells<Importer<() => 'socks'> | Exporter<() => 'hats'>>;
+type ContraVariant<T> = (arg: T) => void;
 
-// (() => 'socks') | (() => 'hats')
-declare const buysFnU: InferTradeFromBuys<Importer<() => 'socks'> | Exporter<() => 'hats'>>;
+let contr1: ContraVariant<'a' | 'b'>;
+
+declare const contr2: ContraVariant<'a' | 'b' | 'c'>;
+contr1 = contr2;    // this is ok!
+
+declare const contr3: ContraVariant<'a'>;
+/*
+Type 'ContraVariant<"a">' is not assignable to type 'ContraVariant<"a" | "b">'.
+  Type '"a" | "b"' is not assignable to type '"a"'.
+    Type '"b"' is not assignable to type '"a"'.ts(2322)
+*/
+contr1 = contr3;    // this is ok!
 ```
 
-Oh... something very interesting has happened here. Why does `InferTradeFromSells` return an intersection type while `InferTradeFromBuys` a union? 
+As if this is not enough fun already, things become quite interesting when variance is intertwined with union and intersections.
 
-You would have realised - we find some pretty hidden power in TypeScript that combines variance and the duality between union and intersection. 
-
-We must not stop here, as it can get more dizzying, if we have business people dealing in function of function... ok let's ditch the businessman example and get serious.
-
-We need a `Contra<T>` that takes `T` to a contra-variant position, namely, as a parameter. Note `T` can be any type, even a `Contra<T>` itself.
+We need a couple of utility types from [a previous post](typescript-union-to-tuple-array), `Contra<T>` that takes `T` to a contra-variant position, namely, as a parameter. Note `T` can be any type, even a `Contra<T>` itself. And `Co<T>` for the opposite. 
 
 ```TypeScript
 type Contra<T> = (arg: T) => void;
 ```
 
-Then we have `InferContra<T>` that extracts `T` from a stack of nested contra-variant functions.
+Then we have `InferContra<T>` and `InferCo<T>` that recovers `T`, with an important note: if `T` is a union type, it will be matched only once, as `[T]` stops [union distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types).
 
 ```TypeScript
+type InferCo<T> = 
+    [T] extends [Co<infer I>] ? I : never;
+
 type InferContra<T> = 
     [T] extends [Contra<infer I>] ? I : never;
+```
 
+Now let's see what happens.
+
+```TypeScript
+/*
+const infer_co1: {
+    f1: 'f1';
+} | {
+    f2: 'f2';
+} 
+*/
+declare const infer_co1: InferCo<
+    Co<{ f1: 'f1' }> |
+    Co<{ f2: 'f2' }>
+>;
+
+/*
+const contra1: {
+    f1: 'f1';
+} & {
+    f2: 'f2';
+}
+*/
+declare const contra1: InferContra<
+    Contra<{ f1: 'f1' }> |
+    Contra<{ f2: 'f2' }>
+>;
+
+// remember ^ is equivalent to
+declare const infer_contra2: [
+    ((arg: { f1: 'f1' }) => void) |
+    ((arg: { f2: 'f2' }) => void)
+] extends [ ((arg: infer I) => void) ] 
+    ? I 
+    : never;
+```
+
+Do you see what's happening? `InferContra` from a union of two contra-variant types returns an intersection type! (Ok that's quite a mouthful.) Contra-variance strikes again in stunning fashion. And can we make sense of it? I cannot yet but hope to be stricken by inspiration any moment.
+
+But that doesn't stop us from going further. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus, we can test out the thoroughness this behaviour, or feature.
+
+```TypeScript
 type InferContra2<T> = 
     [T] extends [Contra<Contra<infer I>>] ? I : never;
 
@@ -143,34 +205,42 @@ type InferContra3<T> =
 
 type InferContra4<T> = 
     [T] extends [Contra<Contra<Contra<Contra<infer I>>>>] ? I : never;
-```
-
-Now let's see what happens,
-
-```TypeScript
-// { trade1: 'socks'; } & { trade2: 'hats'; }
-declare const contra1: InferContra<
-    Contra<{ trade1: 'socks' }> |
-    Contra<{ trade2: 'hats' }>
->;
-
-// { trade1: 'socks'; } | { trade2: 'hats'; }
+    
+/*
+const contra2: {
+    f1: 'f1';
+} | {
+    f2: 'f2';
+}
+*/
 declare const contra2: InferContra2<
-    Contra<Contra<{ trade1: 'socks' }>> |
-    Contra<Contra<{ trade2: 'hats' }>>
+    Contra<Contra<{ f1: 'f1' }>> |
+    Contra<Contra<{ f2: 'f2' }>>
 >;
 
-// { trade1: 'socks'; } & { trade2: 'hats'; }
+/*
+const contra3: {
+    f1: 'f1';
+} & {
+    f2: 'f2';
+}
+*/
 declare const contra3: InferContra3<
-    Contra<Contra<Contra<{ trade1: 'socks' }>>> |
-    Contra<Contra<Contra<{ trade2: 'hats' }>>>
+    Contra<Contra<Contra<{ f1: 'f1' }>>> |
+    Contra<Contra<Contra<{ f2: 'f2' }>>>
 >;
 
-// { trade1: 'socks'; } | { trade2: 'hats'; }
+/*
+const contra4: {
+    f1: 'f1';
+} | {
+    f2: 'f2';
+}
+*/
 declare const contra4: InferContra4<
-    Contra<Contra<Contra<Contra<{ trade1: 'socks' }>>>> |
-    Contra<Contra<Contra<Contra<{ trade2: 'hats' }>>>>
+    Contra<Contra<Contra<Contra<{ f1: 'f1' }>>>> |
+    Contra<Contra<Contra<Contra<{ f2: 'f2' }>>>>
 >;
 ```
 
-I'll be damned... the result types alternate between union and intersection. TypeScript really thought this through. I am impressed.
+I'll be damned... It is CHECK, CHECK and CHECK. The result types alternate between union and intersection. TypeScript really thought this through. I am impressed.

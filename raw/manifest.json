@@ -44,6 +44,6 @@
     { "title": "Architecture? You mean spreadsheets?", "markdown": "tables-for-file-structure.md" },
     { "title": "Ad-hoc polymorphism: Same input, different output, still pure", "markdown": "ad-hoc-polymorphism.md" },
     { "title": "Types or Operations: keep it closed, or keep it open", "markdown": "dont-close-what-is-open.md" },
-    { "title": "TypeScript: Union and Intersection with Co- and Contra-variance?", "markdown":  "typescript-co-and-contra-variant.md" },
-    { "title": "TypeScript: Convert Union to Tuple/Array, Yes but How?", "markdown":  "typescript-union-to-tuple-array.md" }
+    { "title": "TypeScript: Convert Union to Tuple/Array, Yes but How?", "markdown":  "typescript-union-to-tuple-array.md" },
+    { "title": "TypeScript Fireworks: Union, Intersection and Variance", "markdown":  "typescript-co-and-contra-variant.md" }
 ]
