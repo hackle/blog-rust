@@ -6,11 +6,11 @@ And ready for some fireworks with the wild mix of union, intersection and varian
 
 # Union and Intersection: count values, not fields
 
-Give two types `A` and `B`, when put in a union `A | B`, a looser type is created. If we count its values, the union type have values from `A` + values from `B`, so union types are also called sum types. This feature itself is straightforward - albeit being a missing feature from many main stream languages.
+Give two types `A` and `B`, when put in a union `A | B`, a looser type is created. If we count its values, the union type have values from `A` + values from `B`, so union types are also called sum types. This feature itself is straightforward - albeit sorely missing from many main stream languages.
 
 When an intersection is created from `A & B`, a stricter / more specific type is created. It only has values that are both `A` and `B`. This can be confusing to many, especially when it comes to object types. 
 
-Quite reminiscent of algebra, we can start by looking the intersection of unions.
+Quite reminiscent of algebra, we can start by looking at the intersection of unions.
 
 ```TypeScript
 type T1 = 'a' | 'b';
@@ -33,7 +33,7 @@ Surely `T6` should be `{ 'f2': number }`?! This was exactly what I first thought
 
 The reason is the `&` operator does not really inspect the fields of the object types, instead, the intersection applies to the values of `T4` and `T5`. What does that mean?
 
-Think of `T4` and `T5` not as objects, they are not! They are types. If it makes any sense, make them interfaces. 
+Think of `T4` and `T5` not as objects, because they are not - they are types! If it makes any sense, turn them into interfaces. 
 
 ```TypeScript
 interface I4 { 'f1': string, 'f2': number };
@@ -42,13 +42,13 @@ interface I5 { 'f2': number, 'f3': string };
 interface I6 extends I4, I5 {}
 ```
 
-A trained Object-oriented thinker should grok this right away. Any value of interface `I6` must have all 3 fields to satisfy both `I4` and `I5` - it's a stricter type than both.
+A trained Object-oriented mind (that's you, yes) should grok this right away. Any value of interface `I6` must have all 3 fields to satisfy both `I4` and `I5` - it's a stricter type than each.
 
 The name "intersection" makes sense if we count the values of each type: values of `I6` is the intersection of values of `I4` and `I5`. 
 
 # Union and intersection of one
 
-The philosophical and curious will find there is an interesting case to the union and intersection duality. When standing alone, a type is both a single-case union and a single-case intersection on its own. This may appear to be a smart-ass revelation, but it can offer interesting perspectives.
+The philosophical and curious will find there is an interesting case to the union and intersection duality. When standing alone, a type is both a single-case union and a single-case intersection on its own. This may sound like a smart-ass revelation, but it can offer some interesting perspectives.
 
 ```TypeScript
 type T7 = { 'f1': string };
@@ -62,7 +62,7 @@ type T10 = T7 & T8;
 const v10: T10 = { 'f1': 'a', 'f2': 1 };
 ```
 
-By using `|` or `&` as combinator, we can build up more complex types. For example, this funny and naive `Parse` type.
+By using `|` or `&` as combinator, we can build up more complex types. For example, this naive yet fun `Parse` type.
 
 ```TypeScript
 type Parse<T extends string> = 
@@ -79,7 +79,7 @@ const p2_b: Parse<'a or b'> = { 'b': true };
 
 # Intersection of keys of union
 
-The first proof of the closeness of intersection and union is when we try to access the properties of a union type - the available keys are the intersection of the keys of all the cases of the union type. 
+Intersection and union can appear quite closely in unexpected places. An easy example is when we try to access the properties of a union type - the available keys are the intersection of the keys of all the cases of the union type. 
 
 ```TypeScript
 // type T4 = { 'f1': string, 'f2': number };
@@ -94,11 +94,11 @@ declare const v11: keyof T11;
 declare const v12: keyof T4 & keyof T5;
 ```
 
-This makes sense: only the common keys can be safe for operations such as `T11['f2']`; but not `T11['f1']` as it fails for the `T5` case.
+This makes sense: only the common keys can be safe for operations such as `T11['f2']`; but not `T11['f1']` as it's unsafe for `T5`.
 
-# Variance, union and intersection, the fantastic mix
+# Variance recap
 
-We already know that TypeScript respects variance.
+We already know that TypeScript respects variance (previously [discussed in C#](contravariant)). Never missing the opportunity to look at it again.
 
 With covariance, typically when `T` is the return type of a function.
 
@@ -135,25 +135,30 @@ Type 'ContraVariant<"a">' is not assignable to type 'ContraVariant<"a" | "b">'.
   Type '"a" | "b"' is not assignable to type '"a"'.
     Type '"b"' is not assignable to type '"a"'.ts(2322)
 */
-contr1 = contr3;    // this is ok!
+contr1 = contr3;
 ```
 
-As if this is not enough fun already, things become quite interesting when variance is intertwined with union and intersections.
+We can also [give them signs](contravariant): co-variance is positive and contra-variance negative. Take some time, let that sink in.
 
-We need a couple of utility types from [a previous post](typescript-union-to-tuple-array), `Contra<T>` that takes `T` to a contra-variant position, namely, as a parameter. Note `T` can be any type, even a `Contra<T>` itself. And `Co<T>` for the opposite. 
+# Variance, union and intersection, the fantastic mix
+
+Intersection or union alone is not fun enough; things become **really** interesting when variance is involved.
+
+Before we jump in, we need a couple of utility types from [a previous post](typescript-union-to-tuple-array), `Contra<T>` that takes `T` to a contra-variant position, namely, as a parameter. Note `T` can be any type, even a `Contra<T>` itself. And `Co<T>` for the opposite. 
 
 ```TypeScript
+type Co<T> = () => T;
 type Contra<T> = (arg: T) => void;
 ```
 
-Then we have `InferContra<T>` and `InferCo<T>` that recovers `T`, with an important note: if `T` is a union type, it will be matched only once, as `[T]` stops [union distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types).
+Then we have `InferContra` and `InferCo` that recovers `T`, with an important note: if `Fn` is a union type, it will be matched only once, as `[Fn]` stops [union distribution](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#distributive-conditional-types). So it's not the complete reverse engineering of `Co` or `Contra`. That is possible without the `[Fn]` trick.
 
 ```TypeScript
-type InferCo<T> = 
-    [T] extends [Co<infer I>] ? I : never;
+type InferCo<Fn> = 
+    [Fn] extends [Co<infer T>] ? T : never;
 
-type InferContra<T> = 
-    [T] extends [Contra<infer I>] ? I : never;
+type InferContra<Fn> = 
+    [Fn] extends [Contra<infer T>] ? T : never;
 ```
 
 Now let's see what happens.
@@ -192,9 +197,11 @@ declare const infer_contra2: [
     : never;
 ```
 
-Do you see what's happening? `InferContra` from a union of two contra-variant types returns an intersection type! (Ok that's quite a mouthful.) Contra-variance strikes again in stunning fashion. And can we make sense of it? I cannot yet but hope to be stricken by inspiration any moment.
+Do you see what's happening? `InferCo` is plain predictable, but `InferContra` from a union of two contra-variant types returns an intersection type! (Ok that's quite a mouthful.) Contra-variance strikes again in stunning fashion. 
 
-But that doesn't stop us from going further. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus, we can test out the thoroughness this behaviour, or feature.
+And can we make sense of it? It pains me to say that I cannot yet, but I hope to be stricken by the lightning of inspiration any moment.
+
+But that doesn't stop us from going further. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus (genius!), we can test out the thoroughness of this behaviour, or feature. Show time!
 
 ```TypeScript
 type InferContra2<T> = 
