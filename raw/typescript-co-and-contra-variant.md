@@ -224,7 +224,7 @@ declare const infer_union_contra: InferUnionContra<
 
 Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances - depending on its positioning (therefore variance).
 
-I find this pretty hard to explain in words. Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! What it means is we put the result type back in the original formula, in this case `InferContra` to see if the `extends` clause still hods. If it doesn't, then we've caught ourselves a cheeky cheat!
+I find this pretty hard to explain in words. Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! What it means is we put the result type back in the original formula, in this case `InferContra` to see if the `extends` clause still hods; otherwise, then we've caught ourselves a cheeky cheat!
 
 ```TypeScript
 /* remember: 
@@ -246,7 +246,7 @@ type UnionSatisfiesEquation =
 const check_union: UnionSatisfiesEquation = false;
 ```
 
-See, it **has to** be an intersection type. No cheat, all fairly played.
+See, `InferContra` **has to** return an intersection type, or it contradicts itself. No cheat, all fairly played.
 
 This is also interesting because we normally create a value to validate a type, but here we apply Equational Reasoning on type level for that (then create a value to validate the result). First time in my life.
 
@@ -303,4 +303,4 @@ declare const contra4: InferContra4<
 
 I'll be damned... It is CHECK, CHECK and CHECK. The result types alternate between union and intersection. TypeScript really thought this through. I am impressed.
 
-Here is the [source code]() used above.
+Link to the [source code](https://github.com/hackle/blog-rust/blob/master/sample/variance-and-union-intersection.ts) used above.
