@@ -199,9 +199,38 @@ declare const infer_contra2: [
 
 Do you see what's happening? `InferCo` is plain predictable, but `InferContra` from a union of two contra-variant types returns an intersection type! (Ok that's quite a mouthful.) Contra-variance strikes again in stunning fashion. 
 
-And can we make sense of it? It pains me to say that I cannot yet, but I hope to be stricken by the lightning of inspiration any moment.
+## Making sense
 
-But that doesn't stop us from going further. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus (genius!), we can test out the thoroughness of this behaviour, or feature. Show time!
+Can we make sense of it? Well... kind of. We can "desugar" `InferContra` further for this specific case,
+
+```TypeScript
+type InferUnionContra<Fn> =
+    [Fn] extends [((arg: infer T) => void) | ((arg: infer T) => void)]
+    ? T
+    : never;
+    
+/*
+const infer_union_contra: {
+    f1: 'f1';
+} & {
+    f2: 'f2';
+}
+*/
+declare const infer_union_contra: InferUnionContra<
+    Contra<{ f1: 'f1' }> |
+    Contra<{ f2: 'f2' }>
+>;
+```
+
+Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances. In this case, `(arg: T) => void` must satisfy both `(arg: { f1: 'f1' }) => void` and `(arg: { f2: 'f2' }) => void`. More specifically, a function type that accepts both (not either - that's union behaviour) types of parameters, That brings us to `(arg: { f1: 'f1' } & { f2: 'f2' }) => void`. 
+
+This is variance in full swing: to account for all cases of parameters to a union of functions, an intersection type is required.
+
+For completeness’s sake: to account for all case of return type to a union of functions, a union type is required.
+
+## Contra of contra of contra-variant
+
+We are not done yet. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus (genius!), we can test out the thoroughness of this behaviour (or feature). It's showtime.
 
 ```TypeScript
 type InferContra2<T> = 
