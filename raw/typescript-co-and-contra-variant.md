@@ -226,28 +226,9 @@ Notice how `infer T` can be used **twice** in the same `extends` clause? That fo
 
 But how do we know for sure that `InferContra` is giving us the correct result?
 
-## Equational reasoning on types
+## Equational reasoning, and variance again
 
-Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! This is done by expanding the conditional type by putting in the actual input and output. This is an example.
-
-```TypeScript
-type InferName<T> = T extends `hello ${infer Name}` ? Name : never;
-
-// 'hello world' <--> T, 'world' <--> Name
-const name: InferName<'hello world'> = 'world';
-
-// substitute T and infer Name with actual values
-type CheckInferName = 'hello world' extends `hello world` ? true : false;
-
-// this must be true
-const check_name: CheckInferName = true;
-```
-
-Hold on, 'hello world' extends `hello world`? Tell me something I don't know! 
-
-Dumb as it may seem in this trivial case, equational reasoning can come in really handy, and is definitely nothing to sneeze at. It saved my sanity many, many times.
-
-Now we are ready to validate `InferContra`, which is considerably more complex. So... are we going to catch ourselves a cheeky cheat?
+Let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! This is done by expanding the conditional type by putting in the actual input and output.
 
 ```TypeScript
 /* 
@@ -259,21 +240,23 @@ Now we are ready to validate `InferContra`, which is considerably more complex. 
 // the expanded form of: Contra<{ f1: 'f1' }> | Contra<{ f2: 'f2' }>
 type UnionInput = ((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void);
 
-// plug them in!
 type IntersectionSatisfiesEquation = 
     [UnionInput] extends [((arg: { f1: 'f1' } & { f2: 'f2' }) => void)] ? true : false;
-
-const check_intersection: IntersectionSatisfiesEquation = true;
-
-type UnionSatisfiesEquation = 
-    [UnionInput] extends [((arg: { f1: 'f1' } | { f2: 'f2' }) => void)] ? true : false;
-
-const check_union: UnionSatisfiesEquation = false;
 ```
 
-See, `InferContra` **has to** return an intersection type, or it contradicts itself!
+Let's also recap: `T extend U` holds if `T` is a subtype of `U`, such as `'a' extends string`. In another word, A value of `T` can be assigned to a variable of `U`. 
 
-What's quite interesting is we normally create a value to validate a type, but here we apply equational reasoning on type level for that purpose(then create a value to validate the result). It makes perfect sense, because a type-level function is also a function, moreover, it's always pure. I am happy to admit this is the first time for me to do so.
+By this reasoning `InferContra` is proof that the union `((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void)` is a subtype of `((arg: { f1: 'f1' } & { f2: 'f2' }) => void)`. This can be proven as below.
+
+```TypeScript
+declare let contra_union: ((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void);
+declare let contra_intersection: ((arg: { f1: 'f1' } & { f2: 'f2' }) => void);
+
+// a subtype can be assigned to a supertype
+contra_intersection = contra_union;
+```
+
+Which, by distribution, means each case of the union type `((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void)` can be assigned to the intersection `((arg: { f1: 'f1' } & { f2: 'f2' }) => void)`. By variance manipulation, this further means `{ f1: 'f1' } & { f2: 'f2' }` is a subtype (mind the shift of direction) of either `{ f1: 'f1' }` or `{ f2: 'f2' }`, which is true, as we have discussed in the beginning. Check!
 
 ## Contra of contra of contra-variant
 

@@ -173,6 +173,11 @@ type UnionSatisfiesEquation =
 
 const check_union: UnionSatisfiesEquation = false;
 
+declare let contra_union: ((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void);
+declare let contra_intersection: ((arg: { f1: 'f1' } & { f2: 'f2' }) => void);
+
+contra_intersection = contra_union;
+
 type InferUnionContra2<Fn> =
     [Fn] extends [ ((arg: ((arg: infer T) => void)) => void) | ((arg: ((arg: infer T) => void)) => void)]
     ? T
