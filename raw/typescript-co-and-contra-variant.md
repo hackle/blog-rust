@@ -199,7 +199,7 @@ declare const infer_contra2: [
 
 Do you see what's happening? `InferCo` is plain predictable, but `InferContra` from a union of two contra-variant types returns an intersection type! (Ok that's quite a mouthful.) Contra-variance strikes again in stunning fashion. 
 
-## Making sense
+## Inferred twice?
 
 Can we make sense of it? Well... kind of. We can "desugar" `InferContra` further for this specific case,
 
@@ -224,10 +224,34 @@ declare const infer_union_contra: InferUnionContra<
 
 Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances - depending on its positioning (therefore variance).
 
-I find this pretty hard to explain in words. Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! What it means is we put the result type back in the original formula, in this case `InferContra` to see if the `extends` clause still hods; otherwise, then we've caught ourselves a cheeky cheat!
+But how do we make sense of `InferContra` and the result and know for sure it's correct?
+
+## Equational reasoning on types
+
+Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! This is done by expanding the conditional type by putting in the actual input and output. This is an example.
 
 ```TypeScript
-/* remember: 
+type InferName<T> = T extends `hello ${infer Name}` ? Name : never;
+
+// 'hello world' <--> T, 'world' <--> Name
+const name: InferName<'hello world'> = 'world';
+
+// substitute T and infer Name with actual values
+type CheckInferName = 'hello world' extends `hello world` ? true : false;
+
+// this must be true
+const check_name: CheckInferName = true;
+```
+
+Hold on, 'hello world' extends `hello world`? Tell me something I don't know! 
+
+Dumb as it may seem in this trivial case, equational reasoning can come in really handy, and is definitely nothing to sneeze at. It saved my sanity many, many times.
+
+Now we are ready to validate `InferContra`, which is considerably more complex. So... are we going to catch ourselves a cheeky cheat?
+
+```TypeScript
+/* 
+    remember: 
     type Contra<T> = (arg: T) => void;
     type InferContra<Fn> = [Fn] extends [Contra<infer T>] ? T : never;
 */
@@ -235,6 +259,7 @@ I find this pretty hard to explain in words. Worry not - let's call on a pretty 
 // the expanded form of: Contra<{ f1: 'f1' }> | Contra<{ f2: 'f2' }>
 type UnionInput = ((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void);
 
+// plug them in!
 type IntersectionSatisfiesEquation = 
     [UnionInput] extends [((arg: { f1: 'f1' } & { f2: 'f2' }) => void)] ? true : false;
 
@@ -246,9 +271,9 @@ type UnionSatisfiesEquation =
 const check_union: UnionSatisfiesEquation = false;
 ```
 
-See, `InferContra` **has to** return an intersection type, or it contradicts itself. No cheat, all fairly played.
+See, `InferContra` **has to** return an intersection type, or it contradicts itself!
 
-This is also interesting because we normally create a value to validate a type, but here we apply Equational Reasoning on type level for that (then create a value to validate the result). First time in my life.
+What's quite interesting is we normally create a value to validate a type, but here we apply equational reasoning on type level for that purpose(then create a value to validate the result). It makes perfect sense, because a type-level function is also a function, moreover, it's always pure. I am happy to admit this is the first time for me to do so.
 
 ## Contra of contra of contra-variant
 

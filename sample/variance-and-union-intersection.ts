@@ -144,6 +144,17 @@ declare const infer_union_contra: InferUnionContra<
     Contra<{ f2: 'f2' }>
 >;
 
+type InferName<T> = T extends `hello ${infer Name}` ? Name : never;
+
+// 'hello world' <--> T, 'world' <--> Name
+const name: InferName<'hello world'> = 'world';
+
+// substitute T and infer Name with actual values
+type CheckInferName = 'hello world' extends `hello world` ? true : false;
+
+// should be the same as InferName<'hello world'>
+const check_name: CheckInferName = true;
+
 /* remember: 
     type Contra<T> = (arg: T) => void;
     type InferContra<Fn> = [Fn] extends [Contra<infer T>] ? T : never;
@@ -161,9 +172,6 @@ type UnionSatisfiesEquation =
     [UnionInput] extends [((arg: { f1: 'f1' } | { f2: 'f2' }) => void)] ? true : false;
 
 const check_union: UnionSatisfiesEquation = false;
-
-const aes: 'a' extends string ? true : false = true;
-const sea: string extends 'a' ? true : false = false;
 
 type InferUnionContra2<Fn> =
     [Fn] extends [ ((arg: ((arg: infer T) => void)) => void) | ((arg: ((arg: infer T) => void)) => void)]
