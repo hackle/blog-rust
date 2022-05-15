@@ -302,3 +302,5 @@ declare const contra4: InferContra4<
 ```
 
 I'll be damned... It is CHECK, CHECK and CHECK. The result types alternate between union and intersection. TypeScript really thought this through. I am impressed.
+
+Here is the [source code]() used above.
