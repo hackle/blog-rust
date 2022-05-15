@@ -224,7 +224,7 @@ declare const infer_union_contra: InferUnionContra<
 
 Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances - depending on its positioning (therefore variance).
 
-But how do we make sense of `InferContra` and the result and know for sure it's correct?
+But how do we know for sure that `InferContra` is giving us the correct result?
 
 ## Equational reasoning on types
 
