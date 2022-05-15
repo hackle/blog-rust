@@ -222,11 +222,33 @@ declare const infer_union_contra: InferUnionContra<
 >;
 ```
 
-Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances. In this case, `(arg: T) => void` must satisfy both `(arg: { f1: 'f1' }) => void` and `(arg: { f2: 'f2' }) => void`. More specifically, a function type that accepts both (not either - that's union behaviour) types of parameters, That brings us to `(arg: { f1: 'f1' } & { f2: 'f2' }) => void`. 
+Notice how `infer T` can be used **twice** in the same `extends` clause? That forces TypeScript to return a single type that accounts for both of its appearances - depending on its positioning (therefore variance).
 
-This is variance in full swing: to account for all cases of parameters to a union of functions, an intersection type is required.
+I find this pretty hard to explain in words. Worry not - let's call on a pretty reputable judge of character, **Equational Reasoning** (multiple rounds of thunder and lightning)! What it means is we put the result type back in the original formula, in this case `InferContra` to see if the `extends` clause still hods. If it doesn't, then we've caught ourselves a cheeky cheat!
 
-For completeness’s sake: to account for all case of return type to a union of functions, a union type is required.
+```TypeScript
+/* remember: 
+    type Contra<T> = (arg: T) => void;
+    type InferContra<Fn> = [Fn] extends [Contra<infer T>] ? T : never;
+*/
+
+// the expanded form of: Contra<{ f1: 'f1' }> | Contra<{ f2: 'f2' }>
+type UnionInput = ((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void);
+
+type IntersectionSatisfiesEquation = 
+    [UnionInput] extends [((arg: { f1: 'f1' } & { f2: 'f2' }) => void)] ? true : false;
+
+const check_intersection: IntersectionSatisfiesEquation = true;
+
+type UnionSatisfiesEquation = 
+    [UnionInput] extends [((arg: { f1: 'f1' } | { f2: 'f2' }) => void)] ? true : false;
+
+const check_union: UnionSatisfiesEquation = false;
+```
+
+See, it **has to** be an intersection type. No cheat, all fairly played.
+
+This is also interesting because we normally create a value to validate a type, but here we apply Equational Reasoning on type level for that (then create a value to validate the result). First time in my life.
 
 ## Contra of contra of contra-variant
 
