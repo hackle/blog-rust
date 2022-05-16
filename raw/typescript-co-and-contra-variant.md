@@ -258,6 +258,8 @@ contra_intersection = contra_union;
 
 Which, by distribution, means each case of the union type `((arg: { f1: 'f1' }) => void) | ((arg: { f2: 'f2' }) => void)` can be assigned to the intersection `((arg: { f1: 'f1' } & { f2: 'f2' }) => void)`. By variance manipulation, this further means `{ f1: 'f1' } & { f2: 'f2' }` is a subtype (mind the shift of direction) of either `{ f1: 'f1' }` or `{ f2: 'f2' }`, which is true, as we have discussed in the beginning. Check!
 
+Or, `{ f1: 'f1' }` is a super type of `{ f1: 'f1' } & { f2: 'f2' }`, and `((arg: { f1: 'f1' } & { f2: 'f2' }) => void)` is a super type of `(arg: { f1: 'f1' }) => void)`.
+
 ## Contra of contra of contra-variant
 
 We are not done yet. Knowing how contra-variance can be thought of as the minus sign, and double minus equals plus (genius!), we can test out the thoroughness of this behaviour (or feature). It's showtime.
