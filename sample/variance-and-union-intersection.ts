@@ -233,3 +233,11 @@ declare const contra4: InferContra4<
     Contra<Contra<Contra<Contra<{ f1: 'f1' }>>>> |
     Contra<Contra<Contra<Contra<{ f2: 'f2' }>>>>
 >;
+
+type SuperOf<T, U> = [ ((arg: T) => void)  | ((arg: U) => void)] extends [(arg: infer S) => void] ? S : never;
+
+declare const s1: SuperOf<'a', 'b'>;
+declare const s2: SuperOf<'a' | 'b', 'b' | 'c'>;
+
+declare const s3: SuperOf<{ f1: 'f1' }, { f2: 'f2' }>;
+declare const s4: SuperOf<((arg: { f1: 'f1' }) => void), ((arg: { f2: 'f2' }) => void)>;
