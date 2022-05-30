@@ -1,4 +1,5 @@
-Let me be honest - I am not the biggest fan of Go and wouldn't want to use it for my pet project. However, there are a few things that I quite like about Go or how it's used, driven by conventions and the community. So, I will write about these goodies in a miniseries. We'll start off with the simplest but maybe also the most controversial - error handling.
+
+Let me be honest - I am not the biggest fan of Go and I possibly wouldn't choose it for my pet project. However, it doesn't mean I dislike everything about it. On the contrary, there are a few things that I like very much about Go or how it's used, driven by conventions and the community. So, I'll start off a miniseries with the simplest but maybe also the most controversial topic - error handling, summed up eloquently with this code example,
 
 ```go
 result, err := foo()
@@ -7,9 +8,9 @@ if err != nil {
 }
 ```
 
-## Exceptions are awful
+Why is this so controversial? Because it is something in between paradigms, you may deem it pragmatic or ugly, depending on your view. This also touches on a pretty edgy area that I believe the mainstream needs significant improvement on; although Go's convention is not the best, it's definitely changing things for the better.
 
-Why is this so controversial? Because it is something in between paradigms, and it's pragmatic or ugly depending on your view. 
+## Exceptions are awful
 
 As the time of writing, the most popular error handling approach in the mainstream is exception-based, something like `try/catch/finally` that many people will find comforting.
 
@@ -129,10 +130,66 @@ The author's intention is very clear: there is no point in disguising this error
 
 ## Go is in between and a step forward
 
-OK this much should be clear:
+Go as a language has limited facility (by design), in this case there is no union type (yet); but the lack of union type is made up with a simple convention which is held up by the faithful users. Such convention of error handling is in favour of using values; it's a very badass NO to exception-based error handling that is mainstream. I love it.
 
-* Go along with its convention of error handling is in favour of value-based error handling, by categorically saying no to exception-based error handling that is mainstream. Gutsy stuff, I love it!
-* Go also distinguishes recoverable and unrecoverable errors; however in the case of `panic!`, it's still recoverable; safe choice, but can be confusing too - I personally tried to simulate `try / catch` with `panic / recover` before the time of proper initiation.
-* also, Go as a language has limited facility (by design), in this case there is no union type (yet); but the lack of union type is made up with a simple convention which is held up by the faithful users.
+Still, this is not a pretty convention, it's repetitive, verbose, and annoying, as many would easily contend; does it have to be so? [the Go blog: Errors are values](https://go.dev/blog/errors-are-values) claims people might be missing the point with this prevalent boilerplate, and shows a neat example to prove a point.
 
-This is why we should appreciate what Go and its users: for sticking to value-based error handling, and making a big dent in the mainstream of exceptions-based error handling. This is a big step towards making our code saner and safer. Well done.
+However, this quote might be more noteworthy,
+
+> Regardless of whether this explanation fits, it is clear that these Go programmers miss a fundamental point about errors: Errors are values.
+> Values can be programmed, and since errors are values, errors can be programmed.
+
+See, the ultimate advantage of modeling errors as values, is that values are first-class, they are easy to create, modify and throw away. They are warm and fuzzy things that we are all comfortable dealing with; Need we still ask "should I use errors for control flow"? Well, there has never been a point more moot. 
+
+Exceptions, on the other hand are not fist-class - they are thrown, not passes around; they are like bombs thrown by the runtime over arbitrary trajectories, and must be caught, or our program blows up.
+
+(Of course I am now compelled to share [The value of values by Rich Hickey](https://www.youtube.com/watch?v=-6BsiVyC1kM). Worth noting it would seem to be unidiomatic to model errors as values in Clojure, it's largely exception-based, as a hangover from JVM).
+
+What about `panic!`? 
+
+Go also distinguishes recoverable and unrecoverable errors; however in the case of `panic!`, it's still recoverable; safe choice, but can be confusing too - I personally tried to simulate `try / catch` with `panic / recover` before the time of proper initiation.
+
+### the boilerplate again
+
+Despite the excellent piece from [the Go blog: Errors are values](https://go.dev/blog/errors-are-values), repeatedly typing `if err != nil` is still part of the daily grind; when this appears twice in a 16-line functions, let's be honest, it could be a mental health issue.
+
+Haskell or F# peeps never had the boilerplate problem, it's a solved problem. In the below example, `findPersonByName` and `findAddressByPerson` both return a `Either` type, and can both return an error. To compose them to make `findAddressByName` goes as follows,
+
+```Haskell
+findAddressByName name = do
+  person <- findPersonByName name
+  address <- findAddressByPerson person
+
+  return address    
+```
+
+Pretty neat, isn't it? 
+
+Rust does not have a dedicated `do` notation, but `Result` type could be used fluently, for example chaining with `and_then`. 
+
+```Rust
+fn find_address_by_name(name: str) -> Address {
+    return find_person_by_name(name)
+        .and_then(|person| find_address_by_person(person))
+}
+```
+
+Although as aesthetically pleasing, function chaining is a popular pattern and is also much more flexible.
+
+Would something similar come into Go? There is [a proposal for more succinct syntax in Go](https://go.googlesource.com/proposal/+/master/design/go2draft-error-handling-overview.md) with `check` that I find very neat.
+
+```Go
+func main() {
+	handle err {
+		log.Fatal(err)
+	}
+
+	hex := check ioutil.ReadAll(os.Stdin)
+	data := check parseHexdump(string(hex))
+	os.Stdout.Write(data)
+}
+```
+
+### they are the same thing...?
+
+If we are willing to zoom out far enough. Then we see the general idea of error-handling is more or less, "try A, if succeeds, do B; otherwise stop and handle error". Isn't that basically `bind`?
