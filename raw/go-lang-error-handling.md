@@ -26,6 +26,8 @@ try {
 
 One big advantage of exceptions is they bubble up the call stack quite conveniently; an exception thrown 10 levels deep can reach `try/catch` on the top level, without us having to worry about it, or write code to pass on the exception across the levels in between. This is why an exception can also be descriptively referred to as a "long jump".
 
+I will appear "spoiled" to say exceptions are awful, as it's clearly superior to its predecessor of error codes or worse yet, global `errno`. However, allow me to indulge in the now and the future. 
+
 A big problem with exception-based error handling is the difficulty of expressing explicitly that "this function and ALL its dependencies might throw these exceptions". Java made a noble effort with checked exceptions but in the end it didn't work so well, and [Kotlin throw the idea away](https://kotlinlang.org/docs/exceptions.html#checked-exceptions); as far as unchecked exceptions are concerned, a language can be tauted as "strongly-typed" but with this giant loop-hole. As programmers, we can never be fully confident, because for example,
 
 - should all the possible exceptions be handled in the current function?
