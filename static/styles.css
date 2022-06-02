@@ -35,3 +35,10 @@ a.title:active
 .markdown-body img {
     border: 1px solid gray;
 }
+
+.promote {
+    background-color: #f5f2f0;
+    padding: 15px 15px;
+    margin: 15px 0 0 0;
+    border-left: 5px solid #6ac81e;
+}
