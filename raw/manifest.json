@@ -28,7 +28,7 @@
     { "title": "Tuck-away and take-one, whatever it takes to look declarative", "markdown": "anything-to-be-declarative.md" },
     { "title": "Good code does not matter... not that much", "markdown": "good-code-does-not-matter.md" },
     { "title": "Setting CAP loose in real life", "markdown": "cap.md" },
-    { "title": "The 'Constants' file is an anti-pattern, so is the 'Interface folder'. Placement by functionality, not technical concerns", "markdown": "where-to-place-x.md" },
+    { "title": "The 'Constants' file is an anti-pattern, so is the 'Interface' folder. Placement by functionality, not technical concerns", "markdown": "where-to-place-x.md" },
     { "title": "Plain and simple state management", "markdown": "plain-state-management.md" },
     { "title": "Self-referenced JSON?", "markdown": "self-reference-json.md" },
     { "title": "Also on Comonad and Conway's game of life", "markdown": "conway-comonad.md" },
