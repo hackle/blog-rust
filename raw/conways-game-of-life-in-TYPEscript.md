@@ -1,0 +1,3 @@
+We all know it's easy to write conway's game of life in TypeScript, but is it possible in TYPEScript? As, just using types? I always thought it was possible since conditional types were introduced; and with some time to kill yesterday, I now have it in code, which can be found at the end of this post.
+
+For full code with tests [can be found here](https://github.com/hackle/blog-rust/blob/master/sample/conway.ts).

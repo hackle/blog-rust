@@ -1,3 +1,12 @@
+/**
+ * to use please mention @hacklew https://github.com/hackle
+ * 
+ * Conway's game of life in TYPEScript - the logic of the game is mostly encoded in types
+ */
+
+/** 
+ * First we need Peano numbers for free transformation between types <-> number
+*/
 type Peano<N extends number, Aggr extends any[] = []> = 
     Aggr['length'] extends N ? Aggr : Peano<N, [1, ...Aggr]>;
 
@@ -29,36 +38,38 @@ type Minus<N1 extends number, N2 extends number> =
 const minus1: Minus<3, 2> = 1;
 const minus2: Minus<16, 2> = 14;
 const minus3: Minus<2, 2> = 0;
-// const minus4: Minus<2, 3> = 
+// const minus4: Minus<2, 3> = never
 
 type Plus<N1 extends number, N2 extends number> = 
-    [...Peano<N1>, ...Peano<N2>]['length'] extends infer R
-    ? R extends number 
-        ? R : never
-        : never;
+    [...Peano<N1>, ...Peano<N2>]['length'] extends infer R extends number 
+    ? R 
+    : never;
 
 const add1: Plus<1, 4> = 5;
 const add2: Plus<0, 4> = 4;
 const num3: number = add2;
 
-type CountLive<Xs extends unknown[], T> = 
+/**
+ * Game stuff begins
+ */
+type CountAlive<Xs extends unknown[], Alive> = 
     Xs extends []
     ? []
     : Xs extends [infer X, ...infer Rest]
-        ? Eq<X, T> extends true
-            ? [X, ...CountLive<Rest, T>]
-            : CountLive<Rest, T>
+        ? Eq<X, Alive> extends true
+            ? [X, ...CountAlive<Rest, Alive>]
+            : CountAlive<Rest, Alive>
         : [];
 
-const onlyTrue1: CountLive<['x', undefined, 'x', ' ', null], 'x'> = ['x', 'x'];
+const onlyTrue1: CountAlive<['x', undefined, 'x', ' ', null], 'x'> = ['x', 'x'];
 const neverEx: never extends boolean ? true : false = true;
 const undefinedEx: undefined extends boolean ? true : false = false;
-const onlyTrue2: CountLive<[true, never], true> = [true];
+const onlyTrue2: CountAlive<[true, never], true> = [true];
 
 type ValueAt<T, Coords extends T[][], 
     R extends number | never,
     C extends number | never, 
-> = C extends never
+> = C extends never // must check never first as "never extends number" succeeds
     ? never
     : R extends never
         ? never
@@ -69,7 +80,7 @@ const coords2: [[true], [true]][never][0] = true;
 const coords3: [[true], [true]][never][never] = true; 
 const coords4: [[false], [false]][never][never] = false; 
 const coords5: [[false], [true]][1][never] = true; 
-const coords6: [[true], [true]][1][1] = undefined; 
+// const coords6: [[true], [true]][1][1] = undefined; 
 
 (() => {
     const _never = (() => { throw new Error(); })();
@@ -83,7 +94,12 @@ const coords6: [[true], [true]][1][1] = undefined;
 });
 
 
-type Neighbours<T, Coords extends T[][], R extends number, C extends number>
+type Neighbours<
+    T, 
+    Coords extends T[][], 
+    R extends number, 
+    C extends number
+>
     = [
         ValueAt<T, Coords, Minus<R, 1>, Minus<C, 1>>,
         ValueAt<T, Coords, Minus<R, 1>, C>,
@@ -122,74 +138,76 @@ type Neighbours<T, Coords extends T[][], R extends number, C extends number>
     ];
 });
     
-type LiveNeighbours<Live, Die, Coords extends (Live | Die)[][], R extends number, C extends number> = 
-    CountLive<Neighbours<(Live | Die), Coords, R, C>, Live> extends infer ToLive
-    ? ToLive extends any[]
-        ? ToLive['length']
-        : never
+type AliveNeighbours<
+    Alive, 
+    Dead, 
+    Coords extends (Alive | Dead)[][], 
+    R extends number, 
+    C extends number
+> = 
+    CountAlive<Neighbours<(Alive | Dead), Coords, R, C>, Alive> extends infer ToAlive extends any[]
+    ? ToAlive['length']
     : never;
 
-const liveNeigbours1: LiveNeighbours<'x', ' ', [], 0, 0> = 0;
+const liveNeigbours1: AliveNeighbours<'x', ' ', [], 0, 0> = 0;
 
-const liveNeigbours2: LiveNeighbours<'x', ' ', [
+const liveNeigbours2: AliveNeighbours<'x', ' ', [
     ['x', 'x', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
 ], 1, 1> = 8;
 
-const liveNeigbours2a: LiveNeighbours<'x', ' ', [
+const liveNeigbours2a: AliveNeighbours<'x', ' ', [
     [' ', ' ', ' '],
     [' ', ' ', ' '],
     [' ', ' ', ' ']
 ], 1, 1> = 0;
 
-const liveNeigbours3: LiveNeighbours<'x', ' ', [
+const liveNeigbours3: AliveNeighbours<'x', ' ', [
     ['x', 'x', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
 ], 0, 0> = 3;
 
-const liveNeigbours3a: LiveNeighbours<'x', ' ', [
+const liveNeigbours3a: AliveNeighbours<'x', ' ', [
     ['x', ' ', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
 ], 0, 0> = 2;
 
-const liveNeigbours4: LiveNeighbours<'x', ' ', [
+const liveNeigbours4: AliveNeighbours<'x', ' ', [
     ['x', 'x', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
 ], 2, 2> = 3;
 
-const liveNeigbours5: LiveNeighbours<'x', ' ', [
+const liveNeigbours5: AliveNeighbours<'x', ' ', [
     ['x', 'x', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
 ], 1, 0> = 5;
 
-const liveNeigbours6: LiveNeighbours<true, false, [
+const liveNeigbours6: AliveNeighbours<true, false, [
     [true, true, true],
     [true, true, true],
     [true, true, true]
 ], 0, 1> = 5;
 
 type MapOneCell<
-    Live,
-    Die,
-    Coords extends (Live | Die)[][], 
+    Alive,
+    Dead,
+    Coords extends (Alive | Dead)[][], 
     R extends number,
     C extends number,
-> = LiveNeighbours<Live, Die, Coords, R, C> extends infer Nc
-    ? Nc extends number
-        ? Eq<Nc, 3> extends true
-            ? Live
-            : Eq<Nc, 2> extends true
-                ? Eq<ValueAt<(Live | Die), Coords, R, C>, Live> extends true
-                    ? Live
-                    : Die
-                : Die
-        : Die
-    : Die;
+> = AliveNeighbours<Alive, Dead, Coords, R, C> extends infer Nc extends number
+    ? Eq<Nc, 3> extends true
+        ? Alive
+        : Eq<Nc, 2> extends true
+            ? Eq<ValueAt<(Alive | Dead), Coords, R, C>, Alive> extends true
+                ? Alive
+                : Dead
+            : Dead
+    : Dead;
 
 const mapOneCell1: MapOneCell<'x', ' ', [['x']], 0, 0> = ' ';
 
@@ -218,49 +236,37 @@ const mapOneCell4: MapOneCell<'x', ' ', [
 ], 0, 0> = 'x';
 
 type MapOneRow<
-    Live,
-    Die,
-    Coords extends (Live | Die)[][], 
-    Row extends unknown[],
+    Alive,
+    Dead,
+    Coords extends (Alive | Dead)[][], 
     R extends number,
     C extends number = 0,
-> = Row extends []
+> = Gte<C, Coords[R]['length']> extends true
     ? []
-    : Row extends [infer _, ...infer Rest]
-        ? Rest extends unknown[] 
-            ? [ MapOneCell<Live, Die, Coords, R, C>, ...MapOneRow<Live, Die, Coords, Rest, R, Plus<C, 1>> ]
-            : never
-        : never;
+    : [ MapOneCell<Alive, Dead, Coords, R, C>, ...MapOneRow<Alive, Dead, Coords, R, Plus<C, 1>> ]
 
-const mapOneRow0: MapOneRow<'x', ' ', [], [], 0> = [];
+const mapOneRow0: MapOneRow<'x', ' ', [], 0, 0> = [];
 
 const mapOneRow1: MapOneRow<'x', ' ', [
     ['x', 'x', 'x'],
     ['x', 'x', 'x'],
     ['x', 'x', 'x']
-], ['x', 'x', 'x'], 0> = ['x', ' ', 'x'];
+], 0> = ['x', ' ', 'x'];
 
 const mapOneRow2: MapOneRow<'x', ' ', [
     [' ', ' ', ' '],
     [' ', ' ', ' '],
     [' ', ' ', ' ']
-], [undefined, undefined, undefined], 0> = [' ', ' ', ' '];
+], 0> = [' ', ' ', ' '];
 
 type Next<
-    Live,
-    Die,
-    Coords extends (Live | Die)[][],
-    Cur extends unknown[][] = Coords,
+    Alive,
+    Dead,
+    Coords extends (Alive | Dead)[][],
     R extends number = 0
-> = Cur extends []
+> = Gte<R, Coords['length']> extends true
     ? []
-    : Cur extends [infer Row, ...infer Rest]
-        ? Row extends unknown[]
-            ? Rest extends unknown[][]
-                ? [MapOneRow<Live, Die, Coords, Row, R>, ...Next<Live, Die, Coords, Rest, Plus<R, 1>>]
-                : never
-            : never
-        : never;
+    : [MapOneRow<Alive, Dead, Coords, R>, ...Next<Alive, Dead, Coords, Plus<R, 1>>]
 
 const next0: Next<'x', ' ', []> = [];
 
@@ -286,22 +292,22 @@ const next4: Next<'x', ' ', [
     ['x', ' ', 'x']
 ];
 
+/**
+ * A game runner with 'x' | '.' and utilities for parse and display
+ */
+
 type Cell = 'x' | '.';
 type ParseRow<Row extends string> = 
     Row extends ''
     ? []
-    : Row extends `${infer X}${infer Rest}`
-        ? X extends Cell
-            ? Rest extends string 
-                ? [X, ...ParseRow<Rest>]
-                : never
-            : never
+    : Row extends `${infer X extends Cell}${infer Rest extends string }`
+        ? [X, ...ParseRow<Rest>]
         : never;
 
 const parseRow1: ParseRow<'x.x.x'> = ["x", ".", "x", ".", "x"];
 
 type Parse<
-    Input = string
+    Input extends string
 > = Input extends ''
     ? []
     : Input extends `${infer Row}\n${infer Rest}`
@@ -316,12 +322,8 @@ xxx
 type SerializeRow<Row extends Cell[]> =
     Row extends []
     ? ''
-    : Row extends [infer X, ...infer Rest]
-        ? X extends Cell
-            ? Rest extends Cell[]
-                ? `${X}${SerializeRow<Rest>}`
-                : never
-            : never
+    : Row extends [infer X extends Cell, ...infer Rest extends Cell[]]
+        ? `${X}${SerializeRow<Rest>}`
         : never;
 
 const serializeRow0: SerializeRow<[]> = '';
@@ -330,12 +332,8 @@ const serializeRow1: SerializeRow<['x', '.', 'x', '.', 'x']> = 'x.x.x';
 type Serialize<T extends Cell[][]> =
     T extends []
     ? '\n'
-    : T extends [infer X, ...infer Rest]
-        ? X extends Cell[]
-            ? Rest extends Cell[][]
-                ? `${SerializeRow<X>}\n${Serialize<Rest>}`
-                : never
-            : never
+    : T extends [infer X extends Cell[], ...infer Rest extends Cell[][]]
+        ? `${SerializeRow<X>}\n${Serialize<Rest>}`
         : never;
 
 const serialize0: Serialize<[]> = '\n';
@@ -348,13 +346,11 @@ const serialize1: Serialize<[['x', '.', 'x'], ['.', 'x', '.']]> =
 type Move<T extends Cell[][]> = Next<'x', '.', T>;
 const move1: Move<typeof parse1> = [["x", ".", "x"], [".", ".", "."], ["x", ".", "x"]];
 
-type Play<T extends Cell[][], Moves extends number> =
-    Moves extends 0
+type Play<T extends Cell[][], MaxMoves extends number> =
+    MaxMoves extends 0
     ? []
-    : Move<T> extends infer N
-        ? N extends Cell[][]
-            ? [Serialize<N>, ...Play<N, Minus<Moves, 1>>]
-            : never
+    : Move<T> extends infer N extends Cell[][]
+        ? [Serialize<N>, ...Play<N, Minus<MaxMoves, 1>>]
         : never;
 
 const play0: Play<[], 5> = ["\n", "\n", "\n", "\n", "\n"];
@@ -386,7 +382,12 @@ x.x
 `,
 ]
 
-type slider = 
+/**
+ * Let's have a slider
+ */
+
+/** initial state of the game  */
+type Slider = 
 `x.........
 .xx.......
 xx........
@@ -398,7 +399,13 @@ xx........
 ..........
 ..........
 `
-const slider: Play<Parse<slider>, 5> = [
+
+/** 
+ * 20 moves are captured in an array
+ * the values are enforced by types!
+ * with VS Code I just used auto-completion
+ */
+const slider: Play<Parse<Slider>, 20> = [
 `.x........
 ..x.......
 xxx.......
@@ -458,5 +465,201 @@ x.x.......
 ..........
 ..........
 
+`,
+`..........
+..........
+.x.x......
+..xx......
+..x.......
+..........
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+...x......
+.x.x......
+..xx......
+..........
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..x.......
+...xx.....
+..xx......
+..........
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+...x......
+....x.....
+..xxx.....
+..........
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..x.x.....
+...xx.....
+...x......
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+....x.....
+..x.x.....
+...xx.....
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+...x......
+....xx....
+...xx.....
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+....x.....
+.....x....
+...xxx....
+..........
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+...x.x....
+....xx....
+....x.....
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+.....x....
+...x.x....
+....xx....
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+....x.....
+.....xx...
+....xx....
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+.....x....
+......x...
+....xxx...
+..........
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+..........
+....x.x...
+.....xx...
+.....x....
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+..........
+......x...
+....x.x...
+.....xx...
+..........
+..........
+
+`,
+`..........
+..........
+..........
+..........
+..........
+.....x....
+......xx..
+.....xx...
+..........
+..........
+
 `
 ]
+
+/**
+ * show the slider in animation
+ */
+animateGame(slider);
+
+function animateGame(gameSnapshots: string[], idx: number = 0) {
+    if (!slider[idx]) return;
+
+    console.clear();
+    console.log(slider[idx]);
+
+    setTimeout(() => {
+        animateGame(gameSnapshots, idx+1);
+    }, 200);
+}
