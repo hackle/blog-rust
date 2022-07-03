@@ -46,5 +46,6 @@
     { "title": "Types or Operations: keep it closed, or keep it open", "markdown": "dont-close-what-is-open.md" },
     { "title": "TypeScript: Convert Union to Tuple/Array, Yes but How?", "markdown":  "typescript-union-to-tuple-array.md" },
     { "title": "TypeScript Fireworks: Union, Intersection and Variance", "markdown":  "typescript-co-and-contra-variant.md" },
-    { "title": "Golang error handling: yes to values, no to exceptions, a win for the future", "markdown":  "go-lang-error-handling.md" }
+    { "title": "Golang error handling: yes to values, no to exceptions, a win for the future", "markdown":  "go-lang-error-handling.md" },
+    { "title": "Is TYPEScript Turing complete? Not sure. Game of life? Why not!", "markdown":  "conways-game-of-life-in-TYPEscript.md" }
 ]
