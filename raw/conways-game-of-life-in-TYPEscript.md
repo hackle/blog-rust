@@ -166,4 +166,4 @@ const play1: Play<typeof state1, 5> = [...auto complete here...];
 
 Before this point, no values are required, it's all type-level stuff. Eventually, the types result in values. The value `const moves = Play<'x..x..', 5>` will contain 5 consecutive moves, calculated by the `Play` type. We then lapse into value-level programming, i.z. a function written in vanilla TypeScript to loop through these 5 moves for animated display.
 
-That's it! It's not something that I should be doing every day, but it's definitely fun. Go grab the code [here](https://github.com/hackle/blog-rust/blob/master/sample/conway.ts) and have a play!
+That's it. It's not something that I should be doing every day, but it's definitely fun. Go grab the code [here](https://github.com/hackle/blog-rust/blob/master/sample/conway.ts) and have a play!
