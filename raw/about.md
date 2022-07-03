@@ -2,37 +2,34 @@ Hi - thanks for opening this blog. My name is Hackle Wayne, I am a software deve
 
 "Between the abstractions we need and the abstractions we get" is a phrase I borrowed from the mighty and hilarious Erik Meijer, particularly, [this talk](https://www.youtube.com/watch?v=NKeHrApPWlo)
 
-I am a programmer and I enjoy programming a lot. At work I use a lot of C# and TypeScript, but with my own time I particularly enjoy using (and learning, and learning with) languages such as Idris, Haskell, F#.
+I am a programmer, and I enjoy programming a lot. At work, I use mainstream languages such as Python, Kotlin, C#, TypeScript and Go, but with my own time I particularly enjoy using (and learning, and learning with) languages such as Idris, Haskell, F#.
 
-The setup of this blog is based on the excellent [serverless-haskell](https://github.com/seek-oss/serverless-haskell) project. You'll find a [write-up](/how-is-this-blog-put-together) for how I managed to wire everything up.
+The setup of this blog (was based on the excellent [serverless-haskell](https://github.com/seek-oss/serverless-haskell) project) has been rewritten a few times, currently it's in Rust. You'll find a [write-up](/how-is-this-blog-put-together) for how I managed to wire everything up.
 
 If you ever want to get in touch, this is my email address but reversed: moc.liamtoh@welkcah (you'll find an article dedicated to a ``reverse`` function in Idris). Or find me on Twitter [@hacklew](https://twitter.com/hacklew).
 
-## Speaking and talks
+## Speaking, workshops and talks
 
-I am available for speaking at conferences, meetups or workplaces when there is genuine interest. Below are some of the current topics,
+Occasionally, you can find me speaking at conferences and meetups, or running workshops (sometimes remotely).
 
-## I fought the law and the law won
-A satirical account of introspection, thoughts, ideas and rant about how neglecting the inevitable in software development can lead to situations not exactly fun.
+My talks can be about a specific area ("Goodbye Regex, Hello Parsers", "Dude where is my class") or a bit philosophical ("I fought the law and the law won"),
 
-## Test cheap, code simple (also called "Pragmatic unit testing now!")
+My workshops, on the other hand, are mostly very hands-on and focus strongly on thought processes, crafts and good habits. Drop me a line if you want to learn more. Currently, I offer these two below.
 
-A workshop to introduce a few very simple ideas and techniques to make unit testing more useful, fun and practical.
+* The ACT: Architecture, Code and Testing
 
-## CBD programmers: Clearly Brutally Declaratively
+   This workshop makes sense of code, test and architecture across languages, frameworks or conventions. It's made for experienced engineers and teams who may have doubts about existing "best practices", and are looking for simpler, clearer and saner ways of programming and engineering. The techniques and philosophies introduced here can be controversial in the beginning, but will prove thought-provoking and rewarding with exercises and discussions. This can be tailored for groups. (Be warned words such as SOLID, Clean or TDD are forbidden in this workshop)
 
-A hands-on intro to declarative ways of thinking and programming.
+* Intentional TypeScript
 
-## Goodbye RegEx, Hello Parsers
+   This is an advanced workshop on TypeScript, specifically on how to break away from habits or conventions from static-typing in the likes of C# or Java, to grasp and apply the power of TypeScript that may be unheard of in other mainstream languages.
 
-An brief introduction to problem solving with parsers when regular expressions get stretched.
+Usually, the workshops feature unexpected tangents that are inspirational and rewarding for all.
 
-## React and TypeScript Thinker-Doers
+Although it's not how I make my living, the workshops unfailingly create a lot of joy as well as food for thought.
 
-A series of 8 workshops to get you started properly and strongly with React and TypeScript, with a bias towards first-principle thinking.
+When a workshop is scheduled (by conferences), I will usually add a banner to the blog.
 
-## TypeScript Power-users
-A series of 4 workshops focussing on coding in functional style TypeScript.
+> Why would you still want to attend an in-person workshop?!
 
-## Immutability for free! (use lens in TypeScript for the win)
-We look at the concept and implementation of lens, and see how it can be used in day-to-day scenarios for fun and profit.
+> Because it's one of the quickest ways to get up-to-speed on something. Learning with a good guide can be a big time-saver not just for the duration of a workshop, but especially for the long term if good habits are formed, and good structures are charted out.

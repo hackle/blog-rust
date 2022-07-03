@@ -205,7 +205,7 @@ const unchanged = remove([ 1, 2, 3 ] as const, 4 as const); // [1, 2, 3]
 
 ## Peano number
 
-While we can also define Peano numbers as tuples, below is the more traditional object form.
+While we can also define Peano numbers as tuples (which can be more convenient for other purposes. [this later post](/conways-game-of-life-in-TYPEscript) shows how it is done), below is the more traditional object form.
 
 ```TypeScript
 type Nat = 0 | { suc: Nat };

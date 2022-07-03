@@ -12,6 +12,27 @@
     }
 }
 
+header {
+    position: relative;
+}
+
+.links {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}
+
+.links>* {
+    margin-left: 5px;
+}
+
+.twitter-logo {
+    display: inline;
+    vertical-align: bottom;
+    width: 25px;
+    border-width: 0px !important;
+}
+
 a.title:link,
 a.title:visited,
 a.title:hover,
@@ -20,12 +41,13 @@ a.title:active
     font-size: 32px;
     text-decoration: none;
     color: #6ac81e;
-    font-weight: normal;
+    font-weight: lighter;
+    display: block;
+    transform: scaleY(2);
 }
 
 .subtitle {
     color: darkgreen;
-    font-style: italic;
 }
 
 .token.operator {
