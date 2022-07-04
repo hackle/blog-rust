@@ -26,11 +26,11 @@ header {
     margin-left: 5px;
 }
 
-.twitter-logo {
-    display: inline;
-    vertical-align: bottom;
+.twitter-logo, .rss-logo {
     width: 25px;
     border-width: 0px !important;
+    display: inline;
+    vertical-align: bottom;
 }
 
 a.title:link,
