@@ -1,8 +1,8 @@
-use std::path::PathBuf;
-use chrono::{DateTime, Utc};
+use std::{path::PathBuf};
+use chrono::{DateTime, Utc };
 use comrak::{ComrakExtensionOptions, ComrakOptions, markdown_to_html};
 use regex::Regex;
-use rocket::response::content::Xml;
+use rocket::{response::content::Xml};
 use rss::{ItemBuilder, ChannelBuilder, Item};
 use serde::{Deserialize};
 
@@ -28,6 +28,7 @@ pub struct Registry {
     pub markdown: String,
     #[serde(default)]
     pub hidden: bool,
+    pub updated: DateTime<Utc>,
 }
 
 pub struct GithubSource {
@@ -35,7 +36,7 @@ pub struct GithubSource {
 }
 
 pub struct LocalSource {
-    pub directory: PathBuf
+    pub directory: PathBuf 
 }
 
 impl LocalSource {
@@ -115,12 +116,12 @@ pub fn load_local(slug: &str) -> Result<(Post, Vec<Post>, String), String> {
 
 pub fn to_posts(registries: &Vec<Registry>) -> Vec<Post> {
     return registries.iter()
-        .map(|Registry{ title, markdown, hidden } | Post {
+        .map(|Registry{ title, markdown, hidden, updated } | Post {
             title: title.to_owned(),
             slug: to_slug(title),
             path: markdown.to_owned(),
             hidden: *hidden,
-            updated: Utc::now(),
+            updated: updated.to_owned(),
         })
         .rev()
         .collect();
@@ -175,28 +176,33 @@ pub async fn build_rss(remote_url: &Result<String, String>) -> Result<Xml<String
     let host_name = "https://hacklewayne.com";
 
     return all_posts.and_then(|posts| {
-            let items: Vec<Item> = posts.iter()
-                .map(|post| ItemBuilder::default()
-                    .title(Some(post.title.to_owned()))
-                    .link(Some(format!("{}/{}", host_name, post.slug)))
-                    .pub_date(Some(format!("{}", post.updated.format("%Y-%m-%dT%H:%M:%SZ"))))
-                    .build()
-                )
-                .collect();
+        let pub_date = posts.first().unwrap().updated.to_owned();
+        
+        let items: Vec<Item> = posts.iter()
+            .map(|post| ItemBuilder::default()
+                .title(Some(post.title.to_owned()))
+                .link(Some(format!("{}/{}", host_name, post.slug)))
+                .pub_date(Some(format!("{}", post.updated.to_rfc2822())))
+                .build()
+            )
+            .collect();
 
-            let channel = ChannelBuilder::default()
-            .title("Hackle's blog")
-            .link(host_name)
-            .description("Hackle Wayne's blog about many nerdy things")
-            .items(items)
-            .build();
-    
-            return Ok(Xml(channel.to_string()));
-        });
+        let channel = ChannelBuilder::default()
+        .title("Hackle's blog")
+        .link(host_name)
+        .description("Hackle Wayne's blog about many nerdy things")
+        .items(items)
+        .pub_date(Some(pub_date.to_rfc2822()))
+        .build();
+
+        return Ok(Xml(channel.to_string()));
+    });
 }
 
 #[cfg(test)]
 mod tests {
+    use chrono::TimeZone;
+
     use super::*;
 
     #[test]
@@ -209,28 +215,36 @@ mod tests {
     }
 
     #[test]
-    fn test_find_post_by_slug() {
-        let mut posts = vec![
-            ("Anything to be declarative", "anything-to-be-declarative.md"),
-            ("Types and tests", "types-and-tests.md")
-        ];
-        // assert_eq!(find_post_for_slug("non-existent", &PathBuf::from("src/")), PathBuf::from("src/anything-to-be-declarative.md"));
-        // assert_eq!(find_post_for_slug(&mut posts, "anything-to-be-declarative", &PathBuf::from("src/")), (String::from("Anything to be declarative"), PathBuf::from("src/anything-to-be-declarative.md")));
-        // assert_eq!(find_post_for_slug(&mut posts, "types-and-tests", &PathBuf::from("src/")), (String::from("Types and tests"), PathBuf::from("src/types-and-tests.md")));
-    }
-
-    #[test]
     fn test_deserialise_registry() {
         let raw = r#"[
-{ "title": "A few things about unit testing", "markdown": "presso-pragmatic-unit-testing.md" },
-{ "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md", "hidden": true }
+{ "title": "A few things about unit testing", "markdown": "presso-pragmatic-unit-testing.md", "updated": "2021-03-21T01:23:45Z" },
+{ "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md", "hidden": true, "updated": "2021-04-01T01:23:45Z" }
 ]"#;
         let expected = vec![
-            Registry { title: String::from("A few things about unit testing"), markdown: String::from("presso-pragmatic-unit-testing.md"), hidden: false },
-            Registry { title: String::from("LINQ, infinity, laziness and oh my!"), markdown: String::from("linq-tips.md"), hidden: true },
+            Registry { 
+                title: String::from("A few things about unit testing"), 
+                markdown: String::from("presso-pragmatic-unit-testing.md"), 
+                hidden: false, 
+                updated: Utc.ymd(2021, 3, 21).and_hms(1, 23, 45) 
+            },
+            Registry { 
+                title: String::from("LINQ, infinity, laziness and oh my!"), 
+                markdown: String::from("linq-tips.md"), 
+                hidden: true, 
+                updated: Utc.ymd(2021, 4, 1).and_hms(1, 23, 45) 
+            },
         ];
         let posts: Vec<Registry> = serde_json::from_str(&raw).unwrap();
 
         assert_eq!(posts, expected)
+    }
+
+    /*
+    In honesty this is an integration test
+    */
+    #[test]
+    fn test_load_manifest() {
+        let source = load_all_posts_local(&LocalSource::default());
+        assert!(source.is_ok())
     }
 }
