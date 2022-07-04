@@ -29,9 +29,6 @@ jobs:
       - name: Build App
         run: |
           ${GITHUB_WORKSPACE}/build.sh
-      - name: Run tests
-        run: |
-          cargo test
       - name: Deploy with serverless
         uses: serverless/github-action@master
         with:
