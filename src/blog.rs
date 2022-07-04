@@ -1,6 +1,9 @@
 use std::path::PathBuf;
+use chrono::{DateTime, Utc};
 use comrak::{ComrakExtensionOptions, ComrakOptions, markdown_to_html};
 use regex::Regex;
+use rocket::response::content::Xml;
+use rss::{ItemBuilder, ChannelBuilder, Item};
 use serde::{Deserialize};
 
 #[derive(Clone, Debug)]
@@ -16,6 +19,7 @@ pub struct Post {
     pub title: String,
     pub path: String,
     pub hidden: bool,
+    pub updated: DateTime<Utc>
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
@@ -23,7 +27,7 @@ pub struct Registry {
     pub title: String,
     pub markdown: String,
     #[serde(default)]
-    pub hidden: bool
+    pub hidden: bool,
 }
 
 pub struct GithubSource {
@@ -45,6 +49,10 @@ impl LocalSource {
         std::fs::read_to_string(&self.directory.join(p))
             .map_err(|_| String::from("Cannot read markdown"))
     }
+
+    pub fn default() -> LocalSource {
+        return LocalSource { directory: std::env::current_dir().unwrap().join("raw") }
+    }
 }
 
 impl GithubSource {
@@ -62,29 +70,44 @@ impl GithubSource {
             Ok(response) => response.text().await.map_err(|_| String::from("Cannot read remote markdown content"))
         }
     }
+
+    pub fn new(remote_url: &String) -> GithubSource {
+        return GithubSource { base_url: remote_url.to_owned() };
+    }
+}
+
+pub async fn load_all_posts_remote(source: &GithubSource) -> Result<Vec<Post>, String> {
+    return match source.get_manifest().await {
+        Err(_) => Err(String::from("Loading manifest failed")),
+        Ok(manifest) => Ok(to_posts(&manifest))
+    };
 }
 
 pub async fn load_remote(remote_url: &String, slug: &str) -> Result<(Post, Vec<Post>, String), String> {
-    let source = GithubSource { base_url: remote_url.to_owned() };
+    let source = GithubSource::new(remote_url);
 
-    return match source.get_manifest().await {
-        Err(_) => Err(String::from("Loading manifest failed")),
-        Ok(manifest) => {
-            let all_posts = to_posts(&manifest);
+    return match load_all_posts_remote(&source).await {
+        Ok(all_posts) => {
             let current_post = find_post_for_slug(&all_posts, slug);
 
             return match source.read_content(&current_post.path).await {
                 Err(_) => Err(String::from("Reading current post failed")),
                 Ok(content) => Ok((current_post, all_posts, content))
             };
-        }
+        },
+        Err(err) => Err(err)
     };
 }
 
+pub fn load_all_posts_local(source: &LocalSource) -> Result<Vec<Post>, String> {
+    return source.get_manifest()
+        .map(|manifest| to_posts(&manifest));
+}
+
 pub fn load_local(slug: &str) -> Result<(Post, Vec<Post>, String), String> {
-    let source = LocalSource { directory: std::env::current_dir().unwrap().join("raw") };
-    return source.get_manifest().and_then(|manifest| {
-        let all_posts = to_posts(&manifest);
+    let source = LocalSource::default();
+
+    return load_all_posts_local(&source).and_then(|all_posts| {
         let current_post = find_post_for_slug(&all_posts, slug);
         return source.read_content(&current_post.path).map(|content| (current_post, all_posts, content));
     });
@@ -97,6 +120,7 @@ pub fn to_posts(registries: &Vec<Registry>) -> Vec<Post> {
             slug: to_slug(title),
             path: markdown.to_owned(),
             hidden: *hidden,
+            updated: Utc::now(),
         })
         .rev()
         .collect();
@@ -140,6 +164,35 @@ pub fn find_post_for_slug(posts: &Vec<Post>, slug_to_find: &str) -> Post {
         .find(|Post { slug, path,.. } | slug == slug_to_find || *path == format!("{}.md", slug_to_find))
         .unwrap_or_else(|| posts.iter().filter(|Post{hidden, ..}| !*hidden).nth(0).unwrap())
         .to_owned();
+}
+
+pub async fn build_rss(remote_url: &Result<String, String>) -> Result<Xml<String>, String> {
+    let all_posts = match remote_url {
+        Ok(remote_url) => load_all_posts_remote(&GithubSource::new(&remote_url)).await,
+        Err(var_err) => Err(var_err.to_string())
+    }.or_else(|_| load_all_posts_local(&LocalSource::default()));
+
+    let host_name = "https://hacklewayne.com";
+
+    return all_posts.and_then(|posts| {
+            let items: Vec<Item> = posts.iter()
+                .map(|post| ItemBuilder::default()
+                    .title(Some(post.title.to_owned()))
+                    .link(Some(format!("{}/{}", host_name, post.slug)))
+                    .pub_date(Some(format!("{}", post.updated.format("%Y-%m-%dT%H:%M:%SZ"))))
+                    .build()
+                )
+                .collect();
+
+            let channel = ChannelBuilder::default()
+            .title("Hackle's blog")
+            .link(host_name)
+            .description("Hackle Wayne's blog about many nerdy things")
+            .items(items)
+            .build();
+    
+            return Ok(Xml(channel.to_string()));
+        });
 }
 
 #[cfg(test)]
