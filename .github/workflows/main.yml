@@ -17,9 +17,9 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Run tests
         run: |
-          apt-get update -y && \
+          sudo apt-get update -y && \
           apt-get install -y awscli gcc openssl-devel tree zip && \
-          curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal \
+          curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal && \
           cargo test
 
   deploy:
