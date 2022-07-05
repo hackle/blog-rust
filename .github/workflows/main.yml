@@ -15,6 +15,12 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Run tests
+        run: |
+          yum update -y && \
+          yum install -y awscli gcc openssl-devel tree zip && \
+          curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal \
+          cargo test
 
   deploy:
     runs-on: ubuntu-latest
