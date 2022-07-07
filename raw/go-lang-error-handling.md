@@ -37,11 +37,20 @@ A big problem with exception-based error handling is the difficulty of expressin
 - if a dependency adds a new exception, or slightly changes an existing exception, our error handling is thrown off (pun intended)
 - we can have a catch-all for graceful termination, but it is not always equal to meaningful handling
 
+Overall, the thrower does not know who catches, and catcher does not know who throws. It's all a bit wishy-washy. This diagram captures the confusion: control flow can go anywhere and the lines are intertwined to the point of dizzying.
+
+![Exception based error handling](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/exception-everyone-catches.jpg)
+
+
 There you go, don't feel bad about second-guessing yourself about exception-based error-handling, it's just not meant to be a complete solution.
 
 And sure, there are plenty of literature and best practices on how [NOT to use exceptions for control flow](https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2017/profiling/da0007-avoid-using-exceptions-for-control-flow?view=vs-2017#rule-description), but more often than not, we don't actually have a choice. 
 
 Let us not forget, if you appreciate flat and clean code style, nested `try/catch` is a thing of beauty!
+
+Sarcasm aside, it's possible to keep it sane: only catch exceptions at the top level. This diagram should show how clean it is.
+
+![Exception only caught on top level](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/exception-only-catches.jpg)
 
 ## behold value-based error-handling
 
@@ -128,7 +137,16 @@ fn main() {
 }
 ```
 
-The author's intention is very clear: there is no point in disguising this error as a value; instead, the application should be terminated pronto; this final and effective; nobody should try to override this decision with a `try catch`; actually, Rust means business with this, [you can't recover from a `panic!`](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html)
+The author's intention is very clear: there is no point in disguising this error as a value; instead, the application should be terminated pronto; this is final and effective; nobody should try to override this decision with a `try catch`; actually, Rust means business with this, [you can't recover from a `panic!`](https://doc.rust-lang.org/book/ch09-03-to-panic-or-not-to-panic.html)
+
+This results in a pretty neat diagram. Within a function,
+![neat value based error handling](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/value-internal-view.jpg)
+
+And taking in the callers of this function,
+
+![value based error handling external view](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/value-external-view.jpg)
+
+You would appreciate the cleanness and beauty of the structures.
 
 ## Go is in between and a step forward
 
