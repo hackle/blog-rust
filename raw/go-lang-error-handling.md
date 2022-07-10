@@ -48,7 +48,7 @@ And sure, there are plenty of literature and best practices on how [NOT to use e
 
 Let us not forget, if you appreciate flat and clean code style, nested `try/catch` is a thing of beauty!
 
-Sarcasm aside, it's possible to keep it sane: only catch exceptions at the top level. Unfortunately it's rarely done this way.
+Sarcasm aside, it's possible to keep it sane: only catch exceptions at the top level. Unfortunately it's rarely done this way in most applications out in the wild.
 
 ![Exception only caught on top level](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/exception-based-error-handling-catch-all.png)
 
