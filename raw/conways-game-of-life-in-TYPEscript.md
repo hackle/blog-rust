@@ -12,6 +12,8 @@ This is where people would claim "TYPEScript type system is turing-complete"! Ho
 
 > It would be obvious but please do note this is not something you would put in production. Maybe for pair programming at an interview :-) 
 
+From this point on it would be more fun if you load up [the code](https://github.com/hackle/blog-rust/blob/master/sample/conway.ts) in VS Code (or your favourite IDE).
+
 ## Peano numbers again
 
 With the introduction of conditional types (ages ago), it was already possible to have conditional or recursive type level computation. A big blocker for me to make the game of life has been numbers and ways to manipulate numbers. For example, I must be able to add or subtract numbers to find neighbouring cells for a cell at a coordinate.
