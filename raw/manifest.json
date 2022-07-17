@@ -47,5 +47,6 @@
     { "updated": "2022-04-27T09:13:10Z", "title": "TypeScript: Convert Union to Tuple/Array, Yes but How?", "markdown":  "typescript-union-to-tuple-array.md" },
     { "updated": "2022-05-16T08:16:16Z", "title": "TypeScript Fireworks: Union, Intersection and Variance", "markdown":  "typescript-co-and-contra-variant.md" },
     { "updated": "2022-06-01T07:44:05Z", "title": "Golang error handling: yes to values, no to exceptions, a win for the future", "markdown":  "go-lang-error-handling.md" },
-    { "updated": "2022-07-03T06:11:16Z", "title": "Is TYPEScript Turing complete? Not sure. Game of life? Why not!", "markdown":  "conways-game-of-life-in-TYPEscript.md" }
+    { "updated": "2022-07-03T06:11:16Z", "title": "Is TYPEScript Turing complete? Not sure. Game of life? Why not!", "markdown":  "conways-game-of-life-in-TYPEscript.md" },
+    { "updated": "2022-07-17T13:43:00Z", "title": "On the geometrical beauty of programming", "markdown":  "geometric-beauty-of-code-design.md" }
 ]
