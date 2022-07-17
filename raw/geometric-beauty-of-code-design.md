@@ -1,6 +1,6 @@
-If we use the simplest elements to represent a  program: circles for values and arrows for computations, we can reveal some simple but powerful ideas that can make big differences in how we see, design and implement software.
+If we use the simplest elements to represent a  program: circles for values and arrows for computations, we can reveal simple yet powerful ideas that can make big differences in how we see, design and implement software.
 
-More importantly, there are geometrical beauty in programming. Awareness and observation of such beauty can help very rewarding.
+More importantly, there are geometrical beauty to be found, awareness and observation of which can be rewarding.
 
 ## Statements vs Expressions, forward or backward?
 
@@ -25,13 +25,13 @@ fun goodMorning(weather, time) {
 
 ![statements](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/statement-based-flow.png)
 
-This routine function uses statements, as most of us were taught to do with main stream languages. A statement does not return a value, in this case, it's in the form of assignment or mutation. 
+This routine function uses statements, as most of us were taught to do with main stream languages. A statement does not return a value, it assigns/mutates a value, or has side effects such as writing to a file.
 
-When assignment happens, the execution seems to stop, with the side-effect that the variable `isGoodMorning` is mutated, hence the dotted lines that go backwards (as `isGoodMorning` is declared prior to assignments). Depending on the choice of mutations the outcome of the program is changed.
+In our case, when an assignment is executed, it creates to no new value; instead it mutates an existing variable `isGoodMorning`, hence the dotted lines that go backwards (as `isGoodMorning` is declared prior to assignments). Depending on the choice of mutations the outcome of the program is different.
 
-Local variables require the arrows to go back locally, which is not THAT bad; class fields, global variables can be way nastier, as the arrows go outside, but also because such variables can be mutated else where, outside of the present code block. The poor programmer must stay alert all the time: "did `this.foo` change since this code is last run?! Or when it is running?"
+Local variables require the arrows to go back locally, which is not THAT bad; class fields, global variables can be way nastier, as they require the arrows go outside of the current code block; moreover, such variables are fair-game, they can be mutated elsewhere, at arbitrary locations. We poor programmers must stay alert all the time: "Has `this.foo` changed since this code was last run?! Or would it when it is running?"
 
-On the other hand, the same function but implemented differently, this time only with expressions - note the lack of mutation.
+Alternatively, the same function can be implemented only with expressions, and with complete lack of mutation.
 
 ```
 fun goodMorning(weather, time) {
@@ -42,17 +42,17 @@ fun goodMorning(weather, time) {
 }
 ``` 
 
-Is represented as this.
+This can be represented as below.
 
 ![expressions](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/expression-based-flow.png)
 
-An expression based function translates to a nice, one-directional diagram. Why one-directional? It's because,
-* values cannot be mutated, so there is no need for arrows to go backwards
-* a values is either used to build up more values, or returned at the end
-* a value can always be rebuilt to the same result, as its parts are also values or expressions (that never change!
-* this also applies to global values
+The expression based implementation translates to a nice, one-directional diagram. Why one-directional? It's because,
+* values cannot be mutated, so there is no need, and no way for arrows to go backwards
+* a values is either used to build up more values, or returned at the end. Or it's unused and redundant
+* a result value can be rebuilt if its dependencies are also values or expressions (that never change!
+* this works equally well when global values are dependencies
 
-These are incredibly powerful assurances to have, and it greatly reduces the mental burden. This is what straight-**FORWARD** code really looks like - you may say statement-based programs can be simple, clear, but remember, they are BACKWARDS in the literal sense.
+These are incredibly powerful assurances to have, and it puts an end to the looming worry of variables changing unexpectedly. This is what straight-**FORWARD** code really looks like - people may contend that statement-based programs can also be "simple" or "clear", but remember, they can always be BACKWARDS in the literal sense.
 
 ## Loop vs Recursion
 
@@ -73,13 +73,13 @@ This is simple enough, and it's illustrated as below.
 
 ![loop](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/loop.png)
 
-Changes of `p` (the index), combined with the current `state`, leads to changes to `state` itself. 
+Changes of `p` (the index), combined with the current `state`, leads to changes to `state` itself. Loops are statement-based so we could put in the black bars as stop signs, but they are left out this time to keep it simple.
 
-This looks harmless enough at first sight, until we ask the question, what was the value of `state` in the second iteration?
+It looks harmless enough at first sight, until we ask the question, *what was the value of `state` in the second iteration?*
 
 Sure we can add code such as `if (p == 1) then log(state)`, or introduce more code to keep the audit trail; the point is, without special care, past `state` disappears (like tears in the rain - sorry I couldn't help it).
 
-For coding with immutability, loops are usually the first serious test. The answer is recursion, one form of it is as below,
+For coding with immutability, loops are usually the first serious road block. The expression-based answer is none other than recursion, often with pattern matching and induction. for our example,
 
 ```
 fun sum(numbers, state) {
@@ -102,18 +102,16 @@ And this is illustrated as,
 
 ![loop](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/recursion.png)
 
-Here `P` stands for the parameters to the `sum` function, in this case, both `numbers` and `state`. What's happening here with this snail shell or stair-well?
+Here `P` stands for the parameters to the `sum` function, in this case, `numbers` and `state`. What's happening here with this "snail shell" or "stair-well"?
 
 * A state is never mutated, it leads to a new state
 * an old state can be chucked away, or better yet, kept around. Thanks for lack of mutation, it's perfect for auditing
 
-A simple idea! But not to be underestimated. It is behind some of the most powerful architecture styles or frameworks out there. 
-
-The sharp-eyed reader will recognise the similarity to other fancy diagrams in the wild, buzzwords and phrases such as Reactive, Redux, event-driven, event-sourcing, one-directional data-flow, time-traveling. One directional - does that remind you of expressions? And hello, Reducers!
+A simple idea that is not to be underestimated. It is behind some of the most powerful architecture styles or frameworks out there. Some reader would have recognises the similarity to more fancy diagrams in the wild, buzzwords and phrases such as Reactive, Redux, event-driven, event-sourcing, one-directional data-flow, time-traveling. One directional - does that remind you of expressions? And hello, Reducers!
 
 ## Exceptions vs Unions
 
-Previously we compared [error handling with values and expressions](/go-lang-error-handling).
+Previously we compared [error handling with values and expressions](/go-lang-error-handling), also with diagrams, which can be brought into the mix.
 
 Exception based error handling allows us to present very neat code.
 
@@ -130,20 +128,21 @@ fun calcDiscount(memberId) -> DiscountRate {
 
 ![expression naive](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/exception-error-handling-naive.png)
 
-But this is at best an illusion, because as we all know - each of these innocent looking function can throw exceptions and blow up the whole application.
+But this is at best an illusion, because as we all know - each of these innocent looking function can throw exceptions and blow up the whole application, if special care is not taken.
 
 ![expression facts](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/exception-error-handling-fact.png)
 
-These questions are never really answered satisfyingly (noble effort Java)
+These questions are never really answered satisfyingly (despite noble efforts from Java)
 
-* Which code could throw? This is usually not answered with types (if ever tried in Java, it's circumvented), but with documentation, or worse, reading source code.
 * which exception has already been caught and handled?
+* Which code could throw? This is usually not answered with types (if ever tried in Java, it's usually circumvented when exceptions stack up), but with documentation, or worse, with hunting in source code.
 
-As exceptions usually carry arbitrary payload, in a way, they actually account for arbitrary return types for any code. It's dynamic typing! A loop-hole in many so called "strongly-typed" languages.
+As exceptions usually carry arbitrary payload, in a way, they actually account for arbitrary return types for any code. It's dynamic typing in disguise. A loop-hole in many so called "strongly-typed" languages.
 
-On the contrary, value based error handling, especially with union types, brings much sanity and beauty.
+On the contrary, value based error handling, especially with the support of union types, brings more sanity.
 
 ```
+// Rust style binding, and_then applies to happy path
 fun calcDiscount(memberId) -> DiscountRate | Error {
     return readMember(memberId).and_then(
         member -> findPurchases(memberId).and_then(
@@ -151,25 +150,37 @@ fun calcDiscount(memberId) -> DiscountRate | Error {
         )
     )
 }
+
+// or F# style binding, let! will return early when an Error is encountered
+fun calcDiscount(memberId) -> DiscountRate | Error {
+    let! member = readMember(memberId)
+    let! purchases = findPurchases(memberId)
+    let! discountRate = calcDiscountRate(member, purchases)
+    return discountRate
+}
 ```
 
 ![expression naive](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/geometrical-beauty/union-error-handling.png)
 
-* An error case demands immediate attention as it's the case with pattern matching on Union types
-* An clear "error path" runs in parallel to the happy path
+What's the difference?
 
-Clearly, this is not nearly as smart as exception-based error handling, and requires much less magic. It can be more verbose in simpler languages (as is the case with Go), but when supported with better facilities (as in Rust, F#, Elm and Haskell), it assures us,
+* An error case demands immediate attention as it's the case with pattern matching on Union types (like nullable types!)
+* A clear "error path" runs in parallel to the happy path
+
+This is not **nearly** as smart as exception-based error handling, and requires much less magic. It can be more verbose in simpler languages (as is the case with Go), but when supported with better facilities (as in Rust, F#, Elm and Haskell), it can look very neat, as in the example above.
+
+Syntax aside, this style of error handling can assure us that, 
 
 * no unexpected long jumps will take place
 * clear knowledge and control of error/happy path
 
-Such assurances scales incredibly well with lines of code and aggregation of complexity.
+Such assurances scale incredibly well with lines of code and aggregation of complexity.
 
 ## Inheritance vs Union
 
 Previously we discussed one big difference between [designing with inheritance and Unions](/dont-close-what-is-open). 
 
-* an inheritance graph is meant to be **OPEN**, as it's always possible to add more implementations to an interface, and that shouldn't require changing existing code
+* an inheritance hierarchy is meant to be **OPEN**, as it's always possible to add more implementations to an interface, and that shouldn't require changing existing code
 * an union type is **CLOSED**; if a new constructor is added to a union, existing code should break as existing pattern matchings are now not exhaustive. (therefore, use of wildcards should be considered an anti-pattern)
 
 An inheritance based design can be illustrated as below,
