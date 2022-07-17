@@ -1,6 +1,6 @@
 With simple shapes to represent a program: circles for values and arrows for computations, we can reveal simple yet powerful ideas that can make big differences in how we see, design and implement software.
 
-More importantly, there are geometrical beauty to be found, awareness and observation of which can be rewarding.
+More importantly, there are geometric beauty to be found, awareness and observation of which can be rewarding.
 
 ## Statements vs Expressions, forward or backward?
 
@@ -225,4 +225,4 @@ You would found the similarity in the diagrams - union type is what enables valu
 
 I hope the diagrams in this post help shed lights on some of the choices made in day-to-day programming, and how such choices can result in different levels of conceptual simplicity/complexity.
 
-It's a misconception that we only need to call for simplicity only required when things get complex, this is not the case! Simplicity scales truly if it's respected from the get-go; as complexity aggregates, so should the assurances of correctness, true scalability and geometrical beauty.
+It's a misconception that we only need to call for simplicity only required when things get complex, this is not the case! Simplicity scales truly if it's respected from the get-go; as complexity aggregates, so should the assurances of correctness, true scalability and geometric beauty.
