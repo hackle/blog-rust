@@ -31,7 +31,7 @@ In our case, when an assignment is executed (`isGoodMorning = false`), it create
 
 Local variables require the arrows to go back locally, which is not THAT bad; class fields, global variables can be nastier, as they require the arrows go outside of the current code block; moreover, such variables are fair game, they can be mutated elsewhere, at arbitrary locations. We poor programmers must stay alert all the time: "Has `this.foo` changed since this code was last run?! Or would it when it is running?"
 
-Alternatively, the same function can be implemented purely with expressions, and for complete lack of mutation.
+Alternatively, the same function can be implemented purely with expressions, and for complete absence of mutation.
 
 ```
 fun goodMorning(weather, time) {
@@ -106,7 +106,7 @@ And it is illustrated as,
 Here `P` stands for the parameters to the `sum` function, in this case, `numbers` and `state`. What's happening here with this shape that looks like a snail shell or a stair-well?
 
 * A `state` is never mutated, it's either returned, or used to create the next `state`, combined with the gradually ("inductively") changing `numbers`
-* an old `state` can be chucked away, or better yet, kept around. Thanks for lack of mutation, it's perfect for audit trails
+* an old `state` can be chucked away, or better yet, kept around. Thanks for the absence of mutation, it's perfect for audit trails
 
 Again, a simple idea that is not to be underestimated! This is behind some of the most powerful architecture styles or frameworks out there. Some reader would have recognised the similarity to fancier diagrams in the wild, buzzwords and phrases such as Reactive, Redux, Event-driven, Event-sourcing, One-directional data-flow, Time-traveling, etc.
 
