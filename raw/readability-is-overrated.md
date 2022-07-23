@@ -9,6 +9,14 @@ Readability is important, but it's not something that we should hold as the holy
 
 ## Not-so-useful conventions
 
+### magic frameworks
+
+### long jumps
+
+### 
+
+
+
 Basically, any measure that makes reasoning with code more difficult. There are some rough measures,
 
 * linear is easier than non-linear
