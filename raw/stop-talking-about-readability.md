@@ -14,32 +14,13 @@ This does not take away the value of readability - it's just not EVERYTHING ther
 
 With that out of the way, I will first share my thoughts on some of the "readability" myths; then, how readability can, and should be managed in a clearly defined context and environment.
 
+## How should we NOT manage Readability 
 
-## Paradigms
+I want to touch on two "myths" about readability that both seem virtuous beyond any doubt, and should be followed unquestioningly; in my opinion, they may be aspirational to some, but are large naive or lacking in nuance.
 
-Those who live and breathe Object-Oriented Programming may yell "unreadable code" at the sight of top-level functions, and quickly turn an eye at such "procedural" code.
+### code should be readable for anyone - even non-programmers
 
-This sentiment is reciprocated those who identified themselves as Functional Programmers. As soon as "class" come into sight, much repulsion is vented
-
-## Convention and idiom
-
-This can seem quite silly, but I have seen a Java-turned-C# programmer who just could not deal with starting curly braces on a new line, and claimed it annoyed them so much, they could not go on reading the code.
-
-Granted this is a bit extreme, but when we are so sold on a set of rules or conventions, we can find any aversion disconcerting if not distasteful, and that can make it hard to read code, sometimes without knowing. 
-
-
-This can be tied to "paradigms". For example, someone may hold the strong opinion that "all classes must implement interfaces", and refuse to read any code that fails this criterion.
-
-## Investment and Attachment
-
-More deeply, once we invest so much into specific ways of writing code, it's natural that we want to hold on to and defend such ways; so different styles can easily be construed as intrusive or offensive, our defense mechanism would be triggered, and we instinctively fight back such intrusion.
-
-
-## Not-so-useful goals
-
-### code should be readable for anybody
-
-This camp advocates that programs should be written in such a way that any literate person, not necessarily at programming, should be able to understand code.
+This camp advocates that programs should be written in such a way that any literate person, regardless of roles or specialisation. For example, in a product delivery setting, "anyone" can be product owners, designers, business analysts or test analysts.
 
 This is a noble goal, and can be achieved occasionally, but I find it largely unhelpful most of the time. Programming can be considered data and algorithm. Every data structure is not plain English, not to mention algorithms. Like many other professions, it's important to use formal terms to express a program accurately. Yes we should strive to describe our solution as clearly as possible, but that's still a long cry from using everyday language - natural language.
 
