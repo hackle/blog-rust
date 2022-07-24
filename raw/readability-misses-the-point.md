@@ -219,4 +219,4 @@ So here we go, not including the general-purpose turing-complete basics, in no p
 - pattern matching, destructuring (vs field accessors)
 - union types (vs inheritance-based simulation)
 
-I do not believe use of any term alone should result in decrease of readability. Arguing against them in favour of the alternatives (in brackets) can be fun and even satisfying at times; but if we consider the paradigm shift, the trends and progression of programming languages, communities, trends and idioms, it's my diagnosis that such arguments can fall prey to bike-shedding, and are not helpful in general.
+I do not believe use of any of the above alone should result in decrease of readability. Arguing against them in favour of the alternatives (in brackets) can be fun and even satisfying at times; but if we consider the paradigm shift, the trends and progression of programming languages, communities, trends and idioms, it's my diagnosis that such arguments can fall prey to bike-shedding, and are not helpful in general.
