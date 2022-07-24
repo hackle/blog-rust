@@ -10,6 +10,7 @@ use serde::{Deserialize};
 pub struct Blog {
     pub current_post: Post,
     pub content: String,
+    pub date_updated: String,
     pub see_also: Vec<(String, String)>,
 }
 
@@ -146,7 +147,8 @@ pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) 
     Blog {
         current_post: current_post.to_owned(),
         content,
-        see_also
+        see_also,
+        date_updated: format!("{}", current_post.updated.format("%v"))
     }
 }
 
@@ -188,9 +190,9 @@ pub async fn build_rss(remote_url: &Result<String, String>) -> Result<Xml<String
             .collect();
 
         let channel = ChannelBuilder::default()
-        .title("Hackle's blog")
-        .link(host_name)
-        .description("Hackle Wayne's blog about many nerdy things")
+        .title(String::from("Hackle's blog"))
+        .link(String::from(host_name))
+        .description(String::from("Hackle Wayne's blog about many nerdy things"))
         .items(items)
         .pub_date(Some(pub_date.to_rfc2822()))
         .build();

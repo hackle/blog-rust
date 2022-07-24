@@ -16,6 +16,12 @@ header {
     position: relative;
 }
 
+footer {
+    margin: 30px 0;
+    padding: 15px 0;
+    border-top: 1px solid #eaecef;
+}
+
 .links {
     position: absolute;
     right: 10px;
