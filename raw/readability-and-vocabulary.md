@@ -1,4 +1,4 @@
-Something is missing from most of the "readability" discussions.
+More often than not, something is missing from the "readability" discussions.
 
 You would agree with me that the below example in Python (a),
 
@@ -6,7 +6,7 @@ You would agree with me that the below example in Python (a),
 [ x * x for xs in [range(1,5), range(6,10)] for x in xs if x % 2 == 0 ]
 ```
 
-is not as not readable as the same code but better formatted (b),
+is not as readable as the same code but better formatted (b),
 
 ```Python
 [ 
@@ -17,7 +17,7 @@ is not as not readable as the same code but better formatted (b),
 ]
 ```
 
-When written in JavaScript, for the lack of comprehension (c),
+When written in JavaScript, for the lack of comprehension (c), the argument could go either way,
 
 ```JavaScript
 // given a naive `range`
@@ -48,7 +48,7 @@ For those who prefer the above code, this expression (e) in `Haskell` to the sam
 filter even $ foldl (++) [] [[1..4], [6..9]]
 ```
 
-With cleaner formatting, code (b) almost objectively improves readability over (a); there would be heated discussions about readability for or against the other styles, which would be largely missing the point.
+With cleaner formatting, code (b) almost objectively improves readability over (a); there would be heated discussions about readability for or against any of (b, c, d, e), but such discussions would be largely missing the point.
 
 ## Stick to the dictionary
 
