@@ -1,3 +1,58 @@
+Something is missing from most of the "readability" discussions.
+
+You would agree with me that the below example in Python (a),
+
+```Python
+[ x * x for xs in [range(1,5), range(6,10)] for x in xs if x % 2 == 0 ]
+```
+
+is not as not readable as the same code but better formatted (b),
+
+```Python
+[ 
+    x * x
+    for xs in [range(1,5), range(6,10)] 
+    for x in xs 
+    if x % 2 == 0 
+]
+```
+
+When written in JavaScript, for the lack of comprehension (c),
+
+```JavaScript
+// given a naive `range`
+const range = (x,y) => new Array(y - x).fill(0).map((_, idx) => x + idx); 
+
+[range(1,5), range(6,10)]
+    .flatMap(x => x)
+    .filter(x => x % 2 == 0)
+    .map(x => x * x)
+```
+
+But I wouldn't be surprised if people contend passionately the above is MUCH worse in readability than nested loops (d).
+
+```JavaScript
+let result = [];
+for (let xs of [range(1,5), range(6, 10)]) {
+    for (let x of xs) {
+        if (x % 2 == 0) {
+            result.push(x);
+        }
+    }
+}
+```
+
+For those who prefer the above code, this expression (e) in `Haskell` to the same effect may irk them to the point of yelling "unreadable!" (not W.R.T. the inclusive ranges)
+
+```Haskell
+filter even $ foldl (++) [] [[1..4], [6..9]]
+```
+
+With cleaner formatting, code (b) almost objectively improves readability over (a); there would be heated discussions about readability for or against the other styles, which would be largely missing the point: 
+
+
+
+
 Much like "agile", "clean" or "simple", "readability" is one of these meaningless words after much abuse, if not completely undefined in the first place. Most of the time, it's talked about in group discussions, it's usually over-philosophised, broad, vague and too all-encompassing, and like many ambitious terms in software engineering, it quickly smells of being subjective, and becomes triggers for cult wars, excuses for closed-mindedness, or subject for bike-shedding.
 
 That's not how I want to talk readability it here.
