@@ -212,7 +212,7 @@ So here we go, not including the general-purpose turing-complete basics, in no p
 
 - immutability, values and expressions (vs mutation, variables and statements)
 - generics, parametric polymorphism
-- list comprehension, list functions (vs vanilla loops)
+- list comprehension, list functions (vs vanilla loops), yes! including reduce or fold
 - functions and closures (vs classes, fields, attributes and properties)
 - lambdas, higher-order functions (vs delegates, composition only with classes)
 - iterators, lazy evaluation (vs optimised loops)
