@@ -80,7 +80,7 @@ The full type signature helps us see this cause and effect fully.
 
 ## Function
 
-That above is essential OO, it is great but not sexy enough. So we will throw in a function.
+That above is essential OO, it works well, but not very sexy. So we will throw in a function.
 
 ```
 class Person 
@@ -170,7 +170,9 @@ Console.WriteLine($"{greeter("Hello")}");
 
 Should change to `Name` have any effect on `greeter("Hello")`? There is really not way to know except reaching into the definition of `greeter`; this cannot be done by looking at  `Func<T, U>`; we must trace back to the `Greet` method. What bother!
 
-## Not just classes!
+## It's worse with just functions!
+
+Just a brief detour - this problem can actually be pretty bad with just functions alone.
 
 If you think this is a useless, contrived example and only applies to obtuse use of `C#` language features, consider this React code partly copied from [the React reference](https://reactjs.org/docs/hooks-reference.html#usecallback).
 
@@ -230,10 +232,16 @@ It's that simple. You see, immutability has vast and far-reaching effect to how 
 
 ## In closing
 
+I used C# for the code example for its perseverance in being an object-oriented language, by comparison with Python or Kotlin, it hasn't quite the mixed bag of OOP and FP features; in Python or Kotlin, closure hell looms more dangerously.
+
 A word of advise for keeping sanity: if you use classes, watch out for functions as they can introduce closure hell; If you use functions and closures, stick with immutability.
 
 People may contend that being "purely" object-oriented is restrictive, but pure OO is trying to save us by keeping us away from a pretty ugly monster: closure.
 
 But of course we never really listened because the temptation of functional programming was just too much - not just the programmers, but the language designers are also to blame.
 
-Finally, if you stick with immutability, then pretty soon, you won't have any need for classes. This is either too obvious to state, or should be left as a fun exercise.
+So quite unstoppably, the paradigms are coming together: OO reached its ceiling, and to keep the languages relevant, people must borrow fresh ideas that used to be exclusive in the "functional" paradigm. It's the best times for the constant excitement, it's also the worst time for the inevitable confusion.
+
+It's possibly too late to recommend sticking with classes and avoid using functions completely; but it's never too late to recommend immutability as the default for your code.
+
+And hear this: if you stick with immutability, then you will have less and less need for classes. For many, this could be stating the obvious, so I will leave it as a fun exercise to the reader.
