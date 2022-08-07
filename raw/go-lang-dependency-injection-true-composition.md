@@ -17,3 +17,12 @@ Alas, this rules out most of our interfaces as misfits or bad, or, most interfac
 But this is really, really hard to do, and it especially don't play well with dependency injectors.
 
 So what are we going to do? Chuck that away.
+
+## C# implementation
+
+## TypeScript almost got it
+
+## Rust with adhoc polymorphism
+
+## Python Protocol
+

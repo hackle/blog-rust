@@ -49,5 +49,6 @@
     { "updated": "2022-06-01T07:44:05Z", "title": "Golang error handling: yes to values, no to exceptions, a win for the future", "markdown":  "go-lang-error-handling.md" },
     { "updated": "2022-07-03T06:11:16Z", "title": "Is TYPEScript Turing complete? Not sure. Game of life? Why not!", "markdown":  "conways-game-of-life-in-TYPEscript.md" },
     { "updated": "2022-07-23T22:34:00Z", "title": "Readability misses the point - look instead at vocabulary", "markdown":  "readability-misses-the-point.md" },
+    { "updated": "2022-08-07T17:52:00Z", "title": "Functions and classes don't mix - not always", "markdown":  "class-and-functions-dont-mix.md" },
     { "updated": "2022-07-17T13:43:00Z", "title": "On the geometric beauty of programming", "markdown":  "geometric-beauty-of-code-design.md" }
 ]
