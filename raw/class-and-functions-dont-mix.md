@@ -2,7 +2,7 @@ Just because most OO languages are going cross-paradigm, doesn't mean classes an
 
 For starter, what's the type signature of `Intro()` in the following example?
 
-```C#
+```CSharp
 class Person 
 {
   public string Name;
