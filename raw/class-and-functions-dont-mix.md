@@ -82,7 +82,7 @@ The full type signature helps us see this cause and effect fully.
 
 That above is essential OO, it works well, but not very sexy. So we will throw in a function.
 
-```
+```CSharp
 class Person 
 {
   // ... all previous code
