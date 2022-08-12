@@ -151,13 +151,13 @@ function ap7<T extends AmPm>(
 }
 ```
 
-Should val2 be `"Am"` because `val1 : "Am"`? The are both of type `T extends AmPm`, it's very clear!
+Should val2 be `"Am"` because `val1 : "Am"`? The are both of type `T extends AmPm` after all. Can't be any clearer!
 
-Not necessarily, and here is the catch: although `val1 : "Am"` holds, `val2` can still be `"Pm"`, which means `T : AmPm`, perfectly fine as it's one of the 4 possibilities of `T extends AmPm`. If TypeScript has kicked in type-narrowing on the return type and forced `T` to be `"Am"`, it would have been completely wrong!
+Not necessarily, and here is the catch: although `val1 : "Am"` holds, `val2` can still be `"Pm"`, which means `T : AmPm`. This is perfectly fine! It's one of the 4 possibilities of `T extends AmPm`. If TypeScript has kicked in type-narrowing on the return type and forced `T` to be `"Am"`, it would have been completely wrong!
 
 ## The dreadful alternative
 
-But hope is not all lost. We can still argue, in this case we should check both `val1` and `val2` to help TypeScript decide what `T` should be. So, we promise to do this,
+But hope is not all lost. We can still argue, in this case the programmer should check both `val1` and `val2` to help TypeScript decide what `T` is. In effect, we promise to do the below,
 
 ```TypeScript
 function ap8<T extends AmPm>(
@@ -166,18 +166,18 @@ function ap8<T extends AmPm>(
 ): T {
     const vals: [T, T] = [val1, val2];
     switch (vals) {
-        case ['Am', 'Am']: ...
-        case ['Pm', 'Pm']: ...
-        case ['Am', 'Pm']: ...
-        case ['Pm', 'Am']: ...
+        case ['Am', 'Am']: ... // T must be 'Am'!
+        case ['Pm', 'Pm']: ... // T must be 'Pm'
+        case ['Am', 'Pm']: ... // T is still AmPm
+        case ['Pm', 'Am']: ... // T is still AmPm
     }
 }
 ```
 
-You are cornered, TypeScript! Now you must do the right thing for us so we have guarantee for correctness! 
+Aha, cornered, TypeScript! Now you must do the right thing for us so we have guarantee for correctness! 
 
 Except - would you be happy to write code in this fashion, and commit to doing so? Not me. Imagine a union type consisting of 5 types, and the size of `switch / case` I have to write! A dreadfully boring prospect indeed. 
 
-We've just found a **must-cast** situation, endorsed by [Anders](https://github.com/microsoft/TypeScript/issues/22735#issuecomment-374817151) himself.
+People! We've just found a **must-cast** situation, endorsed by [Anders Hejlsberg](https://github.com/microsoft/TypeScript/issues/22735#issuecomment-374817151) himself.
 
-Ah, finally, when the time comes, I will be using `as T` or even `as any` with a (barely noticeable) smile on my face.
+And finally, when the time comes, I will be using `as T` or even `as any` with a (barely noticeable) smile on my face, knowing no shame could be coming my way.
