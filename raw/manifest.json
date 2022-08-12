@@ -50,6 +50,6 @@
     { "updated": "2022-07-03T06:11:16Z", "title": "Is TYPEScript Turing complete? Not sure. Game of life? Why not!", "markdown":  "conways-game-of-life-in-TYPEscript.md" },
     { "updated": "2022-07-23T22:34:00Z", "title": "Readability misses the point - look instead at vocabulary", "markdown":  "readability-misses-the-point.md" },
     { "updated": "2022-08-07T17:52:00Z", "title": "Functions and classes don't mix - not always", "markdown":  "class-and-functions-dont-mix.md" },
-    { "updated": "2022-08-11T21:37:00Z", "title": "Correct and Boring, or Loose and 'fun as any'? TypeScript Knows Me", "markdown":  "correct-or-boring-this-is-the-typescript-kind-of-question.md" },
+    { "updated": "2022-08-11T21:37:00Z", "title": "Not assignable? A must-cast situation! TypeScript, wise 'as any'", "markdown":  "typescript-must-cast-situation.md" },
     { "updated": "2022-07-17T13:43:00Z", "title": "On the geometric beauty of programming", "markdown":  "geometric-beauty-of-code-design.md" }
 ]

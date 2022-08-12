@@ -27,6 +27,15 @@ function ap2(val: AmPm): AmPm {
     return 'Pm';
 }
 
+
+function apX<T extends AmPm>(val: T): T {
+    if (val === 'Am') {
+        return 'Am' as T;
+    }
+
+    return 'Pm' as T;
+}
+
 function ap4<T extends AmPm>(val: T): T {
     if (val === 'Am') {
         // const result: "Am"
