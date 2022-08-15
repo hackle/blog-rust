@@ -31,7 +31,7 @@ function guess<T extends any = unknown>(
     val2: T
 ): string {
     if (typeof val1 === 'string') {
-        return val2;
+        return val2;    // error
     }
 
     return 'dunno';

@@ -52,5 +52,5 @@
     { "updated": "2022-08-07T17:52:00Z", "title": "Functions and classes don't mix - not always", "markdown":  "class-and-functions-dont-mix.md" },
     { "updated": "2022-08-11T21:37:00Z", "title": "Not assignable? A must-cast situation! TypeScript, wise 'as any'", "markdown":  "typescript-must-cast-situation.md" },
     { "updated": "2022-07-17T13:43:00Z", "title": "On the geometric beauty of programming", "markdown":  "geometric-beauty-of-code-design.md" },
-    { "updated": "2022-08-12T21:30:00Z", "title": "Type Witness: not yet TypeScript, sure thing Haskell", "markdown":  "typescript-is-no-witness.md", "hidden": true }
+    { "updated": "2022-08-12T21:30:00Z", "title": "Type Witness: not yet TypeScript, sure thing Haskell", "markdown":  "typescript-is-no-witness.md" }
 ]
