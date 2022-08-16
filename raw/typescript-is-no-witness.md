@@ -80,7 +80,7 @@ It's possibly unfair because it's high expectations for a mainstream language; b
 
 ## Haskell
 
-The above quiz has always been on my mind, but I got the idea first from Haskell (as on many other occasions). Although it was only recent that I re-read a great blog post from (Serokell)[https://serokell.io/blog/haskell-type-level-witness] which clarifies and adds to (Haskell Wiki)[https://wiki.haskell.org/Type_witness].
+The above quiz has always been on my mind, but I got the idea first from Haskell (as on many other occasions). Although it was only recent that I re-read a great blog post from [Serokell](https://serokell.io/blog/haskell-type-level-witness) which clarifies and adds to [Haskell Wiki](https://wiki.haskell.org/Type_witness).
 
 Now I could put it to work. This brings together a few strange ideas in Haskell!
 
