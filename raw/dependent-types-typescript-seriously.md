@@ -333,3 +333,7 @@ const m_ = first([ 3, 2, 3 ] as const);   // never
 ```
 
 That's it for now. Let me know if you find more interesting examples!
+
+And if you've made it this far, you might also like 
+- [Conway's game of life in TYPEScript](/conways-game-of-life-in-TYPEscript)
+- [A truly strongly typed printf in TYPEScript](/printf).
