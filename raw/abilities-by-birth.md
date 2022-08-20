@@ -138,9 +138,53 @@ extension Parrot: CanWalk, CanSpeak {
 }
 ```
 
+However, the solution in Go may be the most astonishing. Previously we mentioned extension methods, which has become the default style in more modern languages like Kotlin, Rust or Go: the first parameter is `this`, `self`, or the "receiver". Whats sets Go apart, is how it leaps over the idea of implementing an "interface", and uses (compiler-checked) structural typing.
+
+```Go
+type Person struct {}
+type Parrot struct {}
+
+func (p Person) move() string { return "Walk" }
+func (p Person) speak() string { return "Mumbo" }
+
+func (p Parrot) move() string { return "Fly" }
+func (p Parrot) speak() string { return "Mimic" }
+
+type CanMove interface {
+  move() string
+}
+
+type CanSpeak interface {
+  speak() string
+}
+
+func doSpeak(p CanSpeak) string {
+  return p.speak()
+}
+
+func doMove(p CanMove) string {
+  return p.move()
+}
+
+func main() {
+  person := Person{}
+	fmt.Println("Person", doSpeak(person), doMove(person))
+
+  parrot := Parrot{}
+  fmt.Println("Parrot", doSpeak(parrot), doMove(parrot))
+}
+```
+
+Let's see why this is special. These dots are connected where other languages fall short,
+
+* C# has extension methods, but does not have structural typing
+* Python3 with MyPy have structural typing for *Protocol*, but it does not allow extension methods
+
+That's smart of Go. Extra expressive power without forcing the programmer to jump through hoops. Simplicity at its best.
+
 ## An open system
 
-To those who think the differences are only syntactic and superficial; I beg to differ. 
+To those who think the differences between the two approaches above are only syntactic and superficial, I beg to differ. 
 
 An observation that follows immediately is, the abilities system is now completely **open**. Previously with a **closed** system that requires all abilities to be decided up-front, the concrete implementation (the `Person` class) has to be *opened* every time new abilities are needed. This is not always easy or possible, depending on the ownership of the class; even when we own the type, there can be sub-domains, bounded-context that may require abilities added to the type that are not necessarily relevant to other sub-domains. 
 
