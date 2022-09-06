@@ -14,7 +14,7 @@ T Id<T>(T thing)
 
 // or
 id : a -> a
-id a = ?
+id thing = ?
 ```
 
 If you so much as hesitate for a second, you might want to rethink if you really *get it*.
@@ -23,23 +23,23 @@ The answer is - there should be only ONE meaningful (without "cheating") impleme
 
 Believe me, I am in no position to gloat here: as a C# / Object-Oriented programmer back then, it took me VERY long to figure out exactly why.
 
-These days we may take it for granted in any language (with the exception of Go), but for a long time generics was pretty much an idea for the functional programming crowd. Extraordinary stories were to be told about the introduction of it to the likes of Java or C#; at the same time, it's helpful to understand because of its history, generics does not always fit into the slowly evolving (if not sometimes stagnant) OO thinking, in fact, it can be at odds with it.
+These days we may take it for granted in any language (with the exception of Go), but for a long time generics was mostly exclusive for the functional programming crowd. Extraordinary stories were to be told about the introduction of it to the likes of Java or C#; at the same time, it's helpful to understand that due to its history, generics does not always fit into the slowly evolving (if not sometimes stagnant) OO thinking, in fact, it can be at odds with that.
 
 ## a is forall
 
-No suspensions. The point of epiphany for me was when I learned from Haskell that a more verbose way to express the `id` function above. (Think of `a` as `T` if that suits your better)
+No suspensions. The point of epiphany for me was when I learned from Haskell that a more verbose way to write the `id` function above. (Think of `a` as `T` if that suits your better)
 
 ```Haskell
 id :: forall a. a -> a
 ```
 
-`forall a.` really says everything there is about generics: any meaningful implementation of `id` must apply to ANY possible type `a`. 
+`forall a.` really says everything there is: any meaningful implementation of `id` must apply to ALL possible types. 
 
-Now take a minute to think about it: this is a tall order! It's like asking a chef to cook a dish that everyone on earth will like. Well, that's actually quite impossible, but you get the idea: the dish must be very, very *generic*.
+Now take a minute to think about it: this is a tall order! It's like asking a chef to cook a dish that everyone on earth likes. Well, that's actually quite impossible, but you get the idea: if it ever is possible, the dish must be very, very *generic*!
 
 For the `id` function, it really cannot be too particular, and it best not make ANY assumptions about its input: is it an `Int`? A `String`? A complex class or struct? No! That's not the way to go about it. It must obey the only rule: keep it **generic**!
 
-Now you see, `id` cannot assume knowledge, or pry into the type of its parameter; That really leaves it not many options; actually, there is only ONE sensible implementation: 
+Now you see, `id` cannot assume knowledge, or pry into the type of its parameter; That really leaves it very few options; actually, there is only ONE sensible implementation: 
 
 ```CSharp
 T Id<T>(T thing)
@@ -55,9 +55,9 @@ id thing = thing
 
 That's it! That's the most important thing to know about generics.
 
-No way! You say, this can't be! Generics is way cooler than this dumb stuff. Where goes the magic? Oh we shall see, there should be no magic; actually, most magic out there are tricks to cheat generics, and are frowned upon. 
+No way! You say, this can't be! Generics is way cooler than this dumb stuff. Where goes the magic? Oh well, we shall see, there should be no magic; actually, most magic out there are tricks to cheat generics, and should really be frowned upon, not celebrated. 
 
-## Cheat
+## Cheating generics
 
 Back at the time, as a C# programmer I couldn't accept the "generic" nature of *generics* (hello!), and really tried to prove otherwise. For example, what if I do this?
 
@@ -68,9 +68,9 @@ T Id<T>(T thing)
 }
 ```
 
-Later I learned, this is considered "cheating" with code, because this function does not really return `T`, as the type says. Throwing an exception can actually crush the entire application - it's like GOTO, and it's mostly dynamic typing (of exceptions) in disguise.
+Later I learned, this is considered "cheating", because this function does not really return `T`, as the type says. Throwing an exception satisfies any return type, a cheat code! (Besides, it's like GOTO, and it's mostly dynamic typing (of exceptions) in disguise.)
 
-When **reasoning** with generics (or anything for that matter), it's very helpful to leave side-effects out of the equation; otherwise, there is no end to surprises. For example,
+When **reasoning** with generics (or anything for that matter), it's very helpful to leave side-effects out of the equation; otherwise, there is no end to surprises. For another example,
 
 ```CSharp
 T Id<T>(T thing)
@@ -80,7 +80,7 @@ T Id<T>(T thing)
 }
 ```
 
-This satisfies `forall a. a -> a`, but it's not very pleasant: the first time it's called, the poor user's life saving is spent; the second time, it possibly throws a scary exception "account is overdrawn". Side-effects really throws in a monkey's wrench, and stops us from reasoning about the behaviour of `Id` in a sensible way.
+This satisfies `forall a. a -> a` just right, but it's not very pleasant: the first time it's called, the poor user's life saving is spent; the second time, it possibly throws a scary exception "account is overdrawn". Side-effects really throws in a monkey's wrench, and stops us from reasoning about the behaviour of `Id` in a sensible way.
 
 ## Peeping, a violation
 
@@ -112,13 +112,15 @@ static T Id<T>(T thing)
 }
 ```
 
+Is this magical? Yes. Should we use it at every chance? Definitely not.
+
 This peeps inside `T` and assumes knowledge about `thing`, and throws in some magic. How clever! But... do you see the problem?
 
 This magic version of `Id` will surprise any unsuspecting callers, who wouldn't be expecting the special treatment to `int`. 
 
-You see, while language designers are eager to please and give us *powerful* features to use, unfortunately though, more often than not, at the cost of our fellow engineers confusion.
+You see, language designers are eager to please and keep giving us *powerful* features to use; unfortunately, more often than not, such features are used at the cost of our fellow engineers confusion.
 
-For a less contrived example, you would have seen people gloating about examples of pattern matching on types, sometimes, even on generics!
+For a less contrived example, you would have seen people gloating about examples of pattern matching on types, sometimes, even on generics. (Why restrict ourselves when the code can be written for ALL types?)
 
 ```CSharp
 static string PersonInfo<T>(T psn)
@@ -132,7 +134,7 @@ static string PersonInfo<T>(T psn)
 }
 ```
 
-This is by far the worst use of generic, because it completely undermines the promise of being GENERIC - hello! A bag of special cases hidden under the beautiful promise of `T`. Please don't write anything like this.
+This is by far the worst use of generic, because it completely undermines the promise of being GENERIC! A bag of special cases hidden under the beautiful promise of `T`. Please, don't write anything like this.
 
 (Note `PersonInfo` would be better typed as `string PersonInfo(Person psn)` to minimise confusion; however it would still be a bad design as [it opens up what's meant to be closed](/dont-close-what-is-open))
 
@@ -151,7 +153,7 @@ public static U Map<T, U>(T input) where U : new()
 
 You would have heard of the "million dollar mistake" by sir Tony Hoare, and `Map` is a noble attempt at nibbing that from (not exactly) the bud.
 
-This is completely valid syntax-wise and may even seem quite reasonable and helpful by many; the author is considerate enough to use type constraints to inform the caller that `U` must be constructible without any parameters. However, without knowing the implementation, an experienced programmer would use it as follows,
+This is completely valid syntax-wise and may even seem quite reasonable and helpful to many; the author is considerate enough to use type constraints to inform the caller that `U` must be constructible without any parameters. However, without knowing the implementation, a programmer would use it as follows,
 
 ```CSharp
 var person = Map<Teacher, Person>(teacher);
@@ -162,14 +164,14 @@ SendFlowers(person);
 
 This is great, defensive code. However, thanks to be magic in `Map`, the defensiveness here is rendered useless, and a lot of flowers will be sent to non-existent, nameless `Person`s.
 
-## Dynamic typing
+## Dynamic typing is no exemption
 
-One of the biggest misunderstanding is parametric polymorphism only applies to statically-typed languages, this is underestimation of the worst kind. It's true that generics make it "in the face", but knowing when to apply and stick to "generic for all" should be on our minds, no matter the languages being used.
+One of the biggest misunderstanding is parametric polymorphism only applies to statically-typed languages, this is underestimation of the worst kind. It's true that types make it "in the face", but sticking to "generic for all" when applicable is valuable advice in general, no matter what language.
 
-The most famous counter-example would have to be `promise` in JavaScript. Simply put, 
+The most famous counter-example would have to be `promise` in JavaScript. Simply put in TypeScript, 
 
 - To construct a `Promise<T>`, we use `promise.resolve<T>(value: T)`, which should apply to all types (remember, it's `forall. T`)
-- if `T` can be ANYTHING, it can also be `Promise<T>`, so to construct `Promise<Promise<T>>`, we can write `promise.resolve(promise.resolve(value: T))`.
+- if `T` can be ANYTHING, it's fair to pick `Promise<T>`, so to construct `Promise<Promise<T>>`, we can write `promise.resolve(promise.resolve(value: T))`.
 
 This is no mind-bender, it's just one level of nesting. Let's see how it plays out.
 
@@ -185,26 +187,26 @@ Nesting promises is a futile enterprise - they collapse into one single level. T
 
 ```TypeScript
 > Promise.resolve({ foo: "bar" }).then(p => console.log(p.foo));
-bar
+bar // ok
 
 > Promise.resolve({ foo: () => "bar" }).then(p => console.log(p.foo()));
-bar
+bar // ok
 
 > Promise.resolve({ then: () => "bar" }).then(p => console.log(p.then()));
-Promise {<pending>}     // what's going on?
+Promise {<pending>}     // what's going on? not "bar"?
 
 > Promise.resolve({ then: () => "bar", foo: "bar" }).then(p => console.log(p.foo));
-Promise {<pending>}     // p.foo won't work now
+Promise {<pending>}     // now even p.foo doesn't work, it should be "bar"!
 ```
 
-Within the implementation somewhere, there is a special case to inspect the value to be resolved, if it has a `then` field which is a function, this `then` field is then treated as a `Promise`, and once resolved, trips up code above.
+Within the implementation somewhere, there is a special case to inspect the value to be resolved, if it has a `then` field whose value is a function, this `then` field is then treated as a `Promise`, which once *resolved*, trips up innocent code as above.
 
-You may think this is a trivial edge case, but I am not ready to accept it as a bug. Using "dynamic" as an excuse is not good enough; sticking to `forall. T` is not that hard! Especially when it's made very clear with ample discussion. This is exactly what design flaw looks like.
+You may think this is a trivial edge case, but I am not ready to accept it as a bug. Using "dynamic" as an excuse is not good enough; sticking to `forall. T` is not that hard! Especially when it's made very clear with ample [discussion](https://github.com/promises-aplus/promises-spec/issues/94). Ever wonder what design flaw looks like? Look no further.
 
 
 ## In closing
 
-The power of generics, or parametric polymorphism is also its *downfall* in the eyes of the clever programmer. `foo<T>` works for ANY type it's both powerful and restricting.
+The power of generics, or parametric polymorphism is also its *downfall* in the eyes of the clever programmer. For `foo<T>` to work for ANY type is both powerful and restricting, depending on the perspective.
 
-With mainstream languages, thanks to the inevitable transition of paradigms, we are given the tools to break out of the rigidity of such strong constraints, and more often than we should, such tools are used for convenience; promises are broken, magic is tucked in, and the confusion begins.
+With mainstream languages, thanks to the inevitable transition and mix-up of paradigms, we are given the tools to break out of the rigidity of such strong constraints, and more often than we should, such tools are used for convenience; promises are broken, magic is played, and the confusion begins.
 
