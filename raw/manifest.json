@@ -54,5 +54,6 @@
     { "updated": "2022-07-17T13:43:00Z", "title": "On the geometric beauty of programming", "markdown":  "geometric-beauty-of-code-design.md" },
     { "updated": "2022-08-12T21:30:00Z", "title": "Type Witness: not yet TypeScript, sure thing Haskell", "markdown":  "typescript-is-no-witness.md" },
     { "updated": "2022-08-20T22:23:00Z", "title": "Abilities by birth? Separation of types, data and behaviour", "markdown":  "abilities-by-birth.md" },
-    { "updated": "2022-09-05T21:23:00Z", "title": "Generics: are you keeping it generic?", "markdown":  "generics-keep-it-generic.md" }
+    { "updated": "2022-09-05T21:23:00Z", "title": "Generics: are you keeping it generic?", "markdown":  "generics-keep-it-generic.md" },
+    { "updated": "2022-09-14T17:11:00Z", "title": "Reflections, Broken Promises and Fake generics: the anti-pattern", "markdown":  "fake-generics-the-anti-pattern.md" }
 ]
