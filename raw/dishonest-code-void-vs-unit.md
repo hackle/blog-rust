@@ -5,13 +5,10 @@ If there is a time to say "be careful with what you wish for", it's when C# prog
 Kotlin has the unit type and C# does not, so let's draw a comparison.
 
 ```Kotlin
-// Kotlin
 fun giveOneThing(): Unit {
   return Unit
 }
 ```
-
-and 
 
 ```CSharp
 // C#
@@ -19,19 +16,19 @@ void GiveNothing() {
 }
 ```
 
-These two functions are equally meaningless - nothing really happens in either implementations. That's because I was trying to be loyal to the types without laying on extraneous stuff. Minimalism is a virtue. 
+These two functions are equally meaningless - nothing really happens in either implementation. That's because I was trying to be loyal to the types without laying on extraneous stuff. Minimalism is a virtue. 
 
-The difference is `giveOneThing` returns a `unit`, and `GiveNothing` returns `void`. The former is a type with one value: `unit`, whereas `void` has no value. What a good name!
+The first difference is `giveOneThing` returns a `unit`, and `GiveNothing` returns `void`. The former is a type with one value: `unit`, whereas `void` has no value. What a cool name!
 
-(Mind you it's not really `return void`, but simply `return`, as `void` does not have value - C# is more consistent than Java who allow `return null` for `void`. It's a big deal!)
+(Mind you it's not really `return void`, but simply `return`, as `void` does not have value - C# is more consistent than Java who allows `return null` for `void`. It's a big deal!)
 
-The difference may sound pretty fundamental, philosophically: isn't this like `1` and `0`, or **have** and **have** not? Well, that may be in real life, but in programming, when considering the significance of types, we just count their values and see what choices that leaves us.
+The difference may sound pretty fundamental, philosophically: isn't this like `1` and `0`, or **have** and **have-not**? Well, that may be in philosophy, but in programming, when considering the significance of types, we just count their values and see what choices that leaves us.
 
-Once we look at it that way, then the difference is quite small: the choice from 0 value vs the choice from 1 value? Not much of a difference to me.
+Once we look at it that way, then the difference is quite small: the choice from 0 value vs the choice from 1 value? Not much to me!
 
 That's why people say "`unit` and `void` are essentially the same thing".
 
-As an anecdote `unit` is also called 0-tuple and is alternatively represented as `()`. Exactly how does a 0-tuple have exactly ONE element? And how on earth a 0-tuple is different than an empty type `void`? That's something that I would rather not get into now. 
+As an anecdote `unit` is also called "0-tuple" and is alternatively represented as `()`. Exactly how does a 0-tuple have ONE element? And how on earth a 0-tuple is different from an empty type `void`? Shouldn't they be the same? I know right... but that's something that I would rather not get into now. 
 
 ## Assignable, composable
 
@@ -46,14 +43,14 @@ Func<T, V> Compose<T, U, V>(Func<T, U> t2u, Func<U, V> u2v)
 }
 ```
 
-You see, `Compose` is **truly generic** and works for any types of `T, U, V`. Except `void`.
+You see, `Compose` is **truly generic** and works for any types of `T, U, V`... well not quite. Because `void` is the exception!
 
 ```CSharp
 var fnStrLenIsEven = Compose(str => str.Length, len => len % 2 == 0);
 var helloLenIsEven = fnStrLenIsEven("Hello"); // false
 var woorldLenIsEven = fnStrLenIsEven("Woorld"); // true
 
-void Log(string msg) { ... }
+void Log(string msg) { ... }    // note the return type: void
 
 // but this won't work
 var fnCheckBookExistsThenLog = Compose(
@@ -75,15 +72,17 @@ var fnCheckBookExistsThenLog = Compose(
 );
 ```
 
-Wouldn't it be sweet if we had `unit`, then we can have `fnCheckBookExistsThenLog` of type `Func<BookId, unit>`! Then there is no need for the ugly workaround. In fact, there is no need for the ever ugly `Action<T>`, and we can freely compose `Func<T, U>` with `Func<U, V>`!
+Wouldn't it be sweet if we had `unit`, then `fnCheckBookExistsThenLog` can be `Func<BookId, unit>`! Then there is no need for the ugly workaround. In fact, there is no need for the ever ugly `Action<T>`, and we can freely compose `Func<T, Unit>` with `Func<Unit, V>`!
 
-Well... maybe not so fast. The question we need to ask ourselves is: why is `void` not composable?
+Well... maybe not so fast. The question we need to ask ourselves is: why is `void` not composable? And should it be composable?
 
 ## honesty, the rare quality
 
-A quality much under-appreciated for code (if not also for people), is honesty. Code, functions, methods, classes, modules, APIs and services, if each and every one of them are upfront and clear about what it does (maybe also stay true to that), I strongly believe we programmers would be in very pleasant places.
+A quality much under-appreciated for code (if not also for people), is honesty. Code, functions, methods, classes, modules, APIs and services, if each and every one of them are upfront and clear about what it does (maybe also stay true to that), then the places for us programmers would be enviable ones indeed.
 
-As is with being a honest person, keeping code honest is much harder than it sounds. Much like being a person, it may be easy to keep to this quality once in a while, the hard part is to keep to it consistently. The problem is, the world is a very harsh place: if a person is caught lying, then everything this person said in the past comes into question. The same applies to code: dishonesty erodes the benefits of honesty very quickly.
+As is with being a honest person, keeping code honest is much harder than it sounds - it may be easy to keep to it once in a while, but its VERY HARD to do so consistently. 
+
+The problem is, the world is a very harsh place: if a person is found to be dishonest for one thing, then everything else comes into question. The same applies to code: dishonesty erodes the benefits of honesty very quickly.
 
 This analogy works well with static types. An **honest** method does exactly what it says, leaving no surprises to the callers. Consider `LengthIsEven` below,
 
@@ -94,7 +93,7 @@ bool LengthIsEven(string str)
 }
 ```
 
-`LengthIsEven` is honest. It says exactly what it does and does exactly what it says. No less, no more. But consider `LengthIsOdd` (pun intended).
+`LengthIsEven` is honest. It says exactly what it does, and does exactly what it says. No less, no more. But consider `LengthIsOdd` (pun intended).
 
 ```CSharp
 bool LengthIsOdd(string str)
@@ -104,13 +103,17 @@ bool LengthIsOdd(string str)
 }
 ```
 
-This is dishonest, crooked, lying, despicable and fraudulent. But let's say `MineBitCoin` is intended behaviour, how would you make `LengthIsOdd` honest? Maybe `bool LengthIsOddAndMineBitCoin(string str)`?
+This is dishonest, crooked, fraudulent, and despicable! 
 
-Possibly not! The long name is yelling for separation, but of what? This is something we really should talk A LOT MORE about (instead of wasting time bickering about vague contraptions like SOLID or design patterns): 
+But let's say `MineBitCoin` is intended behaviour, how would you make `LengthIsOdd` honest? Maybe resort to naming, the ultimate solution? Tada! `bool LengthIsOddAndMineBitCoin(string str)`?
+
+Possibly not! Naming gurus will point out, a long name screams for separation, but separation of what? Of side-effects!
+
+This is something we really should talk A LOT MORE about (instead of wasting time bickering about vague contraptions like SOLID or design patterns): 
 
 **Side-effects should NOT mix up with decision making.**
 
-This is actually very easy to follow, for the above example, we should get,
+Don't let the imperatives scare you. This is actually very easy to follow, for the above example, we simple do,
 
 ```CSharp
 MineBitCoin();      // <-- moved out of LengthIsOdd
@@ -118,7 +121,9 @@ MineBitCoin();      // <-- moved out of LengthIsOdd
 var helloIsOdd = LengthIsOdd("Hello");      // no side-effect at all
 ```
 
-And now we reach the point: 
+Heh, this is pretty honest! Whether `MineBitCoin` is acceptable or not, that's a question for the bosses; but the code lays it out in plain sight. 
+
+And now we reach the point of realisation: 
 
 * `void` is used for side-effect (or else it's useless)
 * side-effects should be made explicit and kept separate from decision making
@@ -127,12 +132,11 @@ Simple as that. But simplicity should not breed contempt. Let's circle back and 
 
 ## Fake composition
 
-People say `unit` lends better to composition, but they leave out the most important bit: composition OF WHAT?
+People say `unit` lends better to composition, but they leave out something important from such assertions: composition OF WHAT?
 
 The implementation of a function returning `unit` is usually not `return unit`, but much like `void`, it's possibly full of side-effects: interacting with file system, databases, external services, launching a missile, *the whole universe*.
 
 But what's the problem with composing side effects? Suppose we have `unit`.
-
 
 ```CSharp
 Unit WriteToConsole(string prompt);    // yes, Unit!
@@ -142,21 +146,23 @@ var promptAndRead = Compose(prompt => WriteToConsole(prompt), unit => ReadFromCo
 var name = promptAndRead("Please enter your name: ");
 ```
 
-From the first look, `promptAndRead` is sweet; but what is the type? It is `Func<string, string>`!
+From the first look, `promptAndRead` is sweet; but what is the type? It is `Func<string, string>`.
 
-And what does this type tell us? A `string` goes in, and a `string` comes out. So, possibly a function that reinventing the input string, like `String.Reverse()`?
+And what does this type tell us? A `string` goes in, and a `string` comes out. Looking at the type alone, one would guess it's possibly a function that reinventing the input string, like `String.Reverse()`?
 
 We cannot fault people for guessing that, because without knowing the name `promptAndRead`, there is no telling from the type. In other words, `promptAndRead` runs the risk of being dishonest.
 
 More generally, by composing `Func<T, Unit>` with `Func<Unit, U>` to get `Func<T, U>`, the side effects go in hiding!
 
+Naming is vital, but it can only go that far.
+
 ## void is unyielding
 
-Now we are ready to see `void` in a new light: it may be strange, but it's very **honest**. A method returning `void` loudly and clearly communicates to any caller: 
+Now we are ready to see `void` in a new light: all the quirks aside, it's very **honest**. A method returning `void` loudly and clearly communicates to any caller: 
 
 **"Watch out! I have side-effects!"**
 
-And we are also ready to see it's non-composability in a new light:
+What about its rather inconvenient non-composability?
 
 ```CSharp
 void WriteToConsole(string prompt);    // yes, void!
@@ -169,7 +175,7 @@ As a type with no values of its own, `void` refuses to mix up with types with va
 
 This is in contrast to `unit`, who is also an indication of side-effect, but it's less disciplined, more social, and mixes freely with other types.
 
-Their "social life" is not just their problem, but very much ours: for its free life-style, `unit` lends itself well to hiding side-effects from plain sight, whereas `void` takes a stronger stance and demand us to re-consider.
+Their "social lives" are not just their problems, but very much ours: for its free life-style, `unit` lends itself well to hiding side-effects from plain sight, whereas `void` takes a stronger stance and demand us to re-consider, or it forces us to use ugly workarounds.
 
 ## Linq ForEach
 
@@ -179,7 +185,7 @@ Many C# programmers ask this question: how come there is `List<T>.ForEach(Action
 
 The easy answer is, while `List` champions side-effects (consider `Add`, `Append`, etc), LINQ is made with immutability and laziness in mind, and all "native" LINQ functions are free of side-effects.
 
-Of course one can still mix up LINQ with side-effects at free will, more often than not, to surprising effects.
+Of course one can still mix up LINQ with side-effects by the power of free will, more often than not, to surprising effects.
 
 ```CSharp
 var head = Enumerable.Range(1, 100)
@@ -190,15 +196,15 @@ var head = Enumerable.Range(1, 100)
 // > Current number is 1
 ```
 
-This is laziness at its best - `Select + FirstOrDefault` warrants the optimisation of only evaluating the lambda in `Select` for the first element of the `Enumerable`. However, this does not holds if caller is expecting `Select` over side-effects for each element! Worse yet, the side-effect is in disguise!
+This is laziness at its best - `Select + FirstOrDefault` warrants the optimisation of only evaluating the lambda in `Select` for the first element of the `Enumerable`. However, this does not hold if the caller is expecting `Select` over side-effects for each element! Worse yet, the side-effect is disguised as `Func<int, int>`!
 
-That's exactly where `ForEach(Action<T>)` wouldn't fit it: it MUST have side-effect as `Action` returns `void`. If `ForEach` had been built-in, it wouldn't make much sense along side `Select`, `Where` or `FirstOrDefault` who will fall apart at the sight of side-effects.
+That's exactly where `ForEach(Action<T>)` wouldn't fit it: it MUST have side-effect as `Action` returns `void`. If `ForEach` had been built-in, it wouldn't make much sense along side `Select`, `Where` or `FirstOrDefault`, or LINQ would self-defeat and self-destruct.
 
 ## In closing
 
-The idea of NOT mixing up side-effects with "pure" code is deeply rooted in the design of key language features (at least for a good period of time).
+At least for C# and LINQ, the idea of NOT mixing up side-effects with "pure" code is deeply rooted in the design (at least for a good period of time).
 
-Using `unit` over `void` is yet another case of preferring convenience over correctness. `void` is a very respectable existence and C# does it justice by not allowing any value to be created for it, and not allowing it to be composed with other types.
+The popular cry for using `unit` over `void` is yet another case of preferring convenience over correctness. `void` is a very respectable existence and C# does it justice by not allowing any value to be created for it, and not allowing it to be composed with other types.
 
 On the other hand, `unit` is a half-hearted attempt at signalling side-effects, but such signals are easily compromised by its lack of discipline.
 
