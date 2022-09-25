@@ -10,6 +10,7 @@ use serde::{Deserialize};
 pub struct Blog {
     pub current_post: Post,
     pub content: String,
+    pub description: String,
     pub date_updated: String,
     pub see_also: Vec<(String, String)>,
 }
@@ -137,6 +138,10 @@ pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) 
         ..ComrakOptions::default()
     };
     let content =  markdown_to_html(&markdown.to_string(), &options);
+    let description = markdown_to_text::convert(&markdown.to_string())
+        .split("\n")
+        .collect::<Vec<_>>()
+        .first().unwrap().to_string();;
 
     let see_also = all_posts
         .iter()
@@ -147,6 +152,7 @@ pub fn make_blog(current_post: &Post, all_posts: &Vec<Post>, markdown: &String) 
     Blog {
         current_post: current_post.to_owned(),
         content,
+        description,
         see_also,
         date_updated: format!("{}", current_post.updated.format("%v"))
     }

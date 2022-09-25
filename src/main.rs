@@ -50,6 +50,7 @@ async fn blog_post(slug: &str) -> Template {
              BTreeMap::from([
                 ("meta", HandlebarsValue::String(blog.content)),
                 ("title", HandlebarsValue::String(blog.current_post.title)),
+                ("description", HandlebarsValue::String(blog.description)),
                 ("slug", HandlebarsValue::String(blog.current_post.slug)),
                 ("see_also", HandlebarsValue::Array(blog.see_also)),
                 ("date_updated", HandlebarsValue::String(blog.date_updated))

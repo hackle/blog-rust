@@ -18,6 +18,7 @@ serde_json = "1.0.59"
 rocket-include-static-resources = "0.10.0"
 rss = "2.0"
 chrono = { version="0.4", features=["serde"] }
+markdown_to_text = '1.0'
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0-rc.1"

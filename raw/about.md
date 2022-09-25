@@ -1,3 +1,5 @@
+![Hackle Wayne](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/avatar.jpg)
+
 Hi - thanks for opening this blog. My name is Hackle Wayne, I am a software developer currently living in New Zealand.
 
 "Between the abstractions we need and the abstractions we get" is a phrase I borrowed from the mighty and hilarious Erik Meijer, particularly, [this talk](https://www.youtube.com/watch?v=NKeHrApPWlo)
@@ -16,11 +18,11 @@ My talks can be about a specific area ("Goodbye Regex, Hello Parsers", "Dude whe
 
 My workshops, on the other hand, are mostly very hands-on and focus strongly on thought processes, crafts and good habits. Drop me a line if you want to learn more. Currently, I offer these two below.
 
-* The ACT: Architecture, Code and Testing
+* Simple by Design: Declutter Your Architecture, Code and Test
 
    This workshop makes sense of code, test and architecture across languages, frameworks or conventions. It's made for experienced engineers and teams who may have doubts about existing "best practices", and are looking for simpler, clearer and saner ways of programming and engineering. The techniques and philosophies introduced here can be controversial in the beginning, but will prove thought-provoking and rewarding with exercises and discussions. This can be tailored for groups. (Be warned words such as SOLID, Clean or TDD are forbidden in this workshop)
 
-* Intentional TypeScript
+* TypeScript Power Users
 
    This is an advanced workshop on TypeScript, specifically on how to break away from habits or conventions from static-typing in the likes of C# or Java, to grasp and apply the power of TypeScript that may be unheard of in other mainstream languages.
 

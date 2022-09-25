@@ -2,6 +2,23 @@
     <head>
         <title> {{title}} | Hackle's blog </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="{{description}}">
+        
+        <!-- Facebook Meta Tags -->
+        <meta property="og:url" content="https://hacklewayne.com">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="{{title}}">
+        <meta property="og:description" content="{{description}}">
+        <meta property="og:image" content="https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/blog-opg.jpg">
+        
+        <!-- Twitter Meta Tags -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta property="twitter:domain" content="hacklewayne.com">
+        <meta property="twitter:url" content="https://hacklewayne.com/{{slug}}">
+        <meta name="twitter:title" content="{{title}}">
+        <meta name="twitter:description" content="{{description}}">
+        <meta name="twitter:image" content="https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/blog-opg.jpg">
+
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.10.0/github-markdown.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.14.0/themes/prism.min.css" />
         <link rel="stylesheet" href="/static/styles.css" />
