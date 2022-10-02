@@ -198,7 +198,7 @@ pub async fn build_rss(remote_url: &Result<String, String>) -> Result<Xml<String
         let channel = ChannelBuilder::default()
         .title(String::from("Hackle's blog"))
         .link(String::from(host_name))
-        .description(String::from("Hackle Wayne's blog about many nerdy things"))
+        .description(String::from("Between the abstractions we need and the abstractions we get"))
         .items(items)
         .pub_date(Some(pub_date.to_rfc2822()))
         .build();

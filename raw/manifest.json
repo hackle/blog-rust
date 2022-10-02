@@ -56,5 +56,6 @@
     { "updated": "2022-08-20T22:23:00Z", "title": "Abilities by birth? Separation of types, data and behaviour", "markdown":  "abilities-by-birth.md" },
     { "updated": "2022-09-05T21:23:00Z", "title": "Generics: are you keeping it generic?", "markdown":  "generics-keep-it-generic.md" },
     { "updated": "2022-09-14T17:11:00Z", "title": "Reflections, Broken Promises and Fake generics: the anti-pattern", "markdown":  "fake-generics-the-anti-pattern.md" },
-    { "updated": "2022-09-22T21:14:00Z", "title": "void vs unit: Respect the Honesty of void", "markdown":  "dishonest-code-void-vs-unit.md" }
+    { "updated": "2022-09-22T21:14:00Z", "title": "void vs unit: Respect the Honesty of void", "markdown":  "dishonest-code-void-vs-unit.md" },
+    { "updated": "2022-10-03T11:59:00Z", "title": "PATCH-friendly types: null, undefined or maybe maybe", "markdown":  "null-undefined-and-patch-maybe-maybe.md", "hidden": true }
 ]
