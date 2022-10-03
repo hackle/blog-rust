@@ -1,10 +1,8 @@
-A pretty embarrassing thing with imperative programming is: it's not always possible to tell the difference between "never set" or "set to default value".
+So you know what `null` is, but have you heard about *explicit* `null` and *implicit* `null`?
 
-If your answer is `null` (or `nil` or `None`) to both, we need to talk.
+We are told `null` represents the "lack of value"; but it's clearly not always true: in many languages, `null` (or `nil`, `Nothing`) is a value that can be assigned to variables, and passed around, and definitely first-class.
 
-You see, for a long time `null` is said to represent the "lack of value"; but it's clearly not always true: in many languages, `null` can be assigned to variables, and passed around, it's typically first-class.
-
-(By comparison, `void` indicates "lack of value" much better, and [should be heeded](/dishonest-code-void-vs-unit).)
+It's a bit embarrassing to say, but maybe we DON'T know what `null` is?
 
 ## null: never set, or explicitly set?
 
@@ -26,168 +24,53 @@ string Update(Person person)
 }
 ```
 
-And let me ask you this: when `person.Nickname` is `null`, how do I know if it's because,
+And let me ask you this: when `person.Nickname` is `null`, how do I know if it's,
 
-1. `person.Nickname` is ever given a value, as with `new Person()`, or 
-2. its value is explicitly set to `null`, as with `new Person(Nickname = null)`?
+1. an implicit `null` that is ever given a value, as with `new Person()`, or 
+2. an explicit `null` as with `new Person(Nickname = null)`?
 
-```CSharp
-// possibility 1
-Update(new Person());
+The answer is, by looking at the value alone, there is no way to tell!
 
-// possibility 2
-Update(new Person { Nickname = null });
-```
+What's the big deal, you say. If this never bothers you, great; but if it does, then you know it can actually be a big deal.
 
-Well, the answer is, by looking at the value alone, there is no way to tell!
+## JSON merge PATCH
 
-This may not look a big deal, like many things, `null` is meant to work "most of the time".  
+One famous use case for differentiating explicit and implicit `null`, is [JSON merge PATCH](https://www.rfc-editor.org/rfc/rfc7386).
 
-## Pydantic: unset null vs set null
-
-`Pydantic` is a great Python library that handles data validation amongst many other things.
-
-It has this notion of `unset`. See,
-
-```Python
-from typing import Optional
-import pydantic
-
-
-class Person(pydantic.BaseModel):
-    nickname: Optional[pydantic.StrictStr]
-
-person1=Person().dict(exclude_unset=True)
-print(f"{person1}")
-# {}
-
-person2=Person(nickname=None).dict(exclude_unset=True)
-print(f"{person2}")
-# {'nickname': None}
-```
-
-See, it works beautifully. Although now we have two kinds of `null`: the *default* `null`, and the *explicit* `null`. The Pydantic model must somehow keep an internal state on which fields has been set a value *explicitly*.
-
-A good guess would be this is done by using some internal states to keep track which field is set - this is good engineering, as it's typically what it takes to get us out of a "jam"; it doesn't solve the problem from the root. Now a `null` field must be viewed alongside an internal state? Come on.
-
-## undefined FTW
-
-JavaScript solves this problem beautifully: `undefined` is the solution to the implicit `null`, aka "a value is never given". `null` is just `null`. See,
+Let's say this `Person` record is currently saved in the data store.
 
 ```JavaScript
-> {}.nickname
-undefined
-
-> {"nickname":null}.nickname
-null
+{ "id": 1, "name": "Hackle", "nickname": "Hacks" }
 ```
 
-This lets us write,
+And a client wants to reset the `nickname`, so it sends a `PATCH` request.
+
+```JavaScript
+PATCH /person/1 
+{ "nickname": null }
+```
+
+Notice the *explicit* `null`, it clearly indicates `nickname` should be set to `null`. A good server implementation should update the record so it looks like,
+
+```JavaScript
+{ "id": 1, "name": "Hackle", "nickname": null }
+```
+
+This is a non-issue for JavaScript, because it's dynamically type? Not just. Also because JavaScript differentiates `null` and `no value is given`, a.k.a. `undefined`. So imagine the server-side written in Node can do,
 
 ```JavaScript
 if (person.nickname === undefined) {
-    // person.nickname is never set!
-} else if (person.nickname === null) {
-    // person.nickname is explicitly set to null
+  // do nothing!
 }
 ```
 
-The semantics are very clear: `undefined` clearly states `person.nickname` is never given a value; `null`, on the other hand, is a value in presence.
+A stroke of genius indeed! Now we know `undefined` is nothing to sneeze at. 
 
-We still have the question of how to stop people from abusing `undefined`? Indeed, many engineers seem to confuse `undefined` with `null`, and it's not unusual to see them used interchangeably, completely throwing away the benefit of `undefined` as the signal of "value not yet given".
+Other languages may not be so lucky.
 
-Nevertheless, the engineers are at fault here; the idea to differentiate `undefined` and `null` is sound; we need to do better at putting them in good use.
+# Lossy serializers
 
-## TypeScript: why ask for undefined?!
-
-Now we can see `const foo = null` is fine, but `const foo = undefined` does not make as much sense, or it's at best unnecessary. Stating `foo` is `undefined` is not much different than stating Hackle is not a billionaire, nor a space traveller; plus EVERYTHING is `undefined` until it's defined.
-
-This gives rise to funny code like this,
-
-```JavaScript
-> function eq(a, b) { return a === b; }
-> eq();
-true
-```
-
-(I am aware people use the likes of `person.nickname = undefined` to reset the `undefined` state. As it's effective in `JSON.stringify({ nickname:undefined }) === JSON.stringify({})`).
-
-The point being, leaving something uninitialised is enough to secure "undefinedness", as in this function in TypeScript,
-
-```TypeScript
-type Person = { nickname?: string } // nickname?: string | undefined;
-const person: Person = {};  // this is fine
-```
-
-AFAIK, this is desired behaviour. However, things are not always peachy.
-
-```TypeScript
-type Person1 = { nickname: string | undefined };
-
-// ERROR: Property 'nickname' is missing in type '{}' but required in type 'Person1'.ts(2741)
-const person1: Person1 = {};    
-
-// this works but yucks!
-const person2: Person1 = { nickname: undefined };
-```
-
-Supposed I want to get even fancier: `nickname` should only be required if `hasNickname` is true. Reasonable right? 
-
-```TypeScript
-function greet<T extends boolean>(
-    hasNickname: T, 
-    nickname: T extends true ? string : undefined
-) {
-    return hasNickname ? `Hello ${nickname}!` : `Hello there!`;
-}
-
-const greet1 = greet(true, 'Hacks');
-
-// An argument for 'nickname' was not provided.
-const greet2 = greet(false);
-
-// works but yucks again!
-const greet3 = greet(false, undefined);
-```
-
-Really, TypeScript should not be asking for an explicit `undefined`!
-
-PS it's possible to get this example working with overloads.
-
-```TypeScript
-function greet(hasNickname: false): string;
-function greet(hasNickname: true, nickname: string): string;
-function greet(hasNickname: boolean, nickname?: string): string {
-    // implementation
-}
-```
-
-## undefined + PATCH
-
-`undefined` is the most useful when dealing with user input, such as JSON from an HTTP request.
-
-In this example, a `Person` record can be updated with a `PATCH`.
-
-```JavaScript
-PATCH /person/1 
-{ "name": "Hacks", "nickname": null }
-```
-
-Notice the explicit `null`, it clearly indicates `nickname` should be set to `null`. What about `undefined`?
-
-```JavaScript
-PATCH /person/1 
-{ "name": "Hacks" }
-```
-
-`nickname` will be `undefined` after `JSON.parse`. For a `PATCH`, this could be interpreted (rightfully so) as "no action required" or "keep as is".
-
-See, `undefined` and `PATCH` are a match made in heaven. The semantics is perfect.
-
-
-# without undefined
-
-Many programmers laugh at JavaScript for having `undefined`, without knowing it's really a luxury of a feature. For example, most serialiser in other languages would not be able to make the differentiation. 
+Suffice to say, JSON merge PATCH is a pain to implement in a statically typed language like C#. Why? Let's look at the example below,
 
 ```CSharp
 using System;
@@ -204,19 +87,23 @@ class Program {
     var person1 = JsonSerializer.Deserialize<Person>("{\"name\":\"Hacks\"}");
     var person2 = JsonSerializer.Deserialize<Person>("{\"name\":\"Hacks\",\"nickname\":null}");
 
-    // this writes: True
     Console.WriteLine (person1 == person2);
+    // outputs: True
   }
 }
 ```
 
-It's the problem from the beginning: `null` is used for both "no value ever given" and "null value is given". Therefore, it's not possible to tell if the user is trying to communicate "keep nickname as is" or "reset nickname to null"?
+For all it's static typing, C# cannot tell implicit null from explicit null. Is `nickname` set to `null` in the JSON request body, or not set at all? Don't know!
 
-## go lower
+Some very useful information is lost. It's a dead end.
 
-As it's usually the case, the way out of this is to take a step back, otherwise referred to as "abstraction leak". For our example, either the typical behaviour of serialisers fail us, or C# as a language does not allow us to express such nuance as elegantly as we want.
+Should we blame the serialiser? Maybe not.
 
-So we break the abstraction and arrive at a level lower - JSON objects. This is done pretty easily in C# with the mysterious `dynamic` keyword!
+## Way out: a step back
+
+Maybe the serializer should not take the blame here. Most serializers support deserializing into a dynamic hashmap. After all, a JSON object is nothing other than a map itself.
+
+See how this is done pretty easily in C# with the mysterious `dynamic` keyword!
 
 ```CSharp
 var person1 = JsonSerializer.Deserialize<dynamic>("{\"name\":\"Hacks\"}");
@@ -230,26 +117,36 @@ Console.WriteLine(person2);
 {"name":"Hacks","nickname":null}
 ```
 
-However, not many people will be happy to deal with JSON objects directly. We must choose convenience over correctness, when the cost of correctness is ... inconvenient.
+You see, the serializer is totally capable of differentiating between `undefined` and `null`. Why don't we use `dynamic` instead? What's the problem?!
 
-But this does not stop at `PATCH`. It's also quite possible that `nickname` is a new field added to the `Person` contract. I know, people will be shouting - the contract should be versioned! But for the sake of discussion, let's assume not everyone is ready to meet the versioning hell. So we are faced a few interpretations when `nickname` is `null` after deserialisation, for the same `PATCH` endpoint.
+The problem is we MUST have **convenience**! Deserialising a JSON object to a "strongly-typed" model is golden standard, even at the cost of information loss! Nobody wants to break the standards, what are we, anarchist?
 
-1. user wants to keep `nickname` as is
-2. user wants to reset `nickname` to `null`
-3. the client side is yet to be aware of `nickname`, and it's setting `nickname` to `null` for any record unconsciously
-4. the client side is aware of `nickname`, and is setting `null` values consciously 
-
-There is a lot more guessing required here to get this right! In fact, I find this unsettling.
+So this is the core of the problem: for the sake of correctness (strong typing), we accept information loss, which undermines correctness. This is the real dead end!
 
 ## Types again
 
-Although lacking the much coveted union type, many static-typed languages have the de-facto union type: any reference type is a union of itself and null. `string` is actually `string | null`, `Person` is actually `Person | null`, etc.
+Boy did the JSON merge Patch problem make engineers scramble. But if there is one thing engineers do well, is to work around problems by PATCHing (pun intended) over them.
 
-As it will be non-trivial to add another type to the union, JavaScript will have the edge of `undefined` for quite a few years to come.
+It's too late to introduce `undefined` to existing type systems, so the Java peeps are quick to copy `undefined` from JavaScript, with [JsonNullable](https://github.com/OpenAPITools/jackson-databind-nullable). ASP.NET users love their model binding so a [library must be made to suit](https://github.com/Morcatko/Morcatko.AspNetCore.JsonMergePatch).
 
-Do languages with stronger types handle this well? Not necessarily. Take this example in Haskell,
+Wait, Haskell has `undefined`, although, it's not supposed to be touched.
 
-```Haskell
+```haskell
+ghci> undefined
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:74:14 in base:GHC.Err
+  undefined, called at <interactive>:2:1 in interactive:Ghci1
+ghci> undefined == undefined
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:74:14 in base:GHC.Err
+  undefined, called at <interactive>:3:1 in interactive:Ghci1
+```
+
+Give its prestige as a language and community, surely Haskell peeps have handled this with flying colours? Not necessarily. Take this example with `Aeson`,
+
+```haskell
 import Data.Aeson
 import Data.Text
 import GHC.Generics
@@ -270,26 +167,33 @@ main = do
 Just (Person {name = "Hacks", nickname = Nothing})
 ```
 
-This is not much different than the C# example: missing == null. There is no way to differentiate.
+Instead of implicit `null` we have implicit `Nothing`, not much different than C#. It looks like the core of the problem is not with languages but with conventions, and conventions go deep.
 
-How could this be expressed better? Utilising Haskell's tagged unions, we could introduce a new type such as `data MaybeUndefined a = Undefined | a`. Good, except this is essentially the same as `Maybe`. Using `Person` as example,
+## Maybe Maybe?
 
-```Haskell
+So we really love so called "strong-typing" too much, and never want to regress into using JSON objects directly, are we stuck with JavaScript for JSON merge PATCH? What are the options? 
+
+If we could change the conventions just a little, there may be alternatives. For example, utilising Haskell's tagged unions, we could introduce a new type such as `data MaybeUndefined a` as below. Missing fields deserialise into `Undefined`, otherwise their intended type `a`, which can be nullable itself. For example,
+
+```haskell
+data MaybeUndefined a = (FromJSON a) => Undefined | a
+
 data Person = Person { 
   name :: Text, 
-  nickname :: Maybe (Maybe Text)
+  nickname :: MaybeUndefined (Maybe Text)
 }
 ```
 
-Now we have a few variants
+Now we have deterministic interpretation,
 
-1. `Nothing` - the `nickname` field is missing, i.z. no value is given
-2. `Just Nothing` - a `null` value is set explicitly
-3. `Just (Just "Hacks")` - a value other than `null` is given
+1. `Undefined` the `nickname` field is missing, i.z. no value is given
+2. `Defined Nothing` - a `null` value is set explicitly
+3. `Defined (Just "Hacks")` - a value other than `null` is given
+4. `None`: deserialization has failed
 
-It's more verbose, but more accurate and can be just what gets us out of a jam, when the need for differentiation arises.
+(NOTE: I have not managed to implement this with Aeson)
 
-Unfortunately this neat technique only works for tagged unions. Untagged union collapses - for example, in `TypeScript`, `Optional<T>` is the same as `OptionalOptional<T>`, proof below,
+This technique would slot in pretty naturally for tagged unions, but not so well for untagged unions which collapse - for example, in `TypeScript`, `Optional<T>` is the same as `OptionalOptional<T>`, proof below,
 
 ```TypeScript
 type Optional<T> = T | undefined;
@@ -305,10 +209,29 @@ type StrictEq<T, U> =
 const areEqual: StrictEq<Optional<string>, OptionalOptional<string>> = false;
 ```
 
-While Python may lament the lack of alternatives, it doesn't matter for JavaScript / TypeScript for the existence of `undefined`!
+This is hardly the end of the world but it does mean more heavy-handed wiring is needed to introduce the type level equivalent of `undefined`.
 
-## Start-over with Immutability 
+## Contract Versioning
 
-This is how we backed ourselves into a corner, when trying to patch up a questionable design.
+Worth noting this issue does not stop at `PATCH`.
 
-Quite the rabbit hole isn't it? And it would seem nearly impossible to get right.
+Let's say for our wildly popular endpoint, `nickname` is a new field added to the existing `Person` contract. And let's assume people are wary of versioning hell so that's not an option.
+
+For the various client sides, this should be completely backward compatible, right? Not really.
+
+When a `PATCH` request is received, we are faced with even more interpretations when `nickname` is `null` after deserialisation.
+
+1. user wants to keep `nickname` as is, or
+2. user wants to reset `nickname` to `null`, or
+3. the client side is yet to be aware of `nickname`, or
+4. the client side is aware of `nickname`, and is setting `null` values consciously 
+
+Too much guessing required! And a real recipe for disaster.
+
+## In closing
+
+Who would have thought JSON merge PATCH would bring so much envy for `undefined` and JavaScript?
+
+Isn't interesting, and maybe a bit sad, that how much trouble `null` is still causing us? Even the more modern, powerful languages are no exception, because the conventions are pervasive and run deep.
+
+But these languages do have the edge of extra expressive power, which helps to make the solution less wacky and more elegant. All we need to fight are the conventions - but would we be able to?
