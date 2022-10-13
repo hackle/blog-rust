@@ -155,6 +155,31 @@ Should val2 be `"Am"` because `val1 : "Am"`? The are both of type `T extends AmP
 
 Not necessarily, and here is the catch: although `val1 : "Am"` holds, `val2` can still be `"Pm"`, which means `T : AmPm`. This is perfectly fine! It's one of the 4 possibilities of `T extends AmPm`. If TypeScript has kicked in type-narrowing on the return type and forced `T` to be `"Am"`, it would have been completely wrong!
 
+## It's obvious with subtyping
+
+If we generalise `T` to be any type, not just unions, this answer can be made even more obvious - even trivial if we bring in subtyping. Consider,
+
+```TypeScript
+function self<T extends Person>(p: T): T {
+    const person: Person = {...};
+    return person;
+}
+
+// type `Teacher` is a subtype of `Person`
+const teacher: Teacher = {...};
+
+const teacherSelf = self(teacher); // Not right! `teacherSelf` is of type `Person`
+```
+
+This is obviously wrong! `self(teacher)` should return a `Teacher` type, not a `Person` type.
+
+Now you should understand the error message, and let's sub in the types.
+
+```TypeScript
+Type 'Person' is not assignable to type 'Teacher'.
+  'Person' is assignable to the constraint of type 'Person', but 'T' could be instantiated with 'Teacher'.ts(2322)
+```
+
 ## The dreadful alternative
 
 But hope is not all lost. We can still argue, in this case the programmer should check both `val1` and `val2` to help TypeScript decide what `T` is. In effect, we promise to do the below,
