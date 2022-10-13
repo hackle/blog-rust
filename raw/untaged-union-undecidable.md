@@ -1,10 +1,6 @@
-If you haven't used union type before, you have been missing out big time! 
+Have you heard? TypeScript's union types are untagged.
 
-If your favourite language does not have it yet, try a new language that does: TypeScript, Python3, Rust, Swift, PHP or pick any statically typed functional language.
-
-This is not an intro, but almost the opposite: if you happen to hop around languages, and have used union type across a few languages, then you would have picked up how union type in Python and TypeScript is quite different than that in Swift or Rust.
-
-So it happens, not all union types are created equal: some are tagged, others untagged!
+Untagged unions are not a TypeScript speciality, Python also has untagged unions. But the TypeScript unions are super neat: it lets us freely combine types into new types without the verbosity of writing up new types and constructors; it even allows us to calculate union types from other union types by inspecting types in unions (with `extends` as usual). Completely unheard of!
 
 ## A Union is Useless without "Discrimination"
 
@@ -135,18 +131,34 @@ Perhaps the most confusing consequence of untagged unions is they can be undecid
 ```TypeScript
 type FooBar = 'foo' | 'bar';
 
-function fooOrBar<T extends FooBar>(v: T): T {
-    if (v == 'bar') return 'bar';   // Type '"bar"' is not assignable to type 'T'.
-    else return 'foo';
+declare function needFoo(v: 'foo'): void;
+
+function fooOrBar<T extends FooBar>(v1: T, v2: T): void {
+    if (v1 == 'foo') needFoo(v1);   // OK
+
+    if (v1 == 'foo') needFoo(v2);   // Error  
+    // Argument of type 'FooBar' is not assignable to parameter of type '"foo"'.
+    // Type '"bar"' is not assignable to type '"foo"'.ts(2345)
 }
 ```
 
-How could this be? `(v == 'bar')` already narrows down `v` to `'bar'`, which is then rejected.
+How could this be? `(v1 == 'foo')` already narrows down `v1` to `'foo'`, and `v2` is of the same type as `v1`, surely `v2` is also `'foo'`?
 
-This was discussed previously with [must cast situation](/typescript-must-cast-situation). Another angle is: when we write `T extends FooBar`, T is undecidable, and therefore impossible to satisfy with any value, because `T extends FooBar` says `T` can be of any type: 
+Not really! The trick is `<T extends FooBar>` says `T` can be ANY subtype of `FooBar`, which not only includes `'foo'` and `'bar'`, but also `'foo' | 'bar'`.
 
-1. `'foo'`, 
-2. `'bar'` 
-3. or maybe most confounding `'foo' | 'bar'`
+While `v1` alone cannot be `'foo'` or `'bar'` at the same time, two values `v1` and `v2` certainly can, and still be of the same type - that's the union type by definition! (This was also discussed previously with [must cast situation](/typescript-must-cast-situation))
 
-Any return value of `fooOrBar` must satisfy all these 3 types - this is not possible.
+This reveals the "undecidable" nature of untagged unions. A very handy example is when type inference kicks in for lack of type annotation.
+
+```TypeScript
+function inferred(arb: FooBar) {
+    return arb == 'bar' ? 1 : '0';
+}
+
+// inf1: 1 | "0"
+const inf1 = inferred('foo');
+```
+
+This can catch a lot of people by surprise: how could `inferred` return `1 | "0"`? Shouldn't it decide to be `number` and give a compiler error for `'0'` (as a string)?
+
+This is when people will complain that TypeScript is weakly typed. No! It's just untagged!
