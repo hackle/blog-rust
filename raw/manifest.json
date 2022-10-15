@@ -58,5 +58,5 @@
     { "updated": "2022-09-14T17:11:00Z", "title": "Reflections, Broken Promises and Fake generics: the anti-pattern", "markdown":  "fake-generics-the-anti-pattern.md" },
     { "updated": "2022-09-22T21:14:00Z", "title": "void vs unit: Respect the Honesty of void", "markdown":  "dishonest-code-void-vs-unit.md" },
     { "updated": "2022-10-03T11:59:00Z", "title": "PATCH-friendly types: null confusion, undefined envy and maybe maybe", "markdown":  "null-undefined-and-patch-maybe-maybe.md" },
-    { "updated": "2022-10-13T21:31:00Z", "title": "Neat, Undecidable, Collapse - Unions are Untagged in TypeScript", "markdown":  "untaged-union-undecidable.md", "hidden": true}
+    { "updated": "2022-10-13T21:31:00Z", "title": "Unions are Untagged in TypeScript: undecidable, collapse, and anti-patterns", "markdown":  "untaged-union-undecidable.md" }
 ]
