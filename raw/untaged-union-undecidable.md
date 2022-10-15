@@ -2,6 +2,8 @@ Have you heard? TypeScript's union types are untagged.
 
 Untagged unions are not a TypeScript speciality, Python also has untagged unions. But the TypeScript unions are super neat: it lets us freely combine types into new types without the verbosity of writing up new types and constructors; it even allows us to calculate union types from other union types by inspecting types in unions (with `extends` as usual). Completely unheard of!
 
+But with great power comes great responsibility. One of the responsibilities is particularly strange: discrimination. Not on people, but on types.
+
 ## A Union is Useless without "Discrimination"
 
 We put two types together to form a union type `type AOrB = A | B`. However, the job is only half done. In practice, for `AOrB` to be useful, we must be able to tell `A` and `B` apart. 
