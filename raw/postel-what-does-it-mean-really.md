@@ -8,7 +8,7 @@ Look how many versions there are! [Wikipedia](https://en.wikipedia.org/wiki/Robu
 
 You would have come across other versions, such as "take the most generic input, give the most specific output", which might not make a hell lot of sense either.
 
-Although confusing, these are all valid interpretations. And I can assure you, Postel's law is a useful law - we just need a much simpler interpretation. Let's see if that can be done.
+Although confusing, these are all valid (but incomplete!) interpretations. And I can assure you, Postel's law is a useful law - we just need a much simpler interpretation. Let's see if that can be done.
 
 ## Postel's law is about Types!
 
@@ -250,5 +250,76 @@ Remember the premise of "given a certain implementation", which means,
 Hence we can boil down Postel's law to: 
 
 **Allow the most values for input by requiring the most generic types; Allow the most operations on return by producing the most specific type.**
+
+## What's about the contra- and co-variant version?
+
+Now we are ready to address the more intimidating version, 
+
+> (INCOMPLETE) be contravariant in the input type and covariant in the output type. 
+
+Quite consistently, this is also *incomplete*! And it's because of a problem I always have with how people talk about contra- and co-variance - they leave out the key part - contravariant or covariant to WHAT? Merriam Webster [defines "covariant"](https://www.merriam-webster.com/dictionary/covariant) as
+
+> varying with something else so as to preserve certain mathematical interrelations
+
+Clearly we shouldn't leave out what "something else" is, unless it's trivially obvious, which is not in the case of Postel's law. 
+
+So what is being left out? Take a wild guess - also the "implementation"! And the full statement should be,
+
+> (COMPLETE) be contravariant in the input type and covariant in the output type **to the implementation**
+
+Let's look at `CountChars` again.
+
+```CSharp
+static Dictionary<char, int> CountChars(string chars)
+{
+    return chars
+        .GroupBy(c => c)
+        .ToDictionary(g => g.Key, g => g.Count());
+}
+```
+
+What's the type of the implementation? It's `string -> Dictionary<char, int>`. But is that all? The law says we can, as far as the implementation allows,
+
+1. Vary the input type in the contra-variant direction, or, make it more generic.
+2. Vary the return type in the co-variant direction, or, make it more specific
+
+Thus we can stretch the types both ways, and get to the final types `IEnumerable<T> -> Dictionary<T, int>`, the same as we've seen above.
+
+This may appear magical but it's hardly ground-breaking. The [`Func<>` type](https://learn.microsoft.com/en-us/dotnet/api/system.func-2?view=net-7.0) is already contra-variant in its input and co-variant in its output, it's just how sub-typing works.
+
+Still having doubts? See for yourself in your favourite IDE,
+
+```CSharp
+static Dictionary<char, int> CountChars(string chars)
+{
+    return chars
+        .GroupBy(c => c)
+        .ToDictionary(g => g.Key, g => g.Count());
+}
+
+static Dictionary<T, int> Count<T>(IEnumerable<T> chars)
+{
+    return chars
+        .GroupBy(c => c)
+        .ToDictionary(g => g.Key, g => g.Count());
+}
+
+// put this in another method
+// this assignment works!
+Func<string, Dictionary<char, int>> fnCountChars = Count;
+```
+
+The problem is we MUST keep the implementation fixed, because the following also types check, rightfully so.
+
+```CSharp
+static Dictionary<char, int> CountObj(object obj)
+{
+    return new Dictionary<char, int>();
+}
+
+Func<string, Dictionary<char, int>> fnCountChars = CountObj;
+```
+
+The same misinterpretation we've seen earlier.
 
 (Variance is discussed in more details in a [previous post](/contravariant)).
