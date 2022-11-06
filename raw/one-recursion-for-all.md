@@ -37,16 +37,16 @@ The brilliant people out there tell us: manual recursion is fun for a while, but
 data Rec f = R { unR :: f (Rec f) }
 ```
 
-It's a pretty curious type isn't it, being infinitely recursive? Notice it needs a `f` that accepts a type parameter itself (or, `f` is of kind `* -> *`). 
+It's a pretty curious type isn't it, being infinitely recursive? Notice it needs an `f` that accepts a type parameter itself (or, `f` is of kind `* -> *`). 
 
-Suppose we try to construct a value for `Rec`, oh, I happen to know something of kind `* -> *`.
+Suppose we try to construct a value for `Rec`? I happen to know something of kind `* -> *`.
 
 ```haskell
 ghci> :t R (Just (R Nothing))
 R (Just (R Nothing)) :: Rec Maybe
 ```
 
-Well, I can construct a value for it, but it's not very meaningful, `R (Just (R Nothing))` hardly contains any data. Maybe a type of kind `* -> * -> *`?
+No problem, a value is constructed, but it's not very meaningful, `R (Just (R Nothing))` hardly contains any data. Should we try kind `* -> * -> *`?
 
 ```haskell
 ghci> :t R (Left "oh!")
@@ -68,9 +68,11 @@ ghci> :t R (Right (R (Left "oh!")))
 R (Right (R (Left "oh!"))) :: Rec (Either String)
 ```
 
-`Right String` won't work because `Rec` must be recursive, and `String` does not satisfy the expected `Rec (Either a)`, but we manage a valid `R (Right (R (Left "oh!")))` that checks all the boxes.
+`Right String` won't work because `Rec` must be recursive, and `String` does not satisfy the expected `Rec (Either a)`, but we manage to get a valid `R (Right (R (Left "oh!")))` that checks all the boxes.
 
-I don't want to alarm you, but we have effectively made two types `Maybe` and `Either` *recursive* with this strange `Rec` type! These types are not really known for being recursive. Let that sink in...
+I don't want to alarm you, but we have effectively made two types `Maybe` and `Either` *recursive* with this strange `Rec` type! These types are not really known for being recursive. 
+
+Let that sink in...
 
 ## Back to Tree
 
@@ -95,13 +97,13 @@ ghci> fmap (+ 1) (NodeR 1 2)
 NodeR 2 3
 ```
 
-Compared to the original `Tree`, `TreeR` is strange as it maps over `NodeR` but leaves `LeafR` untouched, because it's functorial in its second parameter `r`, not the first one `a`. 
+Compared to the original `Tree`, `TreeR` is strange as it maps over `NodeR` but leaves `LeafR` untouched, for being functorial only in its second parameter `r`, not the first one `a`. 
 
 But how do we make `TreeR` recursive? The name `r` should have given it away.
 
 ## Recursive TreeR
 
-The combination of `TreeR` and `Rec` gives rise to recursion,
+The combination of `TreeR` and `Rec` gives rise to a recursive `TreeR`,
 
 ```haskell
 myTreeR :: Rec (TreeR Int)
@@ -125,9 +127,9 @@ ghci> showTreeR myTreeR
 
 Did you notice how `LeafR` and `NodeR` are handled differently? A `LeafR` has an `Int` inside, so we call `show a`; but `NodeR` would have its branches built as `String`s via recursion. However, they do converge on `String`. This is important.
 
-Not so bad, we say, but didn't we say the point of `Rec` is to reduce manual recursion? We are back at ground zero. What's all the fuss about?!
+"Not so bad", but didn't we say the point of `Rec` was to reduce manual recursion? We are back at ground zero. What's all the fuss about?!
 
-Taking a closer look, I do notice `showTreeR` is suspiciously similar to the `Functor` implementation. Sure we can use `fmap`?
+Taking a closer look, I do notice `showTreeR` is suspiciously similar to the `Functor` implementation. Sure we can use `fmap`? Throwing in a recursive call to `showTreeR2` itself, we get,
 
 ```haskell
 showTreeR2 :: Rec (TreeR Int) -> String
@@ -139,7 +141,7 @@ ghci> showTreeR2 myTreeR
 "1 2 3 4"
 ```
 
-That's truly interesting. The recursion is moved to `fmap showTreeR2 r`, and the case-split does not use recursion at all. Cool again!
+That's truly interesting. The recursion is moved to `fmap showTreeR2 r`, and the case-split does not use recursion at all. Cool again! What's next?
 
 ## Lifting
 
@@ -157,11 +159,13 @@ ghci> showTreeR3 showTreeFlat myTreeR
 "1 2 3 4"
 ```
 
+The recursion is isolated in `showTreeR3`, which can be used for different algorithms to show a `TreeR`; more importantly, `showTreeFlat` is completely free of recursion. We are getting there!
+
 Note how we arrive at `TreeR Int String -> String` where the `String` is lined up ("converge") with the eventual return type, but not `Int`? If we recall the definition of `data TreeR a r = LeafR a | NodeR r r`, a function of type `TreeR a r -> r` implies it encapsulates `a -> r`, as `show` in `showTreeFlat`. Pleasant hindsight.
 
 ## "Genericise"
 
-Why stop while we can still make `showTreeR3` much more generic? Without changing the implementation, we can add a requirement for `Functor` in order to use `fmap`, to arrive at,
+Can we still make `showTreeR3` more generic? Sure thing. Without changing the implementation, we can add a requirement for `Functor` in order to use `fmap`, and `String` can be made generic,
 
 ```haskell
 showTreeR4 :: Functor f => (f a -> a) -> Rec f -> a
@@ -171,13 +175,17 @@ ghci> showTreeR4 showTreeFlat myTreeR
 "1 2 3 4"
 ```
 
-Fair to say this is pretty high-concept, in particular `Rec f -> a` strongly implies `Rec f` encapsulates some `a`, but it's not visible in the type of `Rec f` at all!
+This is great, but also very vague!
+
+Fair to say it is pretty high-concept, in particular `Rec f -> a` strongly implies `Rec f` encapsulates some `a`, but it's not visible in the type of `Rec f` at all!
 
 This of course is hinted at with `f a -> a`, but this itself is cryptic, as `Rec f` expands to `f (Rec f (Rec f))`, there is no hint of `a`. Therefore, it's very important to remember how we got here step by step.
 
-Of course we realise `showTreeR4` needs to be renamed to fit its more generic purpose. Indeed, it is well-known in the name `cata`, short for `catamorphism` - collapsing a structure into a single value.
+The proper interpretation is: `Rec f` has some data (type unknown) that can be converted to `a`; utilising `f a -> a` we can recursively extract `a` and roll it up into one single `a` for return. (This smells strongly of Monoid but note how it's not necessarily so.)
 
-`cata` works for any recursive type, even `Either`!
+Of course we realise `showTreeR4` needs to be renamed to fit its now generic purpose. Indeed, it is well-known as `cata`, short for `catamorphism` - collapsing a structure into a single value.
+
+`cata` works for any recursive type, for example, `Either`,
 
 ```haskell
 resultR :: Rec (Either Bool)
@@ -191,9 +199,9 @@ ghci> cata exclaim resultR
 "it's True!!"
 ```
 
-Isn't it amazing? 
+Pretty amazing stuff. 
 
-There are other functions that work on recursive data structures like `cata`, such as `ana`, `apo`, `para`, `zygo`... This family of functions are otherwise referred to as, behold, "recursion schemes".
+There are other functions that work on recursive data structures such as `ana`, `apo`, `para`, `zygo`... This family of functions are otherwise referred to as, behold, "recursion schemes".
 
 No doubt, recursion schemes do take away the fun of writing recursion manually. But it more than makes up for it, by revealing a fantastic landscape!
 
