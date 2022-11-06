@@ -2,7 +2,7 @@ One of the thrills of learning Haskell, is how something can come up out of the 
 
 For example, I used to feel pretty good about being able to use the likes of map, filter, find and reverse fluently, until I found out all these list functions can be implemented using reduce alone.
 
-It just happened to me again a few days ago, this time about recursion.
+And it happened to me again a few days ago, this time about recursion.
 
 ## Look mum, I can do recursion!
 
@@ -25,7 +25,7 @@ ghci> showTree myTree
 "1 2 3 4"
 ```
 
-So intuitive! And we usually feel pretty good about ourselves at this moment. I was a bit drunk with power then.
+So intuitive! And we usually feel pretty good about ourselves at this moment. I remember being a bit drunk with power then :) 
 
 As is with real life or Haskell alike, when such feelings hit, quite likely it's NOT truly a time for self-congratulation, no people! Much, much better! It usually means a new landscape is opening up, and curse if we linger on the drunkenness!
 
