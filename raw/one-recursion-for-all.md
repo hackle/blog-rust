@@ -1,8 +1,8 @@
-One of the thrills of learning Haskell, is how something unexpected can come up out of the blue, and completely invalidates my existing knowledge.
+One of the thrills of learning Haskell, is how something can come up out of the blue to completely invalidate my existing knowledge.
 
-For example, learners of functional programming may feel pretty good about being able to use the likes of map, filter, find and reverse fluently, until the moment that we find out all these list functions can be implemented using reduce alone.
+For example, I used to feel pretty good about being able to use the likes of map, filter, find and reverse fluently, until I found out all these list functions can be implemented using reduce alone.
 
-A similar moment took place for me a while ago, this time about any recursion.
+It just happened to me again a few days ago, this time about recursion.
 
 ## Look mum, I can do recursion!
 
