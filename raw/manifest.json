@@ -60,5 +60,5 @@
     { "updated": "2022-10-03T11:59:00Z", "title": "PATCH-friendly types: null confusion, undefined envy and maybe maybe", "markdown":  "null-undefined-and-patch-maybe-maybe.md" },
     { "updated": "2022-10-13T21:31:00Z", "title": "Unions are Untagged, and should be Discriminated in TypeScript: undecidable, collapse, and anti-patterns", "markdown":  "untaged-union-undecidable.md" },
     { "updated": "2022-10-29T17:57:00Z", "title": "Postel's law is simple - to fulfil the potential of your code", "markdown":  "postel-what-does-it-mean-really.md" },
-    { "updated": "2022-11-06T19:53:00Z", "title": "One recursion for all! Behold cata, recursion schemes", "markdown":  "one-recursion-for-all.md" }
+    { "updated": "2022-11-06T19:53:00Z", "title": "One recursion for all! Catamorphism step by step", "markdown":  "one-recursion-for-all.md" }
 ]
