@@ -179,9 +179,9 @@ This is great, but also very vague!
 
 Fair to say it is pretty high-concept, in particular `Rec f -> a` strongly implies `Rec f` encapsulates some `a`, but it's not visible in the type of `Rec f` at all!
 
-This of course is hinted at with `f a -> a`, but this itself is cryptic, as `Rec f` expands to `f (Rec f (Rec f))`, there is no hint of `a`. Therefore, it's very important to remember how we got here step by step.
+This of course is hinted at with `f a -> a`, but this itself is cryptic, as `Rec f` expands to `f (Rec f (Rec f))`, there is no hint of `a`.
 
-The proper interpretation is: `Rec f` has some data (type unknown) that can be converted to `a`; utilising `f a -> a` we can recursively extract `a` and roll it up into one single `a` for return. (This smells strongly of Monoid but note how it's not necessarily so.)
+A workable intuition for me: `Rec f` has some data (type unknown) that can be converted to `a`; utilising `f a -> a` we can recursively extract `a` and roll it up into one single `a` for return. (This smells strongly of Monoid but note how it's not necessarily so.)
 
 Of course we realise `showTreeR4` needs to be renamed to fit its now generic purpose. Indeed, it is well-known as `cata`, short for `catamorphism` - collapsing a structure into a single value.
 
