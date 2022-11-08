@@ -209,4 +209,4 @@ No doubt, recursion schemes do take away the fun of writing recursion manually. 
 
 This post is basically my study notes for this classic paper [Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire](https://eprints.eemcs.utwente.nl/7281/01/db-utwente-40501F46.pdf) and [this amazing series](https://blog.sumtypeofway.com/posts/introduction-to-recursion-schemes.html) by [Patrick Thomson](https://blog.sumtypeofway.com/), who shared much much more information about recursion schemes.
 
-The `Rec` type is a synonym to the famous [`Fix` type](https://hackage.haskell.org/package/data-fix-0.3.2/docs/src/Data.Fix.html#Fix).
+The `Rec` type is a synonym to the famous [`Fix` type](https://hackage.haskell.org/package/data-fix-0.3.2/docs/src/Data.Fix.html#Fix). In application it can be abstracted away from the users by utilising generic programming, such as `makeBaseFunctor` in the [recursion-schemes](https://hackage.haskell.org/package/recursion-schemes) library by Edward A. Kmett and co. Of course, this is only possible because the user-provided functions do not need to know about `Rec`. Quite the good abstraction!
