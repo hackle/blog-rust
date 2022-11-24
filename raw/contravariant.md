@@ -102,6 +102,37 @@ One option would be `dog => feedDog(dog)`, or, if we have a `Dog` at hand, `dog 
 
 Through coding it, we can see that it's nothing magic, but how type safety for sub-typing works through various composite types.
 
+## Haskell 
+
+(This section is added on 2022-11-25)
+
+This free upcast would seem frivolous but is important. As co- and contra-variance can be expressed simply as functions in Haskell. Covariance is post-composition, and contra-variance is pre-composition.
+
+```haskell
+-- post composition
+instance Functor (a ->) where
+    fmap :: (a -> b) -> (b -> c) -> a -> c
+
+-- for illustration only, won't type-check as (->) :: a -> b and needs to be reversed
+instance Contravariant (-> a) where
+    contramap :: (b -> c) -> (a -> b) -> a -> c
+```
+
+This may look unrelated to the type-level variance, but if we plug in our example, it becomes pretty obvious.
+
+```haskell
+-- a free upcast as post-composition
+(a -> Dog) -> (Dog -> Animal) -> (a -> Animal)
+
+-- a free upcast as pre-composition
+(Animal -> a) -> (Dog -> Animal) -> (Dog -> a)
+```
+
+`(a -> Dog)` is assignable to `(a -> Animal)` because there is a free upcast.
+Similarly, `(Animal -> a)` is assignable to `(Dog -> a)`, only with a pre-composition.
+
+See, there are one and the same thing!
+
 ## `IEnumerable<T>` vs `IList<T>`
 
 We know because `T` in `IList<T>` is not marked as `out`, so we can't assign `IList<Dog>` to `IList<Animal>`, the next question is, why can't we make it `IList<out T>` so such assignments become possible? Wouldn't that make our lives easier?
