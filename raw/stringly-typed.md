@@ -47,7 +47,7 @@ Such usage of constants for typing is what I'd like to call "type-safety theatre
 
 ## Enum is not enough
 
-Users of less primitive typed language have a better tool as their disposal: enum.
+Users of less primitive typed language have a better tool at their disposal: enum.
 
 ```python
 class PaymentType(Enum):
@@ -74,9 +74,9 @@ credit = Payment(type=PaymentType.Credit, credit_card_number="XXX1234")
 cash = Payment(type=PaymentType.Cash, credit_card_number="XXX1234")
 ```
 
-`credit_card_number` should not be applicable to `PaymentType.Cash`, but the above `Payment` type has no way of enforcing such nuance. We reached the limit of what traditional `Enum` has to offer, what now?
+The field `credit_card_number` should not be applicable to `PaymentType.Cash`. But the above `Payment` type has no way of enforcing such a constraint. It seems we reached the limit of what traditional `Enum` has to offer, what now?
 
-Stronger-typing can be achieved by modelling with union types.
+Ho ho ho, stronger typing is very much possible, in the form of union types.
 
 ```python
 class CreditCardPayment:
@@ -90,11 +90,11 @@ Payment = CreditCardPayment | CashPayment
 
 While it's generally accepted to stop at the `Enum` solution and feel pretty good about ourselves, we dug a bit deeper to reach the realisation that being `stringly-typed`, or using `Enum` naively can indicate inadequate modelling.
 
-(Despite having the same name, `enum` in Swift or Rust is different - it's closer to union type.)
+(Despite having the same name, `enum` in Swift or Rust is different - it's closer to union types.)
 
 ### Tagging: the false positive
 
-Unions can be untagged, as in TypeScript. We may be required to tag types manually,
+A convenient tangent - [unions can be untagged](/untaged-union-undecidable), as in TypeScript. We may be required to tag types manually,
 
 ```TypeScript
 type CreditCardPayment = { _tag: 'CreditCard', credit_card_number: string };
@@ -103,7 +103,7 @@ type CashPayment = { _tag: 'Cash', counter: string };
 type Payment = CreditCardPayment | CashPayment;
 ```
 
-By force of habit, beginners to TypeScript will be tempted to create constants for the strings, which will be counter-productive! These `_tag` strings are actually *literal types* and can be used to differentiate sub-types of `Payment`. Such usage is also referred to as "type narrowing". 
+By force of habit, beginners to TypeScript will be tempted to create constants for the strings, but this is counter-productive! These `_tag` strings are actually *literal types* and can be used to differentiate sub-types of `Payment`. Such usage is also referred to as "type narrowing". 
 
 So stay off these "`string`s"!
 
@@ -121,11 +121,11 @@ def pay_water_bill(credit: CreditCard):
 
 If I call this bad code, many readers would disagree - isn't this how we recognise credit card types in real life?! (a rant on the "real-life" argument is spared for brevity)
 
-May be so, but this code still **encodes type information in a `string`**! While the common pitfalls such as casing or whitespaces do not apply here, chances are the string-based branching logic will be repeated elsewhere, e.g. for input validation.
+May be so, but this code still **encodes type information in a `string`**! While the common pitfalls such as casing or white-spaces do not apply here, chances are the string-based branching logic will be repeated elsewhere, e.g. for input validation.
 
-This is a less obvious example of "under-typing": using a primitive type to encode complex information. How do we make the typing stronger? 
+This is a less obvious example of "under-typing": using a primitive type to encode extra information. Stronger typing usually means encoding such information explicitly with types. How can we do that? 
 
-A good idea is to use more specific types as soon as `CreditCardPayment` enters the boundary of the application (user input, reading data from the database or web services), by means of parsing (a better alternative to validation).
+A good idea - as soon as input for `CreditCardPayment` enters the boundary of the application (user input, reading data from the database or web services), convert it to more informative types by means of parsing (a better alternative to validation).
 
 ```Python
 CreditCard = AmericanExpress | Visa | Mastercard | Discover
@@ -137,6 +137,7 @@ def parse_credit_card(raw_data) -> CreditCard:
     else if ...
 
 # now reject AmericanExpress with types!
+# type guards are helpful to remove AmericanExpress from the union type
 def pay_water_bill(credit: Visa | Mastercard | Discover):
     # makes payment
 ```
