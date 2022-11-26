@@ -1,6 +1,6 @@
 Let's tackle a seemingly easy topic in regards to strong typing. We all know "stringly-typed" code is bad, and may think the discussions have been had, and the problem has been solved. However, beyond the simple and obvious, there lay less well-known ambushes and treachery, and it's my pleasure to reveal one or two.
 
-# Beyond the obvious
+## Beyond the obvious
 
 We'll start with the usual: using `string` when a more fitting type should be used.
 
