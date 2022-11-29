@@ -18,7 +18,7 @@ My talks can be about a specific area ("Goodbye Regex, Hello Parsers", "Dude whe
 
 My workshops, on the other hand, are mostly very hands-on and focus strongly on thought processes, crafts and good habits. Drop me a line if you want to learn more. Currently, I offer these two below.
 
-* Simple by Design: Declutter Your Architecture, Code and Test
+* Simple for Real: Declutter Your Architecture, Code and Test
 
    This workshop makes sense of code, test and architecture across languages, frameworks or conventions. It's made for experienced engineers and teams who may have doubts about existing "best practices", and are looking for simpler, clearer and saner ways of programming and engineering. The techniques and philosophies introduced here can be controversial in the beginning, but will prove thought-provoking and rewarding with exercises and discussions. This can be tailored for groups. (Be warned words such as SOLID, Clean or TDD are forbidden in this workshop)
 
