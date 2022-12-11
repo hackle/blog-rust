@@ -62,5 +62,5 @@
     { "updated": "2022-10-29T17:57:00Z", "title": "Postel's law is simple - to fulfil the potential of your code", "markdown":  "postel-what-does-it-mean-really.md" },
     { "updated": "2022-11-06T19:53:00Z", "title": "One recursion for all! Catamorphism step by step", "markdown":  "one-recursion-for-all.md" },
     { "updated": "2022-11-26T18:14:00Z", "title": "Stringly-typed: it's not that simple!", "markdown":  "stringly-typed.md" },
-    { "updated": "2022-12-10T16:54:00Z", "title": "Parsing with Parsec, retry, optional and backtracking", "markdown":  "parsec-aoc.md", "hidden": true }
+    { "updated": "2022-12-10T16:54:00Z", "title": "Parsing with Parsec: or, optional, retry and back-tracking", "markdown":  "parsec-aoc.md", "hidden": true }
 ]
