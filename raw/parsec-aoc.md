@@ -1,8 +1,8 @@
-["Advent Of Code"](https://adventofcode.com/) is a lot of fun! To me, in no small part it comes from parsing, particularly when combining a few list functions don't cut it. 
+["Advent Of Code"](https://adventofcode.com/) is a lot of fun! To me, in no small part it's due to parsing, particularly when combining a few list functions doesn't cut it. 
 
 Of course, this should be done with Parsec (or its comparable), not regular expressions, yikes.
 
-Let's start with a simple example, with input for the [day 4 challenge, "Camp Cleanup"](https://adventofcode.com/2022/day/4).
+Let's start with a simple example, the input for the [day 4 challenge, "Camp Cleanup"](https://adventofcode.com/2022/day/4).
 
 ```
 2-4,6-8
@@ -13,12 +13,11 @@ Let's start with a simple example, with input for the [day 4 challenge, "Camp Cl
 2-6,4-8
 ```
 
-Sure, this would be done simply with something like `bimap (splitOn '-') (splitOn '-') $ bimap (splitOn ',')`. Or, if we use `Parsec`.
-
+Sure, this would be done simply with something like `bimap (splitOn '-') (splitOn '-') (splitOn ',' "2-4,6-8")` barring any smarter concoctions that are destined to exist in abundance. Or, if we use `Parsec`.
 
 ```haskell
 type Range = (Int, Int)
-type Parser a = Parsec String () a  -- to save us some typing
+type Parser a = Parsec String () a  -- and alias to save us some typing
 
 int :: Parser Int
 int = read @Int <$> many1 digit
@@ -40,13 +39,11 @@ pairs :: Parser [(Range, Range)]
 pairs = rangePair `sepBy1` endOfLine
 ```
 
-A reasonable first response would be: this is a lot of code, even with the type annotation stripped away!
-
-However, due to the compositional nature of parser combinators, one of the obvious advantages is how structured the code looks like: ``range = int `around` (char '-')`` leaves nothing to confusion. It's not hard to see such clarity can be vital in dealing with more complex input, which we will see later.
-
 (There is small problem with ``rangePair `sepBy1` endOfLine`` that's not immediately obvious, read on!)
 
-The [Day-7 challenge "No Space Left On Device"](https://adventofcode.com/2022/day/7) really justifies the use of a proper parser for it's dreaded statefulness. It would be a handful for any (especially) smart regular expressions.
+A reasonable first response would be: this is a lot of code, even with the type annotation stripped away!
+
+However, due to the compositional nature of parser combinators, one of the obvious advantages is how structured the code looks like: ``range = int `around` (char '-')`` leaves nothing to confusion. It's not hard to see such clarity can be vital in dealing with more complex input, such as the [Day-7 challenge "No Space Left On Device"](https://adventofcode.com/2022/day/7)
 
 
 ```
@@ -73,19 +70,23 @@ $ ls
 8033020 d.log
 5626152 d.ext
 7214296 k
-```
+``` 
+
+This really justifies the use of a proper parser library such as `Parsec` for its dreaded statefulness, which would be a handful for any (especially) smart regular expressions.
 
 Luckily this was not a problem as `Parsec` incorporates `State`, so I could `getState`, `putState` or `modifyState` pretty conveniently. Quite the power tool. 
 
-However, the problem I ran into is not that advanced, although largely infamous. When parsing the `$ ls` command, my code looks like this,
+However, the problem I ran into was not that advanced, although quite infamous. When parsing the commands such as  `$ ls` or `$ cd ..`, my code looks like this,
 
 ```haskell
-cd = -- puState for current paths
+cd = do
+    string "$ ls" <* endOfLine
+    -- ... puState for current paths
 ls = do
     string "$ ls" <* endOfLine
     (file <|> dir) `sepBy` endOfLine    -- problematic!
 
-commands = ls <|> cd
+command = ls <|> cd
 ```
 
 When parsing the CLI output above, this parser gives the following error,
@@ -96,11 +97,11 @@ unexpected '$'
 expecting digit, "dir ", new-line or end of input
 ```
 
-a.k.a. the dreaded "back-tracking" problem!
+a.k.a. the dreaded "back-tracking" problem, but how?
 
 ## Back-Tracking
 
-To illustrate the problem, we'll take it from the top, with a happy-path parser.
+We'll take it from the top again, with a happy-path parser.
 
 ```haskell
 ghci> parse (string "abc" <> string "def") "(any source)" "abcdef"
@@ -122,31 +123,34 @@ Left (line 1, column 1):
 unexpected "b"
 expecting "alice"
 ```
-Ah, we get an error. It's confusing - the code clearly instructs to "parse either an 'alice' or an 'alba'", but it fails as soon as "alice" fails, without trying "alba". This is not how "or" normally works. How come?
 
-This has to do with how `Parsec` *consumes* input *char by char*. For `string "alice"`, it consumes `'a'`, and fails at `'b'`; despite its "or" semantics, `<|>` does not back-track to the beginning for `"alba"`. Like many, I found this baffling if not also frustrating.
+Ah, we get an error, which is confusing - the code clearly instructs to "parse either an 'alice' or an 'alba'", but it fails as soon as "alice" fails, without trying "alba". This is not how "or" normally works. How come?
 
-To tell `Parsec` to start from the beginning, we can use `try`. 
+This has to do with how `Parsec` *consumes* input *char by char*. For `string "alice"`, it consumes `"al"`, and fails at `'b'`; despite its "or" semantics, `<|>` does not back-track to the beginning for `"alba"`. Like many, I found this baffling if not also frustrating.
+
+This creates the need for "back-tracking", for the parser to go back by two letters and parse `"alba"` from the beginning. To tell `Parsec` to do that, we use `try`. 
 
 ```haskell
 ghci> parse (try (string "alice") <|> string "alba") "(any source)" "alba"
 Right "alba"
 ```
 
-`try p1` will not *consume* any input in the case of failure, this is otherwise referred to as "back-tracking".
+`try (string "alice")` will not *consume* any input in the case of failure, it starts over for `string "alba"` by going *backwards*, hence "back-tracking".
 
 This behaviour may also be described as "to tell `Parsec` to *undo* parsing `string "alice"`". However I find this view imperative, and does not accurately reflect how `try` (or parser combinators in general) works. More of this at the end.
 
 ## Shared Separator
 
-The same issue is better disguised with separators. Again we start with the happy path: digits separated by commas. `sepBy` seems the perfect combinator for this scenario.
+This issue may lay in ambush. For example, separators. 
+
+Again we start with the happy path: digits separated by commas. `sepBy` seems the perfect combinator for this scenario.
 
 ```haskell
 ghci> parse (digit `sepBy` char ',') "(any source)" "1,2,3,9"
 Right "1239"
 ```
 
-Pretty intuitive stuff. What about "commas-separated digits followed by letters"?
+Pretty intuitive stuff. What about "comma-separated digits followed by letters"?
 
 ```haskell
 ghci> parse (digit `sepBy` char ',' <> letter `sepBy` char ',') "(any source)" "1,2,3,9,a,b,c,d"
@@ -155,13 +159,13 @@ unexpected "a"
 expecting digit
 ```
 
-It took me a fair bit of head scratching to figure out this is the same "back-tracking" issue, only this time the perpetrator is `sepBy`. After *consuming* `9`, `Parsec` goes on to eat up `,` happily, because it's specified as the separator, fair and square! However, by the time it reaches `a`, it's "too late"!
+It took me a fair bit of head scratching to figure out this is the same "back-tracking" issue, only this time the perpetrator is `sepBy`. After *consuming* `9`, `parse` goes on to eat up `,` happily, which is specified as the separator. Fair and square! However, by the time it reaches `a` and fails, it's "too late"!
 
 Put differently, my choice of parsers results in *ambiguity*: `char ','` is used as separator for two consecutive sequences, one of digits and another of letters.
 
 How do we tell `Parsec` to back out of its greedy behaviour? 
 
-`retry` is no good here because we need both `digit`s and `letter`s; one workaround is to combine `letter` and `digit`, but it allows digits and letters to arrive out of order.
+`try` is no good here because we need both `digit`s and `letter`s; one workaround is to combine `letter` and `digit`, but it allows digits and letters to arrive out of order.
 
 ```haskell
 ghci> parse ((digit <|> letter) `sepBy` char ',') "(any source)" "1,2,3,9,a,b,c,d"
@@ -170,7 +174,7 @@ ghci> parse ((digit <|> letter) `sepBy` char ',') "(any source)" "1,a,2,b,3,c,9,
 Right "1a2b3c9d"    -- out of order, not what we want
 ```
 
-Luckily there is `optional`, according to the [documentation](https://hackage.haskell.org/package/parsec-3.1.15.1/docs/Text-Parsec.html#optional),
+Or there is `optional`, according to the [documentation](https://hackage.haskell.org/package/parsec-3.1.15.1/docs/Text-Parsec.html#optional),
 
 > optional p tries to apply parser p. It will parse p or nothing. It only fails if p fails after consuming input. It discards the result of p.
 
@@ -181,13 +185,13 @@ Right "1239abcd"
 
 Hurrah! Although there is still a catch...
 
-## There is a catch
+## Optional, one and only 
 
 I am terrible at RTFM but the description of `optional` does scare me a little.
 
 > It only fails if p fails after consuming input.
 
-True enough, it's easy to get the back-tracking problem - if the separator is more than one character, such as `->`, then failure at the second character spells trouble. 
+Indeed, `optional` can still lead to back-tracking problems. If the separator is more than one character, such as `->`, then failure at the second character spells trouble. 
 
 ```haskell
 ghci> parse (many (digit <* optional (string "->")) <> many (letter <* optional (string "->"))) "" "1->2->3->9->a->b->c->d"Right "1239abcd"
@@ -200,18 +204,18 @@ expecting "->"
 
 See what trips it up? It's the `-` between the digits and letters. `Parsec` will try to get a `->` but fails after `-`, back-tracking required! 
 
-We need to apply the `try` trick.
+Applying the `try` trick fixes the problem.
 
 ```haskell
 ghci> parse (many (digit <* optional (try (string "->"))) <> string "-" <>  many (letter <* optional (string "->"))) "" "1->2->3->9-a->b->c->d"
 Right "1239-abcd"
 ```
 
-Verbosity is the price we pay for precision and clarity. Of course, any code more serious than suited for the REPL should be formatted for better reading experience.
+Verbosity is the price we pay for precision and clarity. Of course, any code suited more than the REPL should be formatted for better reading experience.
 
 ## Don't "try" too hard
 
-It would be obvious but worth calling out using "try" too liberally will result in noisy code, but also "back-tracking" does not come for free - it can be expensive to throw away the result of failed computation. Consider,
+It would be obvious but worth calling out, using "try" too liberally will not only result in noisy code and confusing errors, but also performance issues. Consider,
 
 ```haskell
 ghci> parse (try (string "Hello World!") <|> string "Hello Space!") "(any source)" "Hello Space!"
@@ -245,7 +249,7 @@ expecting "Space!"
 
 Granted, the error message is still not accurate to the letter, but at least it's more localised to "spase".
 
-The lesson: design the parsers around *ambiguity*, and use `try` judiciously, maybe only as the last resort.
+The lesson learned: design the parsers around *ambiguity*, and use `try` judiciously, maybe only as the last resort.
 
 ## What back-tracking?
 
@@ -256,7 +260,7 @@ The definition of `try` can be found [here](https://hackage.haskell.org/package/
 ```haskell
 try :: ParsecT s u m a -> ParsecT s u m a
 try p =
-    ParsecT $ \s cok _ eok eerr ->  -- see the suspicious _ ?
+    ParsecT $ \s cok _ eok eerr ->  -- note the suspicious _
     unParser p s cok eerr eok eerr  -- eerr is used twice, first time in the position of _, what is eerr?
 ```
 
