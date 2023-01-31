@@ -1,4 +1,4 @@
-One thing I love about how category theory literature is the line of reasoning through "factorisation".
+One thing I love about category theory literature is the line of reasoning through "factorisation".
 
 It goes as, given two similar abstractions, if abstraction B can be defined by extending abstraction A, then A is the "better" abstraction, because B is "factored" by A. In other words, A is a more essential expression of B.
 
