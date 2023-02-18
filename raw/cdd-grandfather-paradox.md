@@ -38,7 +38,7 @@ console.log(timeTraveller);
 // { mother: { name: 'mother' }, name: 'Child of father and mother' }
 ```
 
-See, the time traveller's father is gone alright, but the traveller lives on.
+See, the time traveller's father is gone alright, but the traveller lives on. One can freely change the past without affecting the present. There is no paradox at all!
 
 You would have figured out what I was trying to say here: I am being sarcastic. With mutation, we cannot model the famous "grandfather paradox". In-place update could not reflect cause and effect as the paradox requires.
 
@@ -166,3 +166,5 @@ You see, mutation is convenient (and performant), and it has taken us a long lon
 I fully appreciate value equality has become popular in the last few years: struct by default (Go, Rust), data classes (Kotlin, Python), record classes (C#).
 
 However this may not be enough to change the game as long as software engineers go for the convenience of in-place mutation - when we reach for `timeTraveller.father = undefined` to action a change, the hard-earned advice from the language designers is thrown out the window.
+
+We've come this far to understand that building anything non-trivial on the convenience of mutation is a recipe for pain at best. Time to inject some discipline to our ways: embrace immutability. Physics has an explanation for this: when the past is changed, the old reality lives on, and a new parallel reality is created. Why, it's the [many worlds](https://en.wikipedia.org/wiki/Many-worlds_interpretation)!
