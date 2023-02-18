@@ -157,7 +157,28 @@ If you think `JSON.stringify` for change detection is ugly, have a look at [Noti
 
 Maybe more famously, [Scope $watch in AngularJS](https://docs.angularjs.org/guide/scope#scope-watch-performance-considerations).
 
-It was not until `React` came along that the front-end world came to the realisation that there are no other ways but to bite the bullet and put an end to the reference equality fiasco: data update is done via creating a new reference; essentially, no more in-place mutation. Effective, reference equality == value equality.
+It was not until `React` came along that the front-end world came to the realisation that there are no other ways but to bite the bullet and put an end to the reference equality fiasco: data update is done via creating a new reference; essentially, no more in-place mutation. Effective, immutability + reference equality == value equality.
+
+However, this is never discovered - but always rediscovered, as the [Elm Architecture puts perfectly](https://guide.elm-lang.org/architecture/).
+
+As with other disciplines, immutability is boring - we just keep creating a new value.
+
+```typescript
+const before = {
+    father,
+    mother,
+    name: `Child of ${father.name} and ${mother.name}` 
+    };
+
+const after = {
+    mother,
+    name: `Oh no the time traveller has killed the father!` 
+    };
+
+// or after = { ...before, father: undefined, name: "xxx" }
+```
+
+For more sophisticated use cases we may reach for `reduce / fold` or recursion - but the idea is the same: creating new values, not mutating existing values.
 
 ## Convenience vs discipline
 
