@@ -180,6 +180,39 @@ const after = {
 
 For more sophisticated use cases we may reach for `reduce / fold` or recursion - but the idea is the same: creating new values, not mutating existing values.
 
+## Reactivity
+
+The maintainers of React made some pretty brave calls, the biggest is to retire class components for function components. This is hardly surprising as immutability and functions naturally go hand-in-hand.
+
+There are still sentiments that the Elm / React way of reactivity, being based on immutability, is not "natural" to programmers (despite the architecture being wild popularity in many other frameworks). 
+
+The [Reactive extensions](https://github.com/Reactive-Extensions/RxJS) are a cross-language convention for reactive programming and it fully embraces functional programming philosophies. However it suffers from a pretty heavy syntax and a bit of learning curve.
+
+Svelte makes a strong case with reactivity built into the compiler that enables (almost) native JavaScript syntax. However, it side steps immutability with the age old [NotifyPropertyChanged trick](https://stackoverflow.com/a/66764316), so there are quirks like this (copied from [Varcel](https://vercel.com/docs/beginner-sveltekit/reactivity)),
+
+```javascript
+<script>
+  let quantity = 0;
+  let inventory = [];
+  function addToCart() {
+    inventory.push(quantity);
+    inventory = inventory;
+    quantity = ++quantity;
+  }
+  let inventory = [];
+</script>
+
+<div>Your shopping cart has {quantity} items.</div>
+<button on:click="{addToCart}">Add To Cart</button>
+<div>{inventory}</div>
+```
+
+> I write inventory = inventory. This may seem a little redundant as it may be tempting to call inventory.push(quantity) – but if you were to test this out in the browser, you would see that our inventory array is not updating. This is because the Array.push method in Javascript actually mutates an existing array, but it leaves the overall Array object itself unchanged. To actually re-render our app we need to make sure to always use the assignment operator. Adding inventory = inventory on the next line is necessary to trigger an update. The general takeaway here is, if you want to update a reactive variable, always use the equals sign.
+
+Here is my bet: Despite its "simplicity", Svelte will never catch on for dominance unless it fully embraces immutability. React may be bloated and with its own quirks (hello hooks!), but it's heading in the right direction with a sound foundation.
+
+With that said, I am by no means obsessed with React. Would a fully reactive language emerge to take over the world? If ever, this is the time.
+
 ## Convenience vs discipline
 
 You see, mutation is convenient (and performant), and it has taken us a long long way. But it messes with one of the fundamentals of reasoning: equality. How can we make sense of the program we create if we cannot be sure the same data is equal to itself? And different data are not equal?
