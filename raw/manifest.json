@@ -66,5 +66,5 @@
     { "updated": "2023-01-29T22:23:00Z", "title": "Libraries should not provide interfaces for Dependency Injection - and stop asking", "markdown":  "libraries-should-not-provide-interfaces.md" },
     { "updated": "2023-01-30T16:33:00Z", "title": "Composition over aggregation, not just inheritance", "markdown":  "composition-over-aggregation-not-just-inheritance.md" },
     { "updated": "2023-02-18T18:01:00Z", "title": "Convenience Driven Development: the Grandfather Paradox and Equality", "markdown":  "cdd-grandfather-paradox.md" },
-    { "updated": "2023-02-21T21:52:00Z", "title": "Convenience Driven Development: Exception, GOTO and Dynamic Typing", "markdown":  "cdd-the-story-of-2-exceptions.md" }
+    { "updated": "2023-02-21T21:52:00Z", "title": "Convenience Driven Development: A story of two exceptions", "markdown":  "cdd-the-story-of-2-exceptions.md" }
 ]
