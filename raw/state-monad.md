@@ -1,8 +1,10 @@
-A friend asked me about the `State` Monad. He enjoyed a honey-moon with Monads such as `Maybe`, `List` and `Either`. In trying to find him a good introduction, alas, I got mighty confused myself - such is the curse of Monad tutorials!
+A friend asked me about the `State` Monad. He enjoyed a honey-moon with Monads such as `Maybe`, `List` and `Either`, but `State` appears to be next-level. It brings non-local states, it encodes a function, and often appears to be dark magic. 
 
-But `State` is nothing more than good ol' currying with a flourish. So here comes a very special introduction for those we are already comfortable with the idea of Monads, are not scared of type signatures, and don't like beating around the bush with motivational examples.
+So I tried to find him a good introduction, and alas, I got myself mighty confused in the process - such is the curse of Monad tutorials!
 
-This leaves me an audience of 10 people, so I'll get right to it - then follow with examples.
+But `State` is nothing more than good ol' currying with a flourish. So here comes a very special introduction for those who are already comfortable with the idea of Monads, are not scared of type signatures, and don't like beating around the bush with motivational examples.
+
+This leaves me an audience of about 10 people, so I'll get right to it.
 
 ## (State s a) type by type
 
@@ -26,24 +28,24 @@ This leaves me an audience of 10 people, so I'll get right to it - then follow w
 
 Note this is an intuition, not a proof. This intuition is built with step-by-step transformation of types, from function composition to Monad composition.
 
-Finding this a bit dense? No worries, we'll look at an example anyway.
+Finding this a bit dense? No worries, I've got some examples anyway.
 
-## From types to example
+## From types to examples
 
-Now let's do the opposite of what most tutorials do: create an example from the above types.
+We are doing the opposite of what most monad tutorials do: to create examples from the types.
 
-We will pick a function to start with.
+It's easy to get started too, we just pick any silly little function,
 
 ```haskell
 charToInt :: Char -> Int
 charToInt c = read [c]
 ```
 
-Simple enough? Now let's add a state. 
+So far so good? Now let's add a state. 
 
 ### Add an evil state
 
-There can be a million reasons to add a state. Sometimes the state influences the computation, sometimes not. The state can also be written to, or/and read from.
+There can be a million reasons to use a state. Sometimes the state influences the computation, sometimes not. The state can also be written to, or/and read from.
 
 For this example I will add a "evil" state that distorts the result of `charToInt`.
 
