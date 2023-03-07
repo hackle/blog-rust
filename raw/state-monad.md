@@ -61,7 +61,7 @@ ghci> let (n, s) = charToIntS ('2', 3) in charToIntS('2', s)
 
 You see, it's "evil" because `charToIntS` (with an `S`) seems "indeterministic" compared to its plain, stateless predecessor. 
 
-## Composition
+### Composition
 
 There is nothing wrong with passing the state around, in fact, it should be encouraged over implicit states. However, passing states can become a bit much. Let me add another silly function `intToList`, which can be composed with `charToInt`. 
 
@@ -93,7 +93,7 @@ See how it can get unwieldy as more and more functions have to use states. Somet
 
 How do we get out of this? 
 
-## Stunt 1: currying!
+### Stunt 1: currying!
 
 Watch out - I am going to pull a stunt! 
 
@@ -119,7 +119,7 @@ Did you see the pattern `a -> (s -> (b, s))`? I am making a big fuss about it, b
 
 As developers do, when there is repetition, we create a type. In this case, smart people figured out that we can create the famous `State` type. Behold!
 
-## The State Monad: an underwhelming introduction
+### The State Monad: an underwhelming introduction
 
 ```haskell
 newtype State s a = State (s -> (a, s))
@@ -186,7 +186,7 @@ So `State s` is a proper monad, bravo! But alas, this revelation has not made ou
 
 That's because we aren't done yet. Proper "statefulness" cannot be announced without `putState` and `getState`. Behold...
 
-## Stunt 2: getter and setter
+### Stunt 2: getter and setter
 
 The famous `getState` helps us grab the state from "thin air". It's defined as,
 
@@ -234,7 +234,7 @@ Are you getting the imperative vibe? (I must admit seeing the `putState` and `re
 
 But the imperative feel does not stop here. Here is the challenge: how do you map and sum a list of integers in one go?
 
-## the full imperative vibe
+### the full imperative vibe
 
 One way to do it would be,
 
