@@ -90,7 +90,7 @@ This simulates a stateful function, but syntax-wise, it's annoying to thread the
 
 ### Composition
 
-Many people do what I call "double greeting" - instead of simply saying "hello Hackle!", they go "Hello Hackle, How are you today?". Let's model that as a function `doubleGreetS`, which turns a `Greeting` into a `DoubleGreeting`. (Remember they are just 2-tuple and 3-tuple respectively).
+Many people do what I call "double greeting" - instead of simply saying "hello Hackle!", they go "Hello Hackle, How are you today?". Let's model that as a function `doubleGreetS`, which turns a `Greeting` into a `DoubleGreeting`. (Again, I use a 3-tuple not a plain `String` to avoid confusion).
 
 ```haskell
 type DoubleGreeting = (String, Name, String)
@@ -184,9 +184,9 @@ To continue working on the types, let's slot in `State s a` (again, `a` is polym
 ->  (a -> State s c)
 ```
 
-Already much easier for the eyes, wouldn't you say? At least we saved 2 layers of `()`.
+Already much easier on the eye, wouldn't you say? At least we saved 2 layers of `()`.
 
-If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping; but if we focus only on the type, it should remind us of monad composition. Presumed we can prove `State` is a monad, the above types can be generalised to, 
+If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping with `State` as it's a `newtype`; but if we focus only on the type, it should remind us of monad composition. Presumed we can prove `State` is a monad, the above types can be generalised to, 
 
 ```haskell
     (a -> m b)
@@ -228,11 +228,11 @@ ghci> let (State f) = highGreetM "Hackle" in f 0
 (("Hello","Hackle","Howdy"),2)
 ```
 
-You'll notice the immediate consequence of using "currying": what we used to supply in one go for `highGreet ("Hackle", 0)` is now done in two steps, first, `"Hackle"` is given to the monad-powered `highGreetM`, which returns a `State` monad that encodes a partially-applied function `s -> (a, s)`, which accepts `0` and gives us the same result as the non-monad-powered `highGreet`!
+You'll notice the immediate consequence of using "currying": what we used to supply in one go for `highGreet ("Hackle", 0)` is now done in two steps, first, `"Hackle"` is given to the monad-powered `highGreetM`, which returns a `State`-monad value that encodes a partially-applied function `s -> (a, s)`, which accepts `0` and gives us the same result as the non-monad-powered `highGreet`!
 
 Despite the small win that the function types are more revealing by indicating state usage alongside return type, let's be honest, this consequence does not improve the life of the caller, and it's arguable if the implementation of `greetM` or `doubleGreetM` is any simpler. (I hear you, it's fun to use the "fish" operator). Not to forget, this is still a far cry from the JavaScript version.
 
-That's fair! I am not offended, because we aren't done yet! How could "statefulness" be claimed without `putState` and `getState`? Behold...
+That's fair! I am not offended, because we aren't done yet! After all, how could "statefulness" be claimed without `putState` and `getState`?! Behold...
 
 ### Stunt 2: getter and setter
 
@@ -243,13 +243,20 @@ getState :: State s s
 getState = State $ \s -> (s, s)
 ```
 
-You can see `State s s` is just a smart trick - if `State s a` can have any `a`, why not `s` to make it `State s s`?
+You can see `State s s` is just a clever trick - if `State s a` can have any `a`, why not `s` to make it `State s s`?
 
 Standalone, `getState` looks pretty silly. However, taken in the context of monad composition, it's nothing short of genius, because it allows us to grab the state out of thin air.
 
 `putState` is reminiscent of the imperative "setter" that sets the state and returns `void`.
 
-Now our example looks properly different,
+```haskell
+putState :: s -> State s ()
+putState s = State $ \_ -> ((), s) 
+```
+
+Not much is happening - it ignores any previous **state** with `_`, and sets up nothing `()` for composition with the next `State`-monad value. The only useful thing it does is putting an `s` in the second position of a tuple. This is key - have a look at the `>>=` definition, you'll see how this is enough to achieve the goal of "updating" the state (for any following `State`-monad values). 
+
+Now our example looks suspiciously *familiar*,
 
 ```haskell
 greetM' :: Name -> State GState Greeting
