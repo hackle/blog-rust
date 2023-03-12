@@ -168,15 +168,15 @@ newtype State s a = State (s -> (a, s))
 
 (Note `a` is polymorphic - so is `s` for that matter - it can be any type, `String`, `Int`, or `b`, `c`).
 
-With the tedious lead-up, this may appear overwhelming. But if you have tried other introductions that start with this type, it's fair to say, `s -> (a, s)` is not made for fast digestion. 
+With the tedious lead-up, this may appear underwhelming. But if you have tried other introductions that start with this type, it's fair to say, `s -> (a, s)` is not made for fast digestion. 
 
-Most notably, what's the intuition for `s -> (a, s)`? 
+Let's hold the celebration just yet. Try answer this: what's the intuition for `s -> (a, s)`? 
 
 A naive interpretation is, a value of type `a` can be computed from state `s`, like turning `String` to `Int` with `read`. While this can be the case for some use of `State`, it's not always true, and does not necessarily have to be so. 
 
 The more sophisticated interpretation, is the function `s -> (a, s)` has the "knowledge" of producing an `a`. How is that possible? Why, I am surprised you'd ask, because of none other than **currying**, which we've just seen so much of!
 
-To continue working on the types, let's slot in `State s a` (remember `a` is polymorphic so it can be `b` or `c`!)
+To continue working on the types, let's slot in `State s a` (again, `a` is polymorphic so it can be `b` or `c`!)
 
 ```haskell
     (a -> State s b)
@@ -186,7 +186,7 @@ To continue working on the types, let's slot in `State s a` (remember `a` is pol
 
 Already much easier for the eyes, wouldn't you say? At least we saved 2 layers of `()`.
 
-If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping; but if we focus only on the type, it should remind us of monad composition (presume we can prove `State` is a monad). Indeed, the above types can be generalised to, 
+If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping; but if we focus only on the type, it should remind us of monad composition. Presumed we can prove `State` is a monad, the above types can be generalised to, 
 
 ```haskell
     (a -> m b)
@@ -196,7 +196,7 @@ If you try to catch up with the implementation, there would be a fair bit of wra
 
 Hello, it's none other than the fish operator `>=>`, or the Kleisli arrow! According to [hoogle](https://hoogle.haskell.org/?hoogle=%28a+-%3E+m+b%29+-%3E++%28b+-%3E+m+c%29+-%3E++%28a+-%3E+m+c%29&scope=set%3Astackage).
 
-Before it's too late, we still need to implement the monad class. Luckily this is straightforward (try it out yourself!). Below is a very naive version.
+Before it's too late, we need to implement the monad class. Luckily this is straightforward (try it out yourself!). Below is a very naive version.
 
 ```haskell
 instance Functor (State s) where
@@ -228,11 +228,11 @@ ghci> let (State f) = highGreetM "Hackle" in f 0
 (("Hello","Hackle","Howdy"),2)
 ```
 
-You'll notice the immediate consequence of using "currying": what we used to supply in one go for `highGreetS ("Hackle", 0)` is now done in two steps, first, `"Hackle"` is given to the monad-powered `highGreetM`, which returns a `State` monad that encodes a partially-applied function `s -> (a, s)`, which accepts `0` and gives us the same result as `highGreetS`!
+You'll notice the immediate consequence of using "currying": what we used to supply in one go for `highGreet ("Hackle", 0)` is now done in two steps, first, `"Hackle"` is given to the monad-powered `highGreetM`, which returns a `State` monad that encodes a partially-applied function `s -> (a, s)`, which accepts `0` and gives us the same result as the non-monad-powered `highGreet`!
 
-OK, small win - the function types are more revealing by indicating state usage alongside return type; but alas, this revelation has not made the implementation any simpler, neither does it improve the life of the caller. (I hear you, it's fun to use the "fish" operator.)
+Despite the small win that the function types are more revealing by indicating state usage alongside return type, let's be honest, this consequence does not improve the life of the caller, and it's arguable if the implementation of `greetM` or `doubleGreetM` is any simpler. (I hear you, it's fun to use the "fish" operator). Not to forget, this is still a far cry from the JavaScript version.
 
-That's because we aren't done yet. Proper "statefulness" cannot be claimed without `putState` and `getState`. Behold...
+That's fair! I am not offended, because we aren't done yet! How could "statefulness" be claimed without `putState` and `getState`? Behold...
 
 ### Stunt 2: getter and setter
 
@@ -247,7 +247,7 @@ You can see `State s s` is just a smart trick - if `State s a` can have any `a`,
 
 Standalone, `getState` looks pretty silly. However, taken in the context of monad composition, it's nothing short of genius, because it allows us to grab the state out of thin air.
 
-`putState` is reminiscent of the imperative "setter" that sets the state and returns `void`. Of course in Haskell `void` is quite a different beast, so we use `()`.
+`putState` is reminiscent of the imperative "setter" that sets the state and returns `void`.
 
 Now our example looks properly different,
 
@@ -267,9 +267,11 @@ doubleGreetM' (greeting, name) = do
 
 Are you getting the imperative vibe? (I must admit seeing the `putState` and `return` "statements" does give me creeps!)
 
+Compare this to `greetM`, see how state handling is offloaded to `getState` and `putState`, and separate from building the *greeting*? Pretty neat!
+
 ### the full imperative vibe
 
-It doesn't stop here. Consider this challenge: how do you map and sum a list of integers in one go?
+The imperative feel doesn't stop here. Consider this challenge: how do you map and sum a list of integers in one go?
 
 One way to do it would be,
 
