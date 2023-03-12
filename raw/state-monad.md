@@ -34,112 +34,159 @@ Finding this a bit dense? No worries, I've got some examples anyway.
 
 We are doing the opposite of what most monad tutorials do: to create examples from the types.
 
-It's easy to get started too, we just pick any silly little function,
+It's easy to get started too, we just pick any silly little function. Imagine this in an imperative language.
 
-```haskell
-charToInt :: Char -> Int
-charToInt c = read [c]
+```typescript
+let greetings = [ "Hello", "Howdy", "Hi", "G'day" ];
+// this is the stateful part
+let index = 0;
+
+function greet(name: string): string {
+    return greetings[index++ % greetings.length];
+}
+
+console.log(greet("Hackle"));
+> Hello Hackle
+console.log(greet("Hackle"));
+> Howdy Hackle
 ```
 
-So far so good? Now let's add a state. 
-
-### Add an evil state
-
-There can be a million reasons to use a state. Sometimes the state influences the computation, sometimes not. The state can also be written to, or/and read from.
-
-For this example I will add a "evil" state that distorts the result of `charToInt`.
+This can be translated to Haskell as below.
 
 ```haskell
-type EvilState = Int    -- to avoid confusion with a plain `Int`
+greetings = [ "Hello", "Howdy", "Hi", "G'day" ]
+index = 0
 
-charToIntS :: (Char, EvilState) -> (Int, EvilState)
-charToIntS (c, s) = let s1 = read [c] in (s1 * s, s1)
+type Name = String
+type Greeting = (String, Name) -- why not a string? See below.
 
-ghci> charToIntS ('2', 3) 
-(6,2)
-ghci> let (n, s) = charToIntS ('2', 3) in charToIntS('2', s)
-(4,2)
+greet :: Name -> Greeting
+greet name = (greetings !! index, name)
 ```
 
-You see, it's "evil" because `charToIntS` (with an `S`) seems "indeterministic" compared to its plain, stateless predecessor. 
+(A small note, for differentiation, I use `(String, Name)` instead of concatenating them to a single `String` as in JavaScript, e.g. `greetings !! index ++ name`. This is to avoid getting two `String`s mixed up in the steps to come.)
+
+Just one problem - there is no easy way to mutate `index`. But we REALLY like the ease of mutation in the JavaScript version. How? 
+
+### Keep the state on the side
+
+It's always good to start simple. We are going to keep the state on the side - passing it around as an extra parameter.
+
+```haskell
+-- I am going to call it "state" now to suit the narrative :-)
+type GState = Int
+
+greetS :: (Name, GState) -> (Greeting, GState)
+greetS (name, st) = ((greetings !! st, name), st + 1)
+
+ghci> greetS ("Hackle", 0) 
+(("Hello","Hackle"),1)
+
+ghci> let (greeting, st) = greetS ("Hackle", 0) in [greeting, fst $ greetS("Hackle", st)]
+[("Hello","Hackle"),("Howdy","Hackle")]
+```
+
+This simulates a stateful function, but syntax-wise, it's annoying to thread the state through, and just not as sweet as JavaScript! Can we do better?
 
 ### Composition
 
-There is nothing wrong with passing the state around, in fact, it should be encouraged over implicit states. However, passing states can become a bit much. Let me add another silly function `intToList`, which can be composed with `charToInt`. 
+Many people do what I call "double greeting" - instead of simply saying "hello Hackle!", they go "Hello Hackle, How are you today?". Let's model that as a function `doubleGreetS`, which turns a `Greeting` into a `DoubleGreeting`. (Remember they are just 2-tuple and 3-tuple respectively).
 
 ```haskell
-intToList :: Int -> [Int]
-intToList n = [n]
+type DoubleGreeting = (String, Name, String)
 
-charToIntList :: Char -> [Int]
-charToIntList = intToList . charToInt
+doubleGreetS :: (Greeting, GState) -> (DoubleGreeting, GState)
+doubleGreetS ((greeting, name), st) = ((greeting, name, greetings !! st), st + 1)
 
-ghci> charToIntList '2'
-[2]
+ghci> doubleGreetS (("Hello", "Hackle"), 1)
+(("Hello","Hackle","Howdy"),2)
 ```
 
-The "stateful" version is routine to make too. (Never mind the implementation of `intToListS`, as long as you get the idea that it's "stateful".)
+We see the input to `doubleGreetS` matches the output of `greetS`, so let's create a generic `composeS` that composes them.
 
 ```haskell
-intToListS :: (Int, EvilState) -> ([Int], EvilState)
-intToListS (n, s) = let s1 = n * s in ([s1], s1)
+composeS 
+    :: ((Name, GState) -> (Greeting, GState)) 
+    -> ((Greeting, GState) -> (DoubleGreeting, GState)) 
+    -> ((Name, GState) -> (DoubleGreeting, GState))
+composeS f1 f2 = 
+    \(a, st) -> 
+        let (b, st1) = f1 (a, st) 
+        in f2 (b, st1)
 
-charToIntListS :: (Char, EvilState) -> ([Int], EvilState)
-charToIntListS = intToListS . charToIntS
+highGreet :: (Name, GState) -> (DoubleGreeting, GState)
+highGreet = composeS greetS doubleGreetS
 
-ghci> charToIntListS ('2', 3)
-([12],12)
+ghci> highGreet (("Hackle"), 0)
+(("Hello","Hackle","Howdy"),2)
 ```
 
-See how it can get unwieldy as more and more functions have to use states. Sometimes, a function A does not access the state, but it uses another function B that does, then function A must follow the pattern `(a, State) -> (b, State)` in order to pass the state along. Annoying!
-
-How do we get out of this? 
+Experienced Haskellers would immediately point out `composeS` is just `.` in disguise! This is true and please note it down. We will keep working on the `composeS` signature, to arrive at something comparable to `.`. 
 
 ### Stunt 1: currying!
 
 Watch out - I am going to pull a stunt! 
 
-Oh well, I exaggerate, it's only 2 steps: currying + partial application. And by "partial application" I really just mean adding `()`.
+Oh well, I exaggerate, it's only 2 steps from the `composeS` type: currying + partial application. And by "partial application" I really just mean adding `()`.
 
 ```haskell
-    ((Char, EvilState) -> (Int, EvilState))         -- charToIntS
-->  ((Int, EvilState) -> ([Int], EvilState))     -- intToListS
-->  ((Char, EvilState) -> ([Int], EvilState))    -- charToIntListS
+composeS 
+::  ((Name, GState)     -> (Greeting, GState)) 
+->  ((Greeting, GState) -> (DoubleGreeting, GState)) 
+->  ((Name, GState)     -> (DoubleGreeting, GState))
 
 -- currying
-    (Char -> EvilState -> (Int, EvilState))         
-->  (Int  -> EvilState -> ([Int], EvilState))     
-->  (Char -> EvilState -> ([Int], EvilState))    
+    (Name       -> GState -> (Greeting, GState)) 
+->  (Greeting   -> GState -> (DoubleGreeting, GState)) 
+->  (Name       -> GState -> (DoubleGreeting, GState))
 
--- partial application, note pattern?
-    (Char -> (EvilState -> (Int, EvilState)))         
-->  (Int ->  (EvilState -> ([Int], EvilState)))     
-->  (Char -> (EvilState -> ([Int], EvilState)))   
+-- partial application, notice the pattern?
+    (Name       -> (GState -> (Greeting, GState)))
+->  (Greeting   -> (GState -> (DoubleGreeting, GState)))
+->  (Name       -> (GState -> (DoubleGreeting, GState)))
 ```
 
-Did you see the pattern `a -> (s -> (b, s))`? I am making a big fuss about it, but really, it's simply the result of currying + adding `()`. Feel free to update the implementation - it shouldn't be fairly routine.
+I am making a big fuss about it, but really, it's simply the result of currying + adding `()`. I am leaving out the updates to the implementation of `composeS` as an exercise for the readers.
 
-As developers do, when there is repetition, we create a type. In this case, smart people figured out that we can create the famous `State` type. Behold!
+What's interesting - A pattern is winking at us, if we quint a bit: `a -> (s -> (b, s))`! This is the generalised form of the last type,
+
+```haskell
+    (a -> (s -> (b, s)))
+->  (b -> (s -> (c, s)))
+->  (a -> (s -> (c, s)))
+```
+
+Remember `s` stands for "State"? Looking at this re-organised type, we will further notice the gaping repetition in `s -> (?, s)`. Indeed, this is the key to our topic at hand.
 
 ### The State Monad: an underwhelming introduction
+
+As developers do, when there is repetition, we create a type. In this case, smart people figured out that we can create the famous `State` type. Behold!
 
 ```haskell
 newtype State s a = State (s -> (a, s))
 ```
 
-Fair to say, `s -> (a, s)` is not made for fast digestion. Does it kind of imply state `s` can be used to produce `a`?
+(Note `a` is polymorphic - so is `s` for that matter - it can be any type, `String`, `Int`, or `b`, `c`).
 
-Not necessarily - in practice there are countless reasons to use a state. While it's usually the case that `s` and `a` are indeed related, such relation is not strictly required. I personally find it more intuitive to use the type-by-type transformation: "normal" functions with state on the side naturally lead to the `State s a` pattern.
+With the tedious lead-up, this may appear overwhelming. But if you have tried other introductions that start with this type, it's fair to say, `s -> (a, s)` is not made for fast digestion. 
 
-Let's slot in `State s a`,
+Most notably, what's the intuition for `s -> (a, s)`? 
+
+A naive interpretation is, a value of type `a` can be computed from state `s`, like turning `String` to `Int` with `read`. While this can be the case for some use of `State`, it's not always true, and does not necessarily have to be so. 
+
+The more sophisticated interpretation, is the function `s -> (a, s)` has the "knowledge" of producing an `a`. How is that possible? Why, I am surprised you'd ask, because of none other than **currying**, which we've just seen so much of!
+
+To continue working on the types, let's slot in `State s a` (remember `a` is polymorphic so it can be `b` or `c`!)
 
 ```haskell
-   (Char -> (State EvilState Int))         
--> (Int ->  (State EvilState [Int]))     
--> (Char -> (State EvilState [Int]))
+    (a -> State s b)
+->  (b -> State s c)
+->  (a -> State s c)
 ```
 
-If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping; but if we focus only on the types, they should remind us of monad composition. Indeed, the above types can be generalised to, 
+Already much easier for the eyes, wouldn't you say? At least we saved 2 layers of `()`.
+
+If you try to catch up with the implementation, there would be a fair bit of wrapping and unwrapping; but if we focus only on the type, it should remind us of monad composition (presume we can prove `State` is a monad). Indeed, the above types can be generalised to, 
 
 ```haskell
     (a -> m b)
@@ -147,7 +194,7 @@ If you try to catch up with the implementation, there would be a fair bit of wra
 ->  (a -> m c)
 ```
 
-It's none other than the fish operator `>=>`, or the Kleisli arrow, according to [hoogle](https://hoogle.haskell.org/?hoogle=%28a+-%3E+m+b%29+-%3E++%28b+-%3E+m+c%29+-%3E++%28a+-%3E+m+c%29&scope=set%3Astackage).
+Hello, it's none other than the fish operator `>=>`, or the Kleisli arrow! According to [hoogle](https://hoogle.haskell.org/?hoogle=%28a+-%3E+m+b%29+-%3E++%28b+-%3E+m+c%29+-%3E++%28a+-%3E+m+c%29&scope=set%3Astackage).
 
 Before it's too late, we still need to implement the monad class. Luckily this is straightforward (try it out yourself!). Below is a very naive version.
 
@@ -164,79 +211,65 @@ instance Monad (State s) where
     (State f) >>= g = State $ \s -> let (a, s1) = f s; (State h) = g a in h s1
 ```
 
-This prompts more refactoring of the "stateful" functions.
+So `State s` is a proper monad, bravo! What does that mean for the example? 
+
+It certainly prompts the refactoring below. I've suffixed the names with `M` to indicate the monad usage.
 
 ```haskell
-charToIntM :: Char -> State EvilState Int
-charToIntM c = State $ \s -> let s1 = read [c] in (s1 * s, s1)
+greetM :: Name -> State GState Greeting
+greetM name = State $ \st -> ((greetings !! st, name), st + 1)
 
-intToListM :: Int -> State EvilState [Int]
-intToListM n = State $ \s -> let s1 = n * s in ([s1], s1)
+doubleGreetM :: Greeting -> State GState DoubleGreeting
+doubleGreetM (greeting, name) = State $ \st -> ((greeting, name, greetings !! st), st + 1)
 
-charToIntListM :: Char -> State EvilState [Int]
-charToIntListM c = do
-    n <- charToIntListM c
-    ns <- intToListM n
-    return ns
--- or simply: charToIntListM >=> intToListM
+highGreetM = greetM >=> doubleGreetM
 
-ghci> let (State f) = charToIntListM '2' in f 2
-([8],8)
+ghci> let (State f) = highGreetM "Hackle" in f 0
+(("Hello","Hackle","Howdy"),2)
 ```
 
-So `State s` is a proper monad, bravo! But alas, this revelation has not made our example any simpler. (I hear you, it's fun to use the "fish" operator over the less fancy `.`)
+You'll notice the immediate consequence of using "currying": what we used to supply in one go for `highGreetS ("Hackle", 0)` is now done in two steps, first, `"Hackle"` is given to the monad-powered `highGreetM`, which returns a `State` monad that encodes a partially-applied function `s -> (a, s)`, which accepts `0` and gives us the same result as `highGreetS`!
 
-That's because we aren't done yet. Proper "statefulness" cannot be announced without `putState` and `getState`. Behold...
+OK, small win - the function types are more revealing by indicating state usage alongside return type; but alas, this revelation has not made the implementation any simpler, neither does it improve the life of the caller. (I hear you, it's fun to use the "fish" operator.)
+
+That's because we aren't done yet. Proper "statefulness" cannot be claimed without `putState` and `getState`. Behold...
 
 ### Stunt 2: getter and setter
 
-The famous `getState` helps us grab the state from "thin air". It's defined as,
+The famous `getState` is defined as,
 
 ```haskell
 getState :: State s s
 getState = State $ \s -> (s, s)
-
--- silly usage
-currentState :: State s s
-currentState = do
-    st <- getState
-    return st
 ```
 
-You can see `State s s` is a smart trick - if `State s a` can have any `a`, why not `s` to make it `State s s`?
+You can see `State s s` is just a smart trick - if `State s a` can have any `a`, why not `s` to make it `State s s`?
+
+Standalone, `getState` looks pretty silly. However, taken in the context of monad composition, it's nothing short of genius, because it allows us to grab the state out of thin air.
 
 `putState` is reminiscent of the imperative "setter" that sets the state and returns `void`. Of course in Haskell `void` is quite a different beast, so we use `()`.
 
+Now our example looks properly different,
+
 ```haskell
-charToIntM1 :: Char -> State EvilState Int
-charToIntM1 c = do
-    s <- getState
-    let s1 = read [c]
-    putState s1
-    return $ s1 * s
+greetM' :: Name -> State GState Greeting
+greetM' name = do
+    st <- getState
+    putState (st + 1)
+    return (greetings !! st, name)
 
-intToListM1 :: Int -> State EvilState [Int]
-intToListM1 n = do
-    s <- getState
-    let s1 = n * s
-    putState s1
-    return [s1]
-
-charToIntListM1 :: Char -> State EvilState [Int]
-charToIntListM1 c = do
-    n <- charToIntM1 c
-    ns <- intToListM1 n
-    return ns
-
-ghci> let (State f) = charToIntListM1 '3' in f 2
-([18],18)
+doubleGreetM' :: Greeting -> State GState DoubleGreeting
+doubleGreetM' (greeting, name) = do
+    st <- getState
+    putState (st + 1)
+    return (greeting, name, greetings !! st)
 ```
 
 Are you getting the imperative vibe? (I must admit seeing the `putState` and `return` "statements" does give me creeps!)
 
-But the imperative feel does not stop here. Here is the challenge: how do you map and sum a list of integers in one go?
-
 ### the full imperative vibe
+
+It doesn't stop here. Consider this challenge: how do you map and sum a list of integers in one go?
 
 One way to do it would be,
 
@@ -270,3 +303,7 @@ ghci> let (State f) = mapSum3 show [1..5] in f 0
 ```
 
 Still with me? Congratulations, you can now write JavaScript in Haskell.
+
+## Acknowledgement
+
+Many thanks to [Utku Demir](https://utdemir.com/) for the comprehensive and on-point review.
