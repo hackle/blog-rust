@@ -177,11 +177,11 @@ Let's hold the celebration just yet. Try answer this: what's the intuition for `
 
 A naive interpretation is, a value of type `a` can be computed from state `s`, like turning `String` to `Int` with `read`. While this can be the case for some use of `State`, it's not always true, and does not necessarily have to be so. 
 
-The more sophisticated interpretation, is the function `s -> (a, s)` has the "knowledge" of producing an `a`. How is that possible? Why, I am surprised you'd ask, because of none other than **partial application**, which we've just seen so much of!
+The more sophisticated interpretation, is the function `s -> (a, s)` has the "knowledge" of producing an `a`. How is that possible? Why, I am surprised you'd ask! One way is **partial application**, which we've just seen so much of!
 
-In our example, `a -> s -> (b, s)` can be partially applied with `a`, to leave us `s -> (b, s)`.
+In our example, `a -> s -> (b, s)` can be partially applied with `a`, to leave us `s -> (b, s)`. Ta da.
 
-To continue working on the types, let's slot in `State s a` (again, `a` is polymorphic so it can be `b` or `c`!)
+To continue the work on the types, let's slot in `State s a` (again, `a` is polymorphic so it can be `b` or `c`!)
 
 ```haskell
     (a -> State s b)
