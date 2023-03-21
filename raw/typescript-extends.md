@@ -91,9 +91,46 @@ This is exactly why the intuition of `Funday == Weekend ? true : false` fails us
 
 In this example, each sub-type of `Funday`, namely `'Friday' | 'Saturday' | 'Sunday'`, will be applied to `extends Weekend ? true : false` individually, then, the result types of these 3 computations, `false | true | true` are combined into the final type: `boolean`. 
 
+It's also possible to prevent such distribution. As a more advanced topic it's left at the end.
+
+## Type Inference with extends infer
+
+Type inference is one of the distinguishing features of TypeScript. Fair to say it's unheard of in other mainstream languages.
+
+Consider this example - parameters to a variadic function can be `infer`red.
+
+```TypeScript
+type FuncParams<T> =
+    T extends ((...params: infer P) => unknown) ? P : never;
+
+declare function fives(n: number, d: string): void;
+
+// p1: [number, string]
+const p1: FuncParams<typeof fives> = [1, "s"];
+```
+
+## Type Inference with extends infer and extends
+
+To really get the money's worth out of `extends`, TypeScript designers allow us to nest `extends infer extends`.  Consider this `CSV` type that turns words into command-separated values. This examples also shows us it's pretty easy to nest ternaries in conditional types.
+
+```TypeScript
+type CSV<T extends string[]> =
+    T extends [] 
+        ? never
+        : T extends [infer U extends string]
+            ? `${U}`
+            : T extends [infer U extends string, ...infer R extends string[]]
+                ? `${U},${CSV<R>}`
+                : never;
+
+const csv1: CSV<['apple', 'banana', 'pear']> = 'apple,banana,pear';
+```
+
+Try to remove `extends string` from `infer U extends string`, TypeScript will complain that `U` is not fit for `${U}`, although it obviously is a `string`. 
+
 ## Stop distribution with []
 
-What if we do want to compare union types with `extends`?
+As promised, a more advanced section: what if we do want to compare union types with `extends`?
 
 A less known technique to stop the distributive behaviour is to put `[]` around the types being compared. Using the same example,
 

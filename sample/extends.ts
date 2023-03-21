@@ -46,18 +46,40 @@ const v6: IsWeekendExactly<Funday> = true;  // Type 'true' is not assignable to 
 type IsWeekendExactlyInvariant<T> = ((o: T) => T) extends ((o: Weekend) => Weekend) ? true : false;
 
 const v7: IsWeekendExactlyInvariant<Funday> = false;    // super-type, NOT OK
-const v9: IsWeekendExactlyInvariant<'Sunday'> = true;  // sub-type, NOT OK
+const v9: IsWeekendExactlyInvariant<'Sunday'> = true;  // error: sub-type, NOT OK
 const v8: IsWeekendExactlyInvariant<'Saturday' | 'Sunday'> = true;    // exactly the same type, OK
 
 
 type IsWeekendExactlyCovariant<T> = (() => T) extends (() => Weekend) ? true : false;
 
 const v20: IsWeekendExactlyCovariant<Funday> = false;
-const v22: IsWeekendExactlyCovariant<Funday> = true;  // super-type, NOT OK
+const v22: IsWeekendExactlyCovariant<Funday> = true;  // error: super-type, NOT OK
 const v21: IsWeekendExactlyCovariant<'Saturday'> = true;    // sub-type, OK
 
 
 type IsWeekendExactlyContravariant<T> = ((o: T) => void) extends ((o: Weekend) => void) ? true : false;
 
-const v31: IsWeekendExactlyContravariant<Funday> = false;   // sub-type, NOT OK
+const v31: IsWeekendExactlyContravariant<Funday> = false;   // error: sub-type, NOT OK
 const v32: IsWeekendExactlyContravariant<Funday> = true;  // super-type OK
+
+
+type FuncParams<T> =
+    T extends ((...params: infer P) => unknown) ? P : never;
+
+declare function fives(n: number, d: string): void;
+
+// p1: [number, string]
+const p1: FuncParams<typeof fives> = [1, "s"];
+
+
+type CSV<T extends string[]> =
+    T extends [] 
+        ? never
+        : T extends [infer U extends string]
+            ? `${U}`
+            : T extends [infer U extends string, ...infer R extends string[]]
+                ? `${U},${CSV<R>}`
+                : never;
+
+const csv1: CSV<['apple', 'banana', 'pear']> = 'apple,banana,pear';
+                
