@@ -14,7 +14,7 @@ This leaves me an audience of about 10 people, so I'll get right to it.
 -- we can add state s to the side to simulate a "stateful" computation
 (a, s) -> (b, s)
 
--- what about function composition?
+-- what about function composition? (Note: this is pre-composition for convenience)
 (a -> b) -> (b -> c) -> (a -> c)
 -- do the same thing: add state s, and apply a few transformations
    ((a, s) -> (b, s))   -> ((b, s) -> (c, s))   -> ((a, s) -> (c, s))
