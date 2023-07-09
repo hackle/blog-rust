@@ -68,5 +68,6 @@
     { "updated": "2023-02-18T18:01:00Z", "title": "Convenience Driven Development: the Grandfather Paradox and Equality", "markdown":  "cdd-grandfather-paradox.md" },
     { "updated": "2023-02-21T21:52:00Z", "title": "Convenience Driven Development: A story of two exceptions", "markdown":  "cdd-the-story-of-2-exceptions.md" },
     { "updated": "2023-03-19T16:29:00Z", "title": "extends in TypeScript: inheritance, upper bounds, conditional, distributive and variance", "markdown":  "typescript-extends.md" },
-    { "updated": "2023-03-06T22:29:00Z", "title": "State Monad: a bit of currying goes a long way", "markdown":  "state-monad.md" }
+    { "updated": "2023-03-06T22:29:00Z", "title": "State Monad: a bit of currying goes a long way", "markdown":  "state-monad.md" },
+    { "updated": "2023-07-09T22:29:00Z", "title": "Enough is Enough: A Square IS A Rectangle, Fix Your Code!", "markdown":  "a-square-is-a-rectangle.md" }
 ]
