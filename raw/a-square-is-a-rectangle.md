@@ -79,17 +79,14 @@ The gist is with `setHeight(height: number): Rectangle`,
 
 Now let's zoom in. Do you see what die-hard habits I was alluding to that should be "renounced"? Let me spell it out,
 
-* mutation: if `Square.height = 5` is prohibited, and all fields are made `readonly`, we have immutable data structure, therefore a `Square` cannot be manipulated out of shape (pun intended). The `Square` type is stronger for this reason. 
-* mutation again, with class and `this`. The convenience of mutating the state of an instance with `this` can be a costly one: any method with a handle to `this` are given full reign over the internals of the class instance; its intent can be hidden from the method's type signature (worse when the method returns nothing, such as a `setter`). 
-
-See why so many languages are pushing for immutability?
+Mutation! We prohibit the likes of `Square.height = 5` by making all fields `readonly`. Now `Square` is *immutable* and must stay as constructed. Therefore, it is a much stronger type, whose values cannot be (at least not easily) manipulated out of shape (pun intended).
 
 If we go a bit further, another source of evil is the entrenched teaching to mix data and behaviour, which hopefully is quickly going out of favour: more modern languages such as Rust and Go encourage us to keep data and behaviour separate, while offering a flavour of dot notation similar to that of classes.
 
-Hope we are now on the same page on the age-old non-sense, "A square is not a rectangle". Quite the broken example steeped in the intrinsic shortcoming of the unfortunate combination of classes and mutation, and it does 0 justice to the principle by the great Babara Liskov.
+Hope we are now on the same page on the age-old nonsense, "A square is not a rectangle". Quite the broken example steeped in the intrinsic shortcoming of the unfortunate combination of classes and mutation, and it does 0 justice to the principle by the great Babara Liskov.
 
-PS. with all the said about the *solution*, I am not stating that this *problem* is meaningless and should be discarded for good. Instead, it can be a great exercise if presented as a design challenge: how do we model `Square` and `Rectangle` so their behaviours are inline with our mathematical understanding?
+PS. with all that said about the *solution*, I am not stating that this *problem* is meaningless and should be discarded for good. Instead, it can be a great exercise if presented as a design challenge: how do we model `Square` and `Rectangle` so their behaviours are inline with our mathematical understanding?
 
 This way, we can now pose questions such as: *what if I want change the size of a `Square` to get another `Square`?* 
 
-And the answer may be: you must construct a new `Square`. Why? Because we *choose to design it* so that the constraint of "equal width and height" is enforced through the constructor. Free mutation of width and height side-steps the constructor, therefore must be disallowed to ensure correctness.
+And the answer may be: you must construct a new `Square`. Why? Because we *choose to design it so that* the constraint of "equal width and height" is enforced through the constructor. Free mutation of width and height side-steps the constructor, therefore must be disallowed to ensure correctness.
