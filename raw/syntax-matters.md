@@ -70,7 +70,9 @@ The choice of operator usually reveals the aesthetics and value preferences of a
 (.) :: (b -> c) -> (a -> b) -> a -> c
 ```
 
-Let's take a detour. A `Python` programmer is entitled to feeling of accomplishment after grokking its famous decorators - a powerful tool.
+(For reference, `not . even` is called backward composition, in contrast to forward composition `even -. not`. In F# it's made even more intuitive `not << even` and `even >> not`.)
+
+Let's take a detour. A `Python` programmer is entitled to feelings of accomplishment after grokking its famous decorators - a powerful tool.
 
 ```Python
 def negate(fn):
@@ -133,29 +135,100 @@ It may be hard to believe for some readers, but I am not showing off - this real
 
 Some readers may question whether "function composition" is a different idea than in "composition over inheritance", whereas the word means building a bigger class from smaller classes. Now think of a class as a bag of methods, then composing classes is essentially composing functions.
 
-## currying
+## Currying and interfaces
 
-The `Negate` function we defined above has a flaw - it does not account for  
+While most people use 1:1 mapped interfaces and classes for silly things like IoC containers, the true OO programmers go to great lengths to massage different implementations into the same interface. An advanced example is the strategy pattern.
 
-## high-order
+```CSharp
+interface IDiscountStrategy { 
+  decimal CalcPrice(decimal original); 
+}
 
-## first-class
+record BirthdayDiscount(int age) : IDiscountStrategy {
+  public decimal CalcPrice(decimal original) {
+    // calculate price based on age etc.
+  }
+}
 
-## in stark contrast
+record MemberDiscount(string cardNo, string code) : IDiscountStrategy {
+  public decimal CalcPrice(decimal original) {
+    // calculate price based on member type
+  }
+}
 
+// to choose a strategy
+IDiscountStrategy strategy = isBirthday ? new BirthdayDiscount(20) : new MemberDiscount("0123-4567", "888");
 
-1. insert `key` with `value` into the map
-2. if the key already exists, merge the existing value (a map itself) with the new value by,
-3. for conflicting keys, take the max value
+var finalPrice = strategy.CalcPrice(100);
+```
+
+This is advanced OO because it's non-trivial usage of language features. Now let's try to express the same algorithm in Haskell syntax.
+
+```Haskell
+-- implementation left out
+
+birthdayDiscount    :: Int ->               Decimal -> Decimal
+memberDiscount      :: String -> String ->  Decimal -> Decimal
+
+isBirthday = True
+
+calcPrice cardNo code age original = 
+    let strategy = if isBirthday 
+                    then birthdayDiscount age 
+                    else memberDiscount cardNo code 
+    in strategy original 
+```
+
+Suspicious of how I used the layout to bring out the common parts of `Decimal -> Decimal`? Well you should be, because this is the essence of interfaces. Quite trivially the commonality is unified into `strategy`, the result of *currying* on one of the two "strategies", `birthdayDiscount` and `memberDiscount`.
+
+But where is the *interface*?! Well, who needs it?
+
+## Single Method Interface
+
+For those who insist that interfaces and functions are completely different species: Java spills the beans long ago. a lambda is modelled as a Single Abstract Method (SAM) interface, this is carried over to Kotlin, see [*functional interface*](https://kotlinlang.org/docs/fun-interfaces.html).
+
+In Python, an interface ("Protocol") can be defined for a function type ("Callable"). The cross-over is everywhere when we know where to look.
+
+## In Stark Contrast
+
+Some people believe the simple and intuitive syntax (of the likes of Haskell) is "just nice", and won't account to much when it comes to more complex programs. They believe when complexity piles up, code in any any language gets messy all the same.
+
+While this may be true in eventuality, it is lacking nuance: code built up with clarity and simplicity will stand bit-rot many times better.
+
+For the final example, consider this small program.
+
+```JSON
+current: { "key1": { "a": 1, "b": 2, "c": 3 }, "key2": { "a": 3, "b": 2 } }
+
+insert: "key1" { "a": 2, "b": 1, "d": 5 }
+
+result: { "key1": { "a": 2, "b": 2, "c": 3, "d": 5 }, "key2": { "a": 3, "b": 2 } }
+```
+
+Given a map of map (or `Dictionary<string, Dictionary<char, int>>`),
+
+1. insert a new value (a map itself) by `key`
+2. if the key already exists, merge the existing value (a map itself) with the new value,
+3. when merging the old + new values (maps), if there is conflicting keys, take the max value
 
 Now think a minute how this can be done in your favourite language, then look at how it's done in Haskell.
 
 ```haskell
--- update the next nodes with colour counts
--- in case of key conflict, merge the counts alway taking max values for the same colour
--- 
-M.Map Int (M.Map Colour Int)
-M.insertWith (M.unionWith max) key value counts1
+current = fromList [("key1", fromList [("a", 1), ("b", 2), ("c", 3)]), ("key2", fromList [("a", 3), ("b", 2)])]
+newValue = fromList [("a", 2), ("b", 1), ("d", 5)]
+
+insertWith (unionWith max) "key1" newValue current
+-- fromList [("key1",fromList [("a",2),("b",2),("c",3),("d",5)]),("key2",fromList [("a",3),("b",2)])]
 ```
 
-Note this is not show-off Haskell (which kind I am not capable of writing), it is pretty idiomatic and natural, as it's shaped by the conventions of using functions.
+Note this is not show-off Haskell (which kind I am not capable of writing), it is idiomatic and natural, following the conventions shaped by the syntax of a well-researched and well-designed language.
+
+## Tools? Yes Tools 
+
+Every time, when we debate the pros and cons of different syntaxes, a wise person would appear and tell us nonchalantly, "these are just tools!"
+
+I usually question if such people speak from real-life experiences. Do they know how different one tool can be from another? In my attempts to be handy from time to time, I visit the hardware store regularly, and know very well a professional drill driver can be 5 times as expensive than a DIY piece. "Just tools"? I don't think so.
+
+Finally, let me leave you the invaluable words from the great Edsger Dijkstra [on Haskell and Java](https://chrisdone.com/posts/dijkstra-haskell-java/)
+
+> It is not only the violin that shapes the violinist, we are all shaped by the tools we train ourselves to use, and in this respect programming languages have a devious influence: they shape our thinking habits. 
