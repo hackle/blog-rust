@@ -71,5 +71,5 @@
     { "updated": "2023-03-06T22:29:00Z", "title": "State Monad: a bit of currying goes a long way", "markdown":  "state-monad.md" },
     { "updated": "2023-07-09T22:29:00Z", "title": "A Square IS A Rectangle - If Designed Correctly", "markdown":  "a-square-is-a-rectangle.md" },
     { "updated": "2023-07-25T20:14:00Z", "title": "Functional Programming: Choose Haskell / F# Because Syntax Matters", "markdown":  "syntax-matters.md" },
-    { "updated": "2023-08-05T22:51:00Z", "title": "DOWN: How Interface Segregation Principle is Broken by Dependency Injectors", "markdown":  "interface-segregation-and-the-down-principle.md" }
+    { "updated": "2023-08-05T22:51:00Z", "title": "DOWN, ISP & IoC: dependency rule #1, and how to stop lying code", "markdown":  "interface-segregation-and-the-down-principle.md" }
 ]
