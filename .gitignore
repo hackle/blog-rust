@@ -9,3 +9,6 @@ deploy.zip
 
 node_module
 .fake
+
+bin/
+obj/
