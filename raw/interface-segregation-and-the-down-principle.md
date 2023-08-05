@@ -4,9 +4,11 @@ Because the #1 rule of dependency management:
 
 > Depend only on what's needed
 
-Maybe this is too plain, people made a "principle" of it - the famous "Interface Segregation Principle", which says about the same thing: code should not depend on things that they don't need. You'll notice I am intentionally paraphrasing here, especially with "things", because interfaces are not the only type of dependencies. There are libraries, classes, functions, methods, parameters or input data. You name it.
+Maybe this is too plain, people made a "principle" of it - the famous "Interface Segregation Principle", which says about the same thing: code should not depend on things it doesn't need. 
 
-Any SOLID engineer would claim they are at home with ISP but like many things in software engineering, this is easier said than done. 
+You would have noticed the intentional paraphrasing, especially with "things", because interfaces are not the only type of dependencies. There are libraries, classes, functions, methods, parameters or input data. You name it.
+
+Any SOLID engineer would claim they are at home with ISP, but like many things in software engineering, this is easier said than done. 
 
 Let's use the broader and clearer rule, albeit its plainness. "Depend Only on What's Needed". It's got a nice acronym too: DOWN!
 
