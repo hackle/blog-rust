@@ -210,6 +210,32 @@ const shoppingService = new ShoppingService(testItemRepo);
 
 This is TypeScript's structural typing, type calculation and JavaScript's object syntax at their very best.
 
+## Why interfaces at all?
 
+The rigidity of interfaces is they must be implemented, either nominally or structurally. But why stick to interfaces at all? Why not use functions directly?
 
+```TypeScript
+function checkout(
+    findItemsByID: (ids: number[]) => Item[],
+    ...
+) {
+    const items = findItemsByID(itemIds);
+    ...
+}
+```
 
+`findItemsByID: (ids: number[]) => Item[]` provides the same capacity as the interface `IFindItem`, who is not much more than a wrapper around a function.
+
+This removes the rigidity around creating "test doubles". Providing a function for `(ids: number[]) => Item[]` is trivial.
+
+```TypeScript
+const test_items: Item[] = [{ item1, items2, ... }]
+const actual = checkout(itemIds => test_items);
+...
+```
+
+A simple lambda saves us a bit of mocking and a lot of noise.
+
+See why I said "things" instead of interfaces? One must choose his terms carefully.
+
+Are you DOWN?
