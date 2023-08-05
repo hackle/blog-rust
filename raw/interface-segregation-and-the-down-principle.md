@@ -161,7 +161,7 @@ class ShoppingService<T> where T : ISearchItemsByName, IFindItem
 }
 ```
 
-Having to use generics may come as a surprise to C# programmers. The good news is it doesn't have to be so. More powerful type systems such as that of TypeScript offer more fluent syntax as below,
+Having to use generics may come as a surprise to C# programmers. The good news is it doesn't have to be so. More powerful type systems such as that of TypeScript or Swift offer more fluent syntax as below,
 
 ```TypeScript
 class ShoppingService(private itemRepo: ISearchItemsByName & IFindItem) { ... }
