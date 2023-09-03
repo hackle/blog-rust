@@ -221,6 +221,27 @@ This is where most type systems (even the more academic ones!) fall short - expr
 
 For example, what if the credit card number is a string provided by the end user through the command line, or a text field in the browser? The type-level solution leads down the road of having parity between types and runtime. This is not easy!
 
+Moderate use of TypeScript's type-level powers can help us express some but not all of the constraints intuitively.
+
+```TypeScript
+type CreditCardNo = `${number}-${number}-${number}-${number}`;
+
+const cc1: CreditCardNo = `0000-0000-0000-0000`;  // ok!
+const cc2: CreditCardNo = `0000-0000-0000`;  // not ok
+const cc3: CreditCardNo = `0000-abcd-0000-0000`;  // not ok
+const cc4: CreditCardNo = `0-00-000-00000`;  // mmmm, also ok
+
+// or more sophisticated but uglier
+type LengthIs<N extends number, xs extends string> = 
+    xs['length'] extends N ? xs : never;
+
+const cc5: LengthIs<16, `0000-0000-0000-0000`> = '0000-0000-0000-0000' satisfies CreditCardNo;  // fine
+const cc6: LengthIs<16, `0000-0000-0000-0w00`> = '0000-0000-0000-0w00' satisfies CreditCardNo;  // not ok
+```
+
+
+Now recall how literal values can be constructed or picked? The line gets blurry very quickly!
+
 ## Factory methods, smart constructors
 
 What hopes do we have if even the cutting-edge type systems fall short? Well, we need to fall back to factory methods anyway.
