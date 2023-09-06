@@ -1,4 +1,4 @@
-There is deplorable stigma around using constructors: using `new` is bad. Always use a builder or factory methods.
+There is deplorable stigma around constructors: using `new` is bad. Always use a builder or factory methods.
 
 Quite the nonsense bourne from being stuck in simple languages for too long! Bad simplicity breeds absolutism, ignorant arrogance, and reductive beliefs like the above. Einstein says it best, "Everything should be made as simple as possible, but not simpler". 
 
