@@ -184,7 +184,7 @@ Now stop to think about it, a conventional imperative constructor that may or ma
 
 One point to stress is, flexibility and convenience may bring short-term benefits, but discipline and the strong guarantee that follows, can take us much farther.
 
-### acknowledge uniqueness vs force commonality
+### Acknowledge uniqueness vs force commonality
 
 The `PaymentMethod` would be a pain to model without union types. Look at `CreditCard` and `Cash`, they share no common fields. Any attempt with sub-typing either leads to convoluted ugliness (as with the visitor pattern), or some poor simulation of union types.
 
@@ -200,7 +200,7 @@ It's tempting to give the answer: no we cannot, as far as the types are concerne
 
 But this is wishful thinking at best. While true on the top level, this does not hold when we drill down. It's still possible to construct an illegal `CreditCard(no="...1000 digits...")`. It's obviously incorrect in terms of business logic, but how do we encode a max length in the type?
 
-## Constrained types, smart constructors
+## Constrained types
 
 Python library `Pydantic` provides "constrained types".
 
