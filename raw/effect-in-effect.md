@@ -1,8 +1,6 @@
-Monad has a reputation of being difficult to grok, not just because of the name, which by now should be fairly popular for better or worse, but also because it can have genuinely magical (albeit lawful) instances and usages, that can catch the unsuspecting readers out.
+Applicative and Monad have the reputation of being difficult to grok, not just because of the names, which by now should be fairly popular for better or worse, but also because they can have genuinely magical (albeit lawful) instances and usages, that can catch the unsuspecting readers off guard. I suspect that's why they are referred to by many as "effectful", meaning scary or deliciously tricky.
 
-I suspect that's why Monad and Applicative are referred to by many as "effectful", meaning scary or deliciously tricky.
-
-Let's start with `const`, from [GHC.Base](https://hackage.haskell.org/package/base-4.18.1.0/docs/src/GHC.Base.html#const), whitespace includes,
+Let's see how the nuances and confusions are built up. We'll start with `const`, from [GHC.Base](https://hackage.haskell.org/package/base-4.18.1.0/docs/src/GHC.Base.html#const), whitespace includes,
 
 ```Haskell
 const                   :: a -> b -> a
