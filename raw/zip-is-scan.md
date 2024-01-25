@@ -43,4 +43,8 @@ The intriguing thing is `scanz` seems to be updating `zs` along each invocation 
 
 Equational reasoning helps us unfailingly in such tricky situations. We can follow the execution of `zipWith` and `f` by finding the parameter values: for the first iteration of `zipWith f zs xs`, `f` will receive the first `x` and `z0` (because it's the "head" of `zs`); the result `z1` becomes the second element of `zs`, and is fed into the second iteration, so on and so forth.
 
+Words may fail but digrams less likely so, and this typical illustration of `fold`, with a bit of harmless alignment, shows us how close it is to `zip`!
+
+![zip is scan](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/zip-is-scan.png)
+
 Needless to say, for what could have been obvious to more seasoned Haskellers, I am pleased with this finding through my own exploration.
