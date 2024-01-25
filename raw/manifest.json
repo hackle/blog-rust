@@ -75,5 +75,6 @@
     { "updated": "2023-09-02T14:54:00Z", "title": "Constructive code - an aimless exploration", "markdown":  "constructive-code.md" },
     { "updated": "2023-09-23T22:32:00Z", "title": "Applicative and Monad: confusion in effect", "markdown":  "effect-in-effect.md" },
     { "updated": "2023-09-23T12:20:00Z", "title": "Your Generics may be different than mine", "markdown":  "generics-id-and-absurd.md" },
-    { "updated": "2023-12-09T06:53:00Z", "title": "Scan is Zip? Laziness and recursion strike again!", "markdown":  "zip-is-scan.md" }
+    { "updated": "2023-12-09T06:53:00Z", "title": "Scan is Zip? Laziness and recursion strike again!", "markdown":  "zip-is-scan.md" },
+    { "updated": "2024-01-25T23:08:00Z", "title": "Accidentally coupled! The worst coupling by loose coupling", "markdown":  "accidentally-coupled.md" }
 ]
