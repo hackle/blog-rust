@@ -96,5 +96,14 @@ But why, why did the `user-profile-service` fail its contract? Anything less tha
 
 Little did we know, our service is accidentally coupled to `user-profile-service` by events. We still get errors, just not right away!
 
+## Not all couplings are equal: locks, keys and phone cases
 
+Coupling is identified when two things must change together, such as a pair of lock and key. Changing the lock without also changing the key, or changing the key without also changing the lock, can lead to people getting locked out. This can be a stressful situation for the rightful users, but may also be used for the benefit of security: a house owner may change a lock to intentionally lock out unwelcomed visitors. This tells us "coupling" is not always a bad thing, contrary to popular belief in software engineering, which seems to have a worship for "decoupling". But why so?
 
+In software engineering terms, one may interprete the key-lock relationship creatively (in fact, ambiguously). Sure, the key is coupled to the lock and vice versa, but only to the extent of the expected shapes (springs, tumblers and what not); but one is free to make ("implement") the key in whatever material they choose: metal, bronze, or gold; one may also make a cute flower-shaped bow (where we hold to turn the key). The options are limitless. Look, this is "loose" coupling! 
+
+That indeed, is a form of "loose" coupling, but the question to ask is: how useful is such "loose" coupling? For the analogy of keys, not very much. Most people may get copies made for a key once in a blue moon, but I doubt anyone gets super creative with the copies, so it might be more helpful to treat the key(s) and the lock always together, not separately. 
+
+However, for mobiles phones and phone cases, oh, loose coupling is very useful! The vast majority of phone cases are made separately from the phones, and many people are very picky with the choice of phone cases. So, it's essential to be able to alter the material, shapes and features of a phone cases separately; the requirement to fit the shape of the phone is important, but may not be the deciding factor for a purchase. 
+
+Not all loose couplings are born equal.
