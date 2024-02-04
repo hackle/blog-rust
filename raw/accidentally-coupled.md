@@ -116,8 +116,8 @@ In programming, coupling is discussed when two things need to work together, lik
 
 This is the challenge number one: how can we manage contract changes? The quality of coordination is the deciding factor in evaluating the quality of the "loose coupling".
 
-- If both parties of the contract interact on a code level, then the coordination may be enforced by the programming langauge, the compiler or the type checker. Such enforcement is usually the strongest: failure to abide by the contract results directly in compilation errors; usually, artefacts cannot be built, and deployments are not possible.
-- The presence of one of the parties may be in the form of a library. This form optimises for distribution, and still utilises the facilities of the programming language. Occassionaly, there is the problem of version mismatch, if the same library is also used by other libraries, and not all of them agree on the versions to use.
+- If both parties of the contract interact on a code level, then the coordination may be enforced by the programming language, the compiler or the type checker. Such enforcement is usually the strongest: failure to abide by the contract results directly in compilation errors; usually, artefacts cannot be built, and deployments are not possible.
+- The presence of one of the parties may be in the form of a library. This form optimises for distribution, and still utilises the facilities of the programming language. Occasional, there is the problem of version mismatch, if the same library is also used by other libraries, and not all of them agree on the versions to use.
 - If the parties live more separately, such as different code bases, written in different programming languages, and are executed in different processes / runtimes, then enforcement of the contract is much, much harder. Failures may only appear as dreaded **breaking changes** on runtime instead of compile time, which may be harmful. There are techniques such as API versioning, contract / end-to-end testing, but such techniques usually incur significantly higher cost than type-checking.
 
 In a word, the distance between the parties plays a big part in the quality of enforcement of the contract, as well as the cost of keeping up such vigilance, if ever. In practice, not every team or engineer is able to do so, and defers to production errors for discovery of contract "drifts" or breaking changes. Unfortunate!
@@ -126,6 +126,12 @@ Note "contracts" may appear in different forms on different levels, for example 
 
 ## Loosely, yet tightly coupled
 
-Broken contract is the far from the only problem with loose coupling between services or runtimes. What could be far worse is hidden behaviour that are not representated or detectable through the contracts. The examples from the beginning of this post are all symptoms of this kind!
+A weak contract is not much better than none. In the routing example, the *contract* between the router and the controllers is the path `"/user/(:name)"`; the router is bound to enforce and provide the `name` parameter, and the `controller` is bound to accept the `name` parameter. However, this "stringly-typed" contract cannot be expressed with types and enforced by the compilers of most mainstream languages.
 
-In the routing example, it would seem the contract is in the form of a string and a class (or a function). However, the contract is very weak.
+A good mitigation is to bring the parties involved as close together as possible; a proper solution requires powerful typing mechanism, such as with TypeScript.
+
+A weak contract is not nearly as harmful as a partial contract. Exception try catch is the epitome of this type of contracts: the consumer and the provider are supposed to be loosely coupled, but the consumer expects the provider to throw a specific type of exception. However, if this expectation is not expressed with types, as it's the case with many languages, then it's as if the parties involved have a backchannel of communication. This backchannel doesn't just undermine the value of the contract, but also ties them together: tight coupling!
+
+Similar interpretation applies to life-cycle methods. The type of `new UserProfileController().Get("Hackle")` is a binding promise that when a name is provided, `Controller` will attempts to find a `UserProfile`. The requirement to call `Initialise()` first is hidden from the contract, and therefore undermines the trust of any user.
+
+The hidden requirement problem has a solution: parameterise! Any hidden requirement can be lifted to explicit parameters, therefore to help express any pre-conditions in full (compared to partially). Exceptions are better expressed as union types; the requirement to call `Initialise()` can be modelled by adding a new type for the fully initialised `Controller` (maybe in the form of another class, a `Service` if you may).
