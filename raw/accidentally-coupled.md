@@ -107,3 +107,17 @@ That indeed, is a form of "loose" coupling, but the question to ask is: how usef
 However, for mobiles phones and phone cases, oh, loose coupling is very useful! The vast majority of phone cases are made separately from the phones, and many people are very picky with the choice of phone cases. So, it's essential to be able to alter the material, shapes and features of a phone cases separately; the requirement to fit the shape of the phone is important, but may not be the deciding factor for a purchase. 
 
 Not all loose couplings are born equal.
+
+## Contract and Implementation: Changes, cost and benefit
+
+Supposed two things never had to interact with each other, not even indirectly, they are in every sense "decoupled"; but if that's the fact, then there should be no need to bring them to the same discussion! Obviously, this is not the type of "coupling" we are discussing.
+
+In programming, coupling is discussed when two things need to work together, like the lock and the key. Usually, it's desirable to separate the making of these two things, for reasons such as modularisation, separation of concerns and what not. The act of separation gives rise to the "contract", which **binds** two separate things together, so the implementations may be separate ("loosely" coupled or "decoupled"), but the contract must not be broken. But what if the contract needs to change?
+
+This is the challenge number one: how can we manage contract changes? The quality of coordination is the deciding factor in evaluating the quality of the "loose coupling".
+
+- If both parties of the contract interact on a code level, then the coordination may be enforced by the programming langauge, the compiler or the type checker. Such enforcement is usually the strongest: failure to abide by the contract results directly in compilation errors; usually, artefacts cannot be built, and deployments are not possible.
+- However, if both parties live more separately, such as different code bases, written in different programming languages, and are executed in different processes / runtimes, then enforcement of the contract is much, much harder. Failures may only appear as dreaded **breaking changes** on runtime instead of compile time, which may be harmful. There are techniques such as API versioning, contract / end-to-end testing, but such techniques usually incur significantly higher cost than type-checking.
+
+In a word, the distance between the parties plays a big part in the quality of enforcement of the contract, as well as the cost of keeping up such vigilance, if ever. Not every team or engineer has the vigilance to keep up, and defers to production errors for discovery of contract "drifts" or breaking changes. 
+
