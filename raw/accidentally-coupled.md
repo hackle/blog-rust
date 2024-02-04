@@ -120,4 +120,12 @@ This is the challenge number one: how can we manage contract changes? The qualit
 - The presence of one of the parties may be in the form of a library. This form optimises for distribution, and still utilises the facilities of the programming language. Occassionaly, there is the problem of version mismatch, if the same library is also used by other libraries, and not all of them agree on the versions to use.
 - If the parties live more separately, such as different code bases, written in different programming languages, and are executed in different processes / runtimes, then enforcement of the contract is much, much harder. Failures may only appear as dreaded **breaking changes** on runtime instead of compile time, which may be harmful. There are techniques such as API versioning, contract / end-to-end testing, but such techniques usually incur significantly higher cost than type-checking.
 
-In a word, the distance between the parties plays a big part in the quality of enforcement of the contract, as well as the cost of keeping up such vigilance, if ever. Not every team or engineer has the vigilance to keep up, and defers to production errors for discovery of contract "drifts" or breaking changes. 
+In a word, the distance between the parties plays a big part in the quality of enforcement of the contract, as well as the cost of keeping up such vigilance, if ever. In practice, not every team or engineer is able to do so, and defers to production errors for discovery of contract "drifts" or breaking changes. Unfortunate!
+
+Note "contracts" may appear in different forms on different levels, for example types, interfaces, documentation, schemas etc. Obviously some are stronger than the others.
+
+## Loosely, yet tightly coupled
+
+Broken contract is the far from the only problem with loose coupling between services or runtimes. What could be far worse is hidden behaviour that are not representated or detectable through the contracts. The examples from the beginning of this post are all symptoms of this kind!
+
+In the routing example, it would seem the contract is in the form of a string and a class (or a function). However, the contract is very weak.
