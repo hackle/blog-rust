@@ -96,6 +96,16 @@ But why, why did the `user-profile-service` fail its contract? Anything less tha
 
 Little did we know, our service is accidentally coupled to `user-profile-service` by events. We still get errors, just not right away!
 
+## Validation
+
+User input is represented in a model (let's say a class, not a lazy representation such as JSON object or string-to-string map); the model is validated as it enters the application; invalid models are rejected, and only valid models are allowed to proceed to the next layers of the processing pipeline, conventionally, the domain of the application, the service layer.
+
+A service receives and processes the model based on the assumptions that it has been validated by the previous layer, so it needs not bother with repeated validation. After all, validation is the responsibility of the presentation layer. Separation of concern!
+
+Now we add another user interface to the application. Be it web, API, CLI or GUI (why not). The new interface calls through to the service layer, faithfully providing any models as required and specified via "strong" types. The compiler is happy, deployment is made, but no! Invalid data creeps into the application, because the new user interface lacks validation!
+
+Why can't the new UI take its part in validation? It's common sense for any engineers to be defensive and trust no user input! Complete failure of the UI! But wait, why can't the service layer be defensive with the model? Oh but it's a representational concern not a core domain concern. Either way, by separating concerns across layers, but making assumptions that one layer MUST handle validation before passing data to the next layer, they are accidentally coupled!
+
 ## Not all couplings are equal: locks, keys and phone cases
 
 Coupling is identified when two things must change together, such as a pair of lock and key. Changing the lock without also changing the key, or changing the key without also changing the lock, can lead to people getting locked out. This can be a stressful situation for the rightful users, but may also be used for the benefit of security: a house owner may change a lock to intentionally lock out unwelcomed visitors. This tells us "coupling" is not always a bad thing, contrary to popular belief in software engineering, which seems to have a worship for "decoupling". But why so?
