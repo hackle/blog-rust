@@ -2,7 +2,7 @@ Advancements in programming languages are known to greatly simply solutions to e
 
 More advanced examples include discretionary use of expressive typing that can go a long way towards ensuring safety from compile time, even if types are erased and non-existent at runtime. TypeScript is a revolutionary force in this regard: its typing power is unparalleled in the mainstream, enabling programmer to express constraints on the type level as never seen before: flexible manipulation of types to combine two types into one, to _surgically_ remove or swap out a field from one type to make another, or to build a result type by analysing input types. What dreams are made of.
 
-Today we look at a problem that is not solved to complete satisfaction in most languages, but is so in Rust, almost trivially: resource management. Or, ensuring resources are cleaned up after allocation, and doing so on with assurance on the language level, not deferring to the runtime.
+My good friend [DT_Bindi](https://twitter.com/DT_Bindi) raised a problem that is not solved to complete satisfaction in most languages, but is so in Rust, almost trivially: resource management. Or, ensuring resources are cleaned up after allocation, and doing so on with assurance on the language level, not deferring to the runtime.
 
 This problem is solved with `IDisposable` in C# or Context Manager in Python, both may be traced back to RAII (Resource Acquisition Is Initialisation) in C++ (Whether that's the source of inspiration, I have no way of knowing).
 
