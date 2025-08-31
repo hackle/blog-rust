@@ -77,5 +77,6 @@
     { "updated": "2023-09-23T12:20:00Z", "title": "Your Generics may be different than mine", "markdown":  "generics-id-and-absurd.md" },
     { "updated": "2023-12-09T06:53:00Z", "title": "Scan is Zip? Laziness and recursion strike again!", "markdown":  "zip-is-scan.md" },
     { "updated": "2024-01-25T23:08:00Z", "title": "Accidentally coupled! The worst coupling by loose coupling", "markdown":  "accidentally-coupled.md" },
-    { "updated": "2024-01-25T23:08:00Z", "title": "Using, with are lame. Rust wins resource management", "markdown":  "resource-manager-rust.md" }
+    { "updated": "2024-01-25T23:08:00Z", "title": "Using, with are lame. Rust wins resource management", "markdown":  "resource-manager-rust.md" },
+    { "updated": "2025-08-31T19:21:00Z", "title": "Dependent? Extensible? The curious case of union type in Kotlin", "markdown":  "curious-kotlin-union.md" }
 ]
