@@ -2,7 +2,7 @@ In this post we look at a dialect of union type in Kotlin's sealed interface (or
 
 ## union of types, not constructors
 
-A union type is defined as a `sealed interface` (or `sealed class` but I will use `interface` from now on) that is implemented by its member types (there are variations in where the member types can be placed - please see Kotlin docs). Consider the defintion of `Maybe<T>`,
+A union type is defined as a `sealed interface` (or `sealed class` but I will use `interface` from now on) that is implemented by its member types (there are variations in where the member types can be placed - please see Kotlin docs). Consider the definition of `Maybe<T>`,
 
 ```Kotlin
 sealed interface Maybe<T> 
@@ -29,7 +29,7 @@ val just2: Just<Int> = Just(2)
 showIncrement(just2)
 ```
 
-This valuable feature gives Koltin's union types an edge of expressiveness. (Or if you are cynical, yet another chance for confusion and abuse. Being cynical is no fun.)
+This valuable feature gives Kotlin's union types an edge of expressiveness. (Or if you are cynical, yet another chance for confusion and abuse. Being cynical is no fun.)
 
 A Haskeller may compare `Maybe<T>` to type families, such as type promotion of `Just` / `Nothing` via DataKinds, and further question if Kotlin supports type-level programming. The short answer is no - at least not along the lines of DataKinds, or that of TypeScript to effortlessly promote values to types for a flavour of dependent types. The longer answer, however, is one with slight complication.
 
@@ -99,7 +99,7 @@ fun <T : Nat> decrement(n: Succ<T>): T = n.pred
 
 ## exhaustive pattern-matching and unification of member types
 
-The real power of union types does not lie in modeling a hierarchy of types with different shapes - the good-old interface is more than enough for that job. Instead, it's in modeling a closed type hierarchy that is _known_ at compile time, and what follows the _closedness_: the ability to analyse such hierarchy exhaustively.
+The real power of union types does not lie in modelling a hierarchy of types with different shapes - the good-old interface is more than enough for that job. Instead, it's in modelling a closed type hierarchy that is _known_ at compile time, and what follows the _closedness_: the ability to analyse such hierarchy exhaustively.
 
 Consider the use of `Maybe` in the slightly revised `runAtRisk`,
 
@@ -112,7 +112,7 @@ fun runAtRisk(acknowledgedOrNot: SBoolean) {
 }
 ```
 
-The use of `else` (the equivalent to wildcard `_` in other languages) may seem harmless, but it is a terrible idea, because it throws away the benefit of exhaustive pattern matching. Would we add a new member type `SUndecided` alongside `STrue` and `SFalse`, the previous implementation of `runAtRisk` fails to compile, rightfully and expectedly, for not handling the new scenario, whereas this version happily ignores the new addition, resulting in undesirable behavour - treating "SUndecided" as "SFalse". It is therefore recommended to forbid the use of `else` with union types. With Kotlin, this is usually done with the Detekt rule [ElseCaseInsteadOfExhaustiveWhen](https://detekt.dev/docs/next/rules/potential-bugs/).
+The use of `else` (the equivalent to wildcard `_` in other languages) may seem harmless, but it is a terrible idea, because it throws away the benefit of exhaustive pattern matching. Would we add a new member type `SUndecided` alongside `STrue` and `SFalse`, the previous implementation of `runAtRisk` fails to compile, rightfully and expectedly, for not handling the new scenario, whereas this version happily ignores the new addition, resulting in undesirable behaviour - treating "SUndecided" as "SFalse". It is therefore recommended to forbid the use of `else` with union types. With Kotlin, this is usually done with the Detekt rule [ElseCaseInsteadOfExhaustiveWhen](https://detekt.dev/docs/next/rules/potential-bugs/).
 
 However, for the extra flexibility afforded by the union of member types (versus just different constructors as in Haskell), at times we want to differentiate a subset of the member types. Consider the example of `PayResult<T>`,
 
@@ -147,7 +147,11 @@ fun extractError(payResult: PayResult<Cash>): String? =
     }
 ```
 
-Which is not terrible (and would be expected of equivalent code in Haskell or Rust), but one can find 2 reasons to be critical,
+Which is not terrible, and would be expected of equivalent code in Haskell or Rust. It's often the case a new adapter feels peeved by the size as well as the boring nature of the `when` expression, and tries to improve or "abstract" it, such as by introducing a map; or faced with a union type with a few more member types, attempts to find shortcuts to make the code shorter and "cleaner". Watch out - this is usually a slippery slope. Such smart workarounds usually undermines the guarantee provided by union types; it's a regression in correctness.
+
+Dealing with union types (or modern type systems) require a change of mindset. As a rule of thumb, "smart" code that degrades type-checking to runtime behaviour, or results in regression of type safety should be avoided; seemingly "dumb" code with the blessing of the type system is more preferable. (An attractive deal sweetener is well-type code is easier for the modern language servers or IDEs to analyse, often seen through high-quality auto-completion).
+
+With that said, there is always room to demand more. In our case, one can find 2 reasons to be critical,
 
 1. the repetition in `payResult.errorMessage`. Unlike TypeScript, Kotlin is _mostly_ not structured typed, and cannot figure out the presence of the common field;
 2. more subtly, it makes no sense to call `extractError` from `PayResult.Success` - there is no "error" to speak of! This forces the use of `String?` as the return type. While one may guess that `Success` will result in `null`, from the types along, there is no stopping `null` for `NotEnoughBalance` too. In other words, the return type is _polluted_; the caller's hands are also forced to have to check for null.
