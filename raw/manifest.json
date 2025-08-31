@@ -1,7 +1,6 @@
 [
     { "updated": "2021-09-05T03:53:47Z", "title": "How is this blog put together", "markdown": "blog-architecture.md", "hidden": true },
     { "updated": "2021-08-03T08:47:27Z", "title": "About", "markdown": "about.md", "hidden": true },
-    { "updated": "2019-05-19T20:44:21Z", "title": "A few things about unit testing", "markdown": "presso-pragmatic-unit-testing.md" },
     { "updated": "2018-11-24T23:11:42Z", "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md" },
     { "updated": "2019-05-13T09:09:41Z", "title": "Lens (really record viewer / updater) in TypeScript", "markdown": "lens-typescript.md" },
     { "updated": "2018-11-10T03:00:52Z", "title": "Fin", "markdown": "fin.md" },
@@ -26,7 +25,6 @@
     { "updated": "2021-04-25T08:22:48Z", "title": "Dependent types in TypeScript?", "markdown": "dependent-types-typescript.md" },
     { "updated": "2020-04-26T09:11:01Z", "title": "The Diamond, squashed and recovered", "markdown": "the-diamond-kata.md" },
     { "updated": "2020-07-04T22:46:16Z", "title": "Tuck-away and take-one, whatever it takes to look declarative", "markdown": "anything-to-be-declarative.md" },
-    { "updated": "2019-03-25T09:07:29Z", "title": "Good code does not matter... not that much", "markdown": "good-code-does-not-matter.md" },
     { "updated": "2020-08-22T23:05:17Z", "title": "Setting CAP loose in real life", "markdown": "cap.md" },
     { "updated": "2020-12-06T05:50:34Z", "title": "The 'Constants' file is an anti-pattern, so is the 'Interface' folder. Placement by functionality, not technical concerns", "markdown": "where-to-place-x.md" },
     { "updated": "2021-01-17T06:48:29Z", "title": "Plain and simple state management", "markdown": "plain-state-management.md" },
