@@ -16,7 +16,7 @@ This looks not much more than a verbose version of the intuitive definition in H
 data Maybe a = Nothing | Just a
 ```
 
-(Note `Nothing` in Haskell is a data constructor, but Kotlin's `Nothing` a built-in type.)
+(Note `Nothing` in Haskell is a data constructor, but Kotlin's `Nothing` the built-in "bottom" type.)
 
 However, there is a notable difference: `Just` in Haskell is one of two data constructors of `Maybe a` (which itself is called a "type constructor"), but it is not a type; while `Just<T>` is a type of its own. Therefore, it's not possible type a value as `Just Int` in Haskell, but completely legitimate in Kotlin as below.
 
@@ -149,7 +149,7 @@ fun extractError(payResult: PayResult<Cash>): String? =
 
 Which is not terrible (and would be expected of equivalent code in Haskell or Rust), but one can find 2 reasons to be critical,
 
-1. the repetition in payResult.errorMessage,
+1. the repetition in `payResult.errorMessage`. Unlike TypeScript, Kotlin is _mostly_ not structured typed, and cannot figure out the presence of the common field;
 2. more subtly, it makes no sense to call `extractError` from `PayResult.Success` - there is no "error" to speak of! This forces the use of `String?` as the return type. While one may guess that `Success` will result in `null`, from the types along, there is no stopping `null` for `NotEnoughBalance` too. In other words, the return type is _polluted_; the caller's hands are also forced to have to check for null.
 
 Ideally, as its name states, `extractError` should only accept member types that encode errors. But that poses the challenge of separating `Success` from the rest of the "error" member types. 
@@ -217,3 +217,76 @@ fun makeDisplayMessage(payResult: PayResult<Cash>) =
 ```
 
 The sharp reader would immediately find this to be a bad idea - because this "simplification" is little better than using `else` - if a new "error" type is added to `PayResult`, this version of `makeDisplayMessage` will happily _ignore_ the new addition, and throw away the strong guarantee of exhaustive pattern-matching.
+
+## "inheritance" / extending a union type
+
+Unlike a normal interface, a sealed interface is closed at the time of definition, strictly speaking, together with all its member types, which are all known at compile-time. This property of closedness applies to any union types, and is what makes exhaustive analysis possible. 
+
+However, without the constraint of "tagging", untagged unions as in TypeScript of Python can be extended to make a new union type - which are separate from the original, but with additional member types. This is also possible with Kotlin's sealed types through a form of inheritance, due to the use of interfaces.
+
+Let's suppose we want to extend `PayResult` with a new member type `SuspectedScam`, to make a new union type `CreditCardPayResult`, which has dedicated use in only _part_ of the application, while keeping the existing use of the original `PayResult` undisturbed. What could this be done?
+
+The naive answer is to make `CreditCardPayResult` extend `PayResult` directly, as follows,
+
+```Kotlin
+sealed interface CreditCardPayResult<out T : Payment> : PayResult<T> {
+    data class SuspectedScam(
+        val probability: Float
+    ) : CreditCardPayResult<Nothing>, HasErrorMessage {
+        override val errorMessage = "Watch out! Likely a scam!"
+    }
+}
+
+// error: 'when' expression must be exhaustive. 
+// Add the 'is SuspectedScam' branch or an 'else' branch.
+fun makeDisplayMessage(payResult: PayResult<Cash>) =
+    when(payResult) {
+        is PayResult.Success -> "All paid!"
+        is PayResult.NotEnoughBalance,
+        is PayResult.Unauthenticated,
+            -> payResult.errorMessage
+    }
+```
+
+Unexpectedly, this upended existing use of `PayResult`. Why? That's because Kotlin scans for any sub-type of `PayResult` to discover the closed hierarchy, a.k.a. the _union_; by extending `PayResult`, `CreditCardPayResult` and in turn `SuspectedScam`, is considered a member type of the union! This is how sealed types work, and it's not surprising at all.
+
+The solution is a bit of a brain-twister: to reserve the relationship, by making `PayResult` extend `CreditCardPayResult`, as follows,
+
+```Kotlin
+sealed interface PayResult<out T : Payment> : CreditCardPayResult<T> {
+    // left unchanged
+}
+
+sealed interface CreditCardPayResult<out T> {
+    data class SuspectedScam(
+        val probability: Float
+    ) : CreditCardPayResult<Nothing>, HasErrorMessage {
+        override val errorMessage = "Watch out! Likely a scam!"
+    }
+}
+```
+
+This setup achieves exactly what we set out to do, as is seen below,
+
+```Kotlin
+fun makeDisplayMessage(payResult: PayResult<Cash>) =
+    when(payResult) {
+        is PayResult.Success -> "All paid!"
+        is PayResult.NotEnoughBalance,
+        is PayResult.Unauthenticated,
+            -> payResult.errorMessage
+    }
+
+fun makeDisplayMessage(payResult: CreditCardPayResult<Cash>) =
+    when(payResult) {
+        is PayResult.Success -> "All paid!"
+        is PayResult.NotEnoughBalance,
+        is PayResult.Unauthenticated,
+        is CreditCardPayResult.SuspectedScam,
+            -> payResult.errorMessage
+    }
+```
+
+Why does this work? It is because the original hierarchy of `PayResult` is kept undisturbed - its number of sub-types is still exactly _three_. On the other hand, `CreditCardPayResult` has _four_ sub-types, `SuspectedScam` that implements it directly, and indirectly, the 3 member types of `PayResult`.
+
+In other words, extending or implementing a type results in the creation of a sub-type, which may have "more" behaviour, but as a type, it has _fewer_ values or member types, as is the case with `PayResult`. On the other hand, the super-type `CreditCardPayResult` ranges "larger" and has _more_ values and member types. From this perspective, there is nothing surprising at all.

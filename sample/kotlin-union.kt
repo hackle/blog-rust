@@ -6,6 +6,10 @@ typealias ErrorCode = Int
 typealias Payment = Any
 typealias Cash = Int
 
+interface HasErrorMessage {
+    val errorMessage: String
+}
+
 class PayResultUnunified {
     sealed interface PayResult<out T : Payment> {
         data class Success<P : Payment>(val value: P) : PayResult<P>
@@ -49,11 +53,102 @@ class PayResultUnunified {
     }
 }
 
-class PayResultUnified {
-    interface HasErrorMessage {
-        val errorMessage: String
+class PayResultExtended {
+    sealed interface PayResult<out T : Payment> {
+        data class Success<P : Payment>(val value: P) : PayResult<P>
+
+        data class NotEnoughBalance(
+            val minimum: Long
+        ) : PayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Not enough balance."
+        }
+
+        data class Unauthenticated(
+            val serverErrorCode: ErrorCode
+        ) : PayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Authentication failed."
+        }
     }
 
+    sealed interface CreditCardPayResult<out T : Payment> : PayResult<T> {
+        data class SuspectedScam(
+            val probability: Float
+        ) : CreditCardPayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Watch out! Likely a scam!"
+        }
+    }
+
+    // error: 'when' expression must be exhaustive. 
+    // Add the 'is SuspectedScam' branch or an 'else' branch.
+    // fun makeDisplayMessage(payResult: PayResult<Cash>) =
+    //     when(payResult) {
+    //         is PayResult.Success -> "All paid!"
+    //         is PayResult.NotEnoughBalance,
+    //         is PayResult.Unauthenticated,
+    //             -> payResult.errorMessage
+    //     }
+
+    // fun runDisplay() {
+    //     val result = PayResult.Unauthenticated(1)
+
+    //     val resultSuccess = PayResult.Success(100)
+    //     // not allowed
+    //     // val errorSafe = extractErrorSafe(resultSuccess)
+    //     // println(error)
+    // }
+}
+
+class PayResultReverseExtended {
+    sealed interface PayResult<out T : Payment> : CreditCardPayResult<T> {
+        data class Success<P : Payment>(val value: P) : PayResult<P>
+
+        data class NotEnoughBalance(
+            val minimum: Long
+        ) : PayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Not enough balance."
+        }
+
+        data class Unauthenticated(
+            val serverErrorCode: ErrorCode
+        ) : PayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Authentication failed."
+        }
+    }
+
+    sealed interface CreditCardPayResult<out T> {
+        data class SuspectedScam(
+            val probability: Float
+        ) : CreditCardPayResult<Nothing>, HasErrorMessage {
+            override val errorMessage = "Watch out! Likely a scam!"
+        }
+    }
+
+    fun makeDisplayMessage(payResult: PayResult<Cash>) =
+        when(payResult) {
+            is PayResult.Success -> "All paid!"
+            is PayResult.NotEnoughBalance,
+            is PayResult.Unauthenticated,
+                -> payResult.errorMessage
+        }
+
+    fun makeDisplayMessage(payResult: CreditCardPayResult<Cash>) =
+        when(payResult) {
+            is PayResult.Success -> "All paid!"
+            is PayResult.NotEnoughBalance,
+            is PayResult.Unauthenticated,
+            is CreditCardPayResult.SuspectedScam,
+                -> payResult.errorMessage
+        }
+
+    fun runDisplay() {
+        // val resultSuccess = PayResult.Success(100)
+        // not allowed
+        // val errorSafe = extractErrorSafe(resultSuccess)
+        // println(error)
+    }
+}
+
+class PayResultUnified {
     sealed interface PayResult<out T : Payment> {
         data class Success<P : Payment>(val value: P) : PayResult<P>
 
