@@ -1,13 +1,13 @@
 In this post we look at a dialect of union type in Kotlin's sealed interface (or class). In particular, how it differs from other prominent variants (for this purpose, Haskell and TypeScript) in ergonomics.
 
-## Union of types, not constructors
+## union of types, not constructors
 
 A union type is defined as a `sealed interface` (or `sealed class` but I will use `interface` from now on) that is implemented by its member types (there are variations in where the member types can be placed - please see Kotlin docs). Consider the defintion of `Maybe<T>`,
 
 ```Kotlin
 sealed interface Maybe<T> 
 data class Just<T>(val value: T) : Maybe<T>
-data object Nothing : Maybe<Nothing>
+data object None : Maybe<Nothing>
 ```
 
 This looks not much more than a verbose version of the intuitive definition in Haskell,
@@ -15,6 +15,8 @@ This looks not much more than a verbose version of the intuitive definition in H
 ```Haskell
 data Maybe a = Nothing | Just a
 ```
+
+(Note `Nothing` in Haskell is a data constructor, but Kotlin's `Nothing` a built-in type.)
 
 However, there is a notable difference: `Just` in Haskell is one of two data constructors of `Maybe a` (which itself is called a "type constructor"), but it is not a type; while `Just<T>` is a type of its own. Therefore, it's not possible type a value as `Just Int` in Haskell, but completely legitimate in Kotlin as below.
 
@@ -31,12 +33,12 @@ This valuable feature gives Koltin's union types an edge of expressiveness. (Or 
 
 A Haskeller may compare `Maybe<T>` to type families, such as type promotion of `Just` / `Nothing` via DataKinds, and further question if Kotlin supports type-level programming. The short answer is no - at least not along the lines of DataKinds, or that of TypeScript to effortlessly promote values to types for a flavour of dependent types. The longer answer, however, is one with slight complication.
 
-## Union of singleton types and enums
+## union of singleton types and enums
 
 `Nothing` in Kotlin's `Maybe<T>` is a singleton type - a type with just one value. It allows the seemingly strange expression as below,
 
 ```Kotlin
-val naught: Nothing = Nothing
+val naught: None = None
 println("It is $naught")
 ```
 
@@ -67,10 +69,151 @@ In the above example, the risky operation must only be executed with acknowledge
 
 Had we used type `mustHaveAcknowledged: Boolean`, the caller could rightfully pass in `false`, an illegal state that requires runtime validation to avoid.
 
+Kotlin's syntax also clearly indicates the unification of types and values - instead of `is STrue` for type inspection, the value `STrue` is pattern-matched on directly.
 
- and trivially vice versa (because when a value is constructed, the type is already known).
+The same type hierarchy can also be expressed with singleton enums - you guessed it, a single enum is an enum with just one value.
 
-While the above example is admittedly contrived, in practice 
+```Kotlin
+sealed interface SEBoolean { val value: Boolean }
+enum class SETrue(override val value: Boolean) : SEBoolean { TRUE(true) }
+enum class SEFalse(override val value: Boolean) : SEBoolean { FALSE(false) }
+```
 
-As a quick recap, unlike a typical interface or base class that models an open set of implementations, a union type models a closed set of member types; unlike an enum type that models enumerable values of the same shape, a union type models enumerable member types of different shapes.
+The enum variation has an advantage over the singleton objects: it allows encoding extra information in the singleton values, in this case, mapping enum constants to the corresponding booleans. One use case is to use the encoded boolean value as runtime value, such as for serialisation and deserialisation (consider `@JsonValue` / `@JsonCreator` with the Jackson library). Data objects typically require some level of arm-twisting to get deserialised.
 
+## yet no dependent types
+
+From singleton types one would be tempted to encode the likes of Peano number as well as its operations including addition, subtraction etc, but that's where the line is drawn. While it's trivial to express `decrement`, there is no way to express addition of two types.
+
+```Kotlin
+sealed interface Nat
+data object Zero : Nat
+data class Succ<T : Nat>(val pred: T) : Nat
+
+// easy - it's just destructuring
+fun <T : Nat> decrement(n: Succ<T>): T = n.pred
+
+// not possible
+// fun <T1 : Nat, T2: Nat> add(n1: T1, n2: T2): Add<T1, T2>
+```
+
+## exhaustive pattern-matching and unification of member types
+
+The real power of union types does not lie in modeling a hierarchy of types with different shapes - the good-old interface is more than enough for that job. Instead, it's in modeling a closed type hierarchy that is _known_ at compile time, and what follows the _closedness_: the ability to analyse such hierarchy exhaustively.
+
+Consider the use of `Maybe` in the slightly revised `runAtRisk`,
+
+```Kotlin
+fun runAtRisk(acknowledgedOrNot: SBoolean) {
+    when (acknowledgedOrNot) {
+        STrue -> runRiskyOperation(STrue)
+        else -> println("Cannot run operation without acknowledgement.")
+    }
+}
+```
+
+The use of `else` (the equivalent to wildcard `_` in other languages) may seem harmless, but it is a terrible idea, because it throws away the benefit of exhaustive pattern matching. Would we add a new member type `SUndecided` alongside `STrue` and `SFalse`, the previous implementation of `runAtRisk` fails to compile, rightfully and expectedly, for not handling the new scenario, whereas this version happily ignores the new addition, resulting in undesirable behavour - treating "SUndecided" as "SFalse". It is therefore recommended to forbid the use of `else` with union types. With Kotlin, this is usually done with the Detekt rule [ElseCaseInsteadOfExhaustiveWhen](https://detekt.dev/docs/next/rules/potential-bugs/).
+
+However, for the extra flexibility afforded by the union of member types (versus just different constructors as in Haskell), at times we want to differentiate a subset of the member types. Consider the example of `PayResult<T>`,
+
+```Kotlin
+sealed interface PayResult<out T : Payment> {
+    data class Success<P : Payment>(val value: P) : PayResult<P>
+
+    data class NotEnoughBalance(
+        val minimum: Long
+    ) : PayResult<Nothing> {
+        val errorMessage = "Not enough balance."
+    }
+
+    data class Unauthenticated(
+        val serverErrorCode: ErrorCode
+    ) : PayResult<Nothing> {
+        val errorMessage = "Authentication failed."
+    }
+}
+```
+
+(Note that the placement of `errorMessage` inside the data classes is intentional: it should not be exposed through the constructor as a free-form String, but closed off and locked down, to prevent nonsense input such as "divided by zero").
+
+When handling an instance of `PayResult`, there would be need to extract any potential error message for display. One may implement `extractError` as following,
+
+```Kotlin
+fun extractError(payResult: PayResult<Cash>): String? =
+    when (payResult) {
+        is PayResult.Success -> null
+        is PayResult.NotEnoughBalance -> payResult.errorMessage
+        is PayResult.Unauthenticated  -> payResult.errorMessage
+    }
+```
+
+Which is not terrible (and would be expected of equivalent code in Haskell or Rust), but one can find 2 reasons to be critical,
+
+1. the repetition in payResult.errorMessage,
+2. more subtly, it makes no sense to call `extractError` from `PayResult.Success` - there is no "error" to speak of! This forces the use of `String?` as the return type. While one may guess that `Success` will result in `null`, from the types along, there is no stopping `null` for `NotEnoughBalance` too. In other words, the return type is _polluted_; the caller's hands are also forced to have to check for null.
+
+Ideally, as its name states, `extractError` should only accept member types that encode errors. But that poses the challenge of separating `Success` from the rest of the "error" member types. 
+
+One may take hint from the `T` in `PayResult<T>`, and try to unify `NotEnoughBalance` and `Unauthenticated` as `PayResult<Nothing>`, but this only gets us half-way as follows,
+
+```Kotlin
+fun extractErrorSafe(payResult: PayResult<Nothing>): String =
+    when (payResult) {
+        is PayResult.NotEnoughBalance -> payResult.errorMessage
+        is PayResult.Unauthenticated  -> payResult.errorMessage
+        is PayResult.Success -> "Impossible"
+    }
+```
+
+Unlike TypeScript, Kotlin does not go the extra mile to filter out `Success` for `PayResult<Nothing>`, so although `extractErrorSafe` _cannot_ be called with `Success`, its implementation must still check the success case, resulting in an "impossible" branch.
+
+On the other hand, it's fairly straightforward to use a "normal" interface to unify the "error" member types. See `HasErrorMessage` as below,
+
+```Kotlin
+interface HasErrorMessage {
+    val errorMessage: String
+}
+
+sealed interface PayResult<out T : Payment> {
+    data class Success<P : Payment>(val value: P) : PayResult<P>
+
+    data class NotEnoughBalance(
+        val minimum: Double
+    ) : PayResult<Nothing>, HasErrorMessage {
+        override val errorMessage = "Not enough balance."
+    }
+
+    data class Unauthenticated(
+        val serverErrorCode: ErrorCode
+    ) : PayResult<Nothing>, HasErrorMessage {
+        override val errorMessage = "Authentication failed."
+    }
+}
+
+fun extractErrorSafe(withErrorMessage: HasErrorMessage): String =
+    withErrorMessage.errorMessage
+```
+
+`HasErrorMessage` makes `extractErrorSafe` superfluous - it simply calls through to `withErrorMessage.errorMessage`; on the other hand, we can see how the "error" types are unified in an exhaustive `when` expression as follows,
+
+```Kotlin
+fun makeDisplayMessage(payResult: PayResult<Cash>) =
+    when(payResult) {
+        is PayResult.Success -> "All paid!"
+        is PayResult.NotEnoughBalance,
+        is PayResult.Unauthenticated,
+            -> payResult.errorMessage
+    }
+```
+
+Yet another trick is to make `HasErrorMessage` also sealed, so the above `when` block can be "simplified" as below,
+
+```Kotlin
+fun makeDisplayMessage(payResult: PayResult<Cash>) =
+    when(payResult) {
+        is PayResult.Success -> "All paid!"
+        is HasErrorMessage -> payResult.errorMessage
+    }
+```
+
+The sharp reader would immediately find this to be a bad idea - because this "simplification" is little better than using `else` - if a new "error" type is added to `PayResult`, this version of `makeDisplayMessage` will happily _ignore_ the new addition, and throw away the strong guarantee of exhaustive pattern-matching.
