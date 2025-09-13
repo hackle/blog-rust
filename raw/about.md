@@ -20,21 +20,24 @@ Instead, it is often more productive to remove - establishing simplicity by reje
 
 "Strong Code" lays out the principles for the everyday programmer to achieve such goals by utilising the modern programming features, concepts, and philosophies (which are different from some of the conventional "patterns" rooted in but never go beyond shaky analogies and heuristics).
 
-=== Part 1: Strong by simplicity
-. Immutability by default
-. Structured programming - for real
-. Thinking in data, not code
+- Part 1: Strong by simplicity
 
-=== Part 2: Strong by type
-. Construct, don't compute
-. Thinking of classes and functions as one
-. Interface as capability
-. Error as value
+   - Immutability by default
+   - Structured programming - for real
+   - Thinking in data, not code
 
-=== Part 3: Strong by discipline
-. Side effects as parameters
-. Testing with no fuss
-. 2-layer architecture
+- Part 2: Strong by type
+
+   - Construct, don't compute
+   - Thinking of classes and functions as one
+   - Interface as capability
+   - Error as value
+
+- Part 3: Strong by discipline
+
+   - Side effects as parameters
+   - Testing with no fuss
+   - 2-layer architecture
 
 To get the most out of this workshop, the participant should have experience in building non-trivial applications in a modern language.
 
