@@ -1,37 +1,41 @@
 ![Hackle Wayne](https://s3.ap-southeast-2.amazonaws.com/hacklewayne.com/avatar.jpg)
 
-Hi - thanks for opening this blog. My name is Hackle Wayne, I am a software developer currently living in New Zealand.
+Hi - thanks for reading this blog. As a software engineer based in New Zealand, I mostly go by the name Hackle Wayne.
 
 "Between the abstractions we need and the abstractions we get" is a phrase I borrowed from the mighty and hilarious Erik Meijer, particularly, [this talk](https://www.youtube.com/watch?v=NKeHrApPWlo)
 
-I am a programmer, and I enjoy programming a lot. At work, I use mainstream languages such as Python, Kotlin, C#, TypeScript and Go, but with my own time I particularly enjoy using (and learning, and learning with) languages such as Idris, Haskell, F#.
+Besides my day job, I enjoy writing and speaking about programming, especially around designing and programming for correctness - an area that I believe the mainstream can improve a lot on.
 
-The setup of this blog (was based on the excellent [serverless-haskell](https://github.com/seek-oss/serverless-haskell) project) has been rewritten a few times, currently it's in Rust. You'll find a [write-up](/how-is-this-blog-put-together) for how I managed to wire everything up.
+I can be hired for my signature workshop "Strong Code: designing mission-critical applications" that is proven productive and inspirational. You may also be interested in the upcoming (fingers-crossed) book by the same name.
 
-If you ever want to get in touch, this is my email address but reversed: moc.liamtoh@welkcah (you'll find an article dedicated to a ``reverse`` function in Idris). Or find me on Twitter [@hacklew](https://twitter.com/hacklew).
+To get in touch, this is my email address but reversed: moc.liamtoh@welkcah
 
-## Speaking, workshops and talks
+## Strong Code: designing mission-critical applications
 
-Occasionally, you can find me speaking at conferences and meetups, or running workshops (sometimes remotely).
+How to design and build mission-critical applications with confidence and rigour, to empower both the engineers and the business to move at sustained pace, without fear of breaking things?
 
-My talks can be about a specific area ("Goodbye Regex, Hello Parsers", "Dude where is my class") or a bit philosophical ("I fought the law and the law won"),
+The answer is not always to add: more checks, assertions, or tests; more processes, tooling, or services; more patterns, layers, or abstractions; more anxiety, or stress.
 
-My workshops, on the other hand, are mostly very hands-on and focus strongly on thought processes, crafts and good habits. Drop me a line if you want to learn more. Currently, I offer these two below.
+Instead, it is often more productive to remove - establishing simplicity by rejecting the "flexible", "powerful" but unsound options, and acquiring soundness by designing the undesirables out of existence.
 
-* Simple for Real: Declutter Your Architecture, Code and Test
+"Strong Code" lays out the principles for the everyday programmer to achieve such goals by utilising the modern programming features, concepts, and philosophies (which are different from some of the conventional "patterns" rooted in but never go beyond shaky analogies and heuristics).
 
-   This workshop makes sense of code, test and architecture across languages, frameworks or conventions. It's made for experienced engineers and teams who may have doubts about existing "best practices", and are looking for simpler, clearer and saner ways of programming and engineering. The techniques and philosophies introduced here can be controversial in the beginning, but will prove thought-provoking and rewarding with exercises and discussions. This can be tailored for groups. (Be warned words such as SOLID, Clean or TDD are forbidden in this workshop)
+=== Part 1: Strong by simplicity
+. Immutability by default
+. Structured programming - for real
+. Thinking in data, not code
 
-* TypeScript Power Users
+=== Part 2: Strong by type
+. Construct, don't compute
+. Thinking of classes and functions as one
+. Interface as capability
+. Error as value
 
-   This is an advanced workshop on TypeScript, specifically on how to break away from habits or conventions from static-typing in the likes of C# or Java, to grasp and apply the power of TypeScript that may be unheard of in other mainstream languages.
+=== Part 3: Strong by discipline
+. Side effects as parameters
+. Testing with no fuss
+. 2-layer architecture
+
+To get the most out of this workshop, the participant should have experience in building non-trivial applications in a modern language.
 
 Usually, the workshops feature unexpected tangents that are inspirational and rewarding for all.
-
-Although it's not how I make my living, the workshops unfailingly create a lot of joy as well as food for thought.
-
-When a workshop is scheduled (by conferences), I will usually add a banner to the blog.
-
-> Why would you still want to attend an in-person workshop?!
-
-> Because it's one of the quickest ways to get up-to-speed on something. Learning with a good guide can be a big time-saver not just for the duration of a workshop, but especially for the long term if good habits are formed, and good structures are charted out.
