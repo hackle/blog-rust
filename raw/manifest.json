@@ -1,6 +1,6 @@
 [
     { "updated": "2021-09-05T03:53:47Z", "title": "How is this blog put together", "markdown": "blog-architecture.md", "hidden": true },
-    { "updated": "2021-08-03T08:47:27Z", "title": "About", "markdown": "about.md", "hidden": true },
+    { "updated": "2025-09-12T08:47:27Z", "title": "About", "markdown": "about.md", "hidden": true },
     { "updated": "2018-11-24T23:11:42Z", "title": "LINQ, infinity, laziness and oh my!", "markdown": "linq-tips.md" },
     { "updated": "2019-05-13T09:09:41Z", "title": "Lens (really record viewer / updater) in TypeScript", "markdown": "lens-typescript.md" },
     { "updated": "2018-11-10T03:00:52Z", "title": "Fin", "markdown": "fin.md" },
