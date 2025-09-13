@@ -32,13 +32,6 @@ footer {
     margin-left: 5px;
 }
 
-.linkedin-logo, .twitter-logo, .rss-logo {
-    width: 25px;
-    border-width: 0px !important;
-    display: inline;
-    vertical-align: bottom;
-}
-
 a.title:link,
 a.title:visited,
 a.title:hover,
@@ -54,6 +47,38 @@ a.title:active
 
 .subtitle {
     color: darkgreen;
+}
+
+@media (max-width: 650px) {
+    .links {
+        position: unset;
+        font-size: smaller;
+    }
+
+    .links:before {
+        content: '\25B6';
+        color: silver;
+    }
+
+    a.title:link,
+    a.title:visited,
+    a.title:hover,
+    a.title:active
+    {
+        font-size: 24px;
+        transform: scaleY(3);
+    }
+
+    .subtitle {
+        font-size: smaller;
+    }
+}
+
+.linkedin-logo, .twitter-logo, .rss-logo {
+    width: 25px;
+    border-width: 0px !important;
+    display: inline;
+    vertical-align: bottom;
 }
 
 .token.operator {
