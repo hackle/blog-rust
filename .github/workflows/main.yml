@@ -25,7 +25,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo test
-      - uses: actions/cache@v4
+      - uses: actions/cache@v3
         with:
           path: |
             /var/lib/docker
@@ -34,7 +34,7 @@ jobs:
         run: |
           ${GITHUB_WORKSPACE}/build.sh
       - name: Deploy with serverless
-        uses: serverless/github-action@master
+        uses: serverless/github-action@v3.2
         with:
           args: deploy --stage prod
         env:
