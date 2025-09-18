@@ -98,6 +98,8 @@ fun <T : Nat> decrement(n: Succ<T>): T = n.pred
 // fun <T1 : Nat, T2: Nat> add(n1: T1, n2: T2): Add<T1, T2>
 ```
 
+But combining subtyping, Kotlin's GADT is as elegant as that of Haskell, see [a later post](/kotlin-gadt).
+
 ## exhaustive pattern-matching and unification of member types
 
 The real power of union types does not lie in modelling a hierarchy of types with different shapes - the good-old non-sealed interface is more than enough for that job; instead, it's in modelling a closed type hierarchy that is _known_ at compile time, and what follows the _closedness_: the ability to analyse such hierarchy exhaustively.
