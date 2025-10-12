@@ -78,5 +78,5 @@
     { "updated": "2024-01-25T23:08:00Z", "title": "Using, with are lame. Rust wins resource management", "markdown":  "resource-manager-rust.md" },
     { "updated": "2025-08-31T19:21:00Z", "title": "Dependent? Extensible? The curious case of union type in Kotlin", "markdown":  "curious-kotlin-union.md" },
     { "updated": "2025-09-18T22:15:00Z", "title": "Type safe GADT in Kotlin - who needs Haskell?", "markdown":  "kotlin-gadt.md" },
-    { "updated": "2025-10-12T01:46:00Z", "title": "Singleton types and their use in C#, Kotlin and others", "markdown":  "singleton-and-bounded-type.md.md" }
+    { "updated": "2025-10-12T01:46:00Z", "title": "Singleton types and their use in C#, Kotlin and others", "markdown":  "singleton-and-bounded-type.md" }
 ]
