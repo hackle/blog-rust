@@ -250,3 +250,5 @@ If you've come this far, great! The deserved reward is implementing `Bounded` in
 Rust has a feature called ["const generics"](https://practice.course.rs/generics-traits/const-generics.html) that allows using constants directly as type parameters, making the above implementations (especially that of Kotlin) fairly unbearable.
 
 Although TypeScript is miles more expressive, for complete type erasure, there is no way to `reflect` the value of a type, without the aide of a runtime value.
+
+Lifting values into types is the first step towards dependent typing. TypeScript is the closest in the mainstream with some flavour in the form of type functions. Dependent typing is a hot pursuit in languages on the cutting edge, such as Haskell, Idris, Agda, Coq, Lean etc.
