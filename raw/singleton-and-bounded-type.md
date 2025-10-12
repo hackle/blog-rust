@@ -22,7 +22,7 @@ Just like `Unit`, `Foo` is both a type and a value. Its usage is just like that 
 
 Typically `data object` is used in place of a `data class` without any parameter, something not allowed by Kotlin. Yet it's allowed by C# for `record`, roughly the `data class` equivalent, as follows,
 
-```C#
+```csharp
 record struct Two
 {
     public static int Value => 2;
@@ -91,7 +91,7 @@ More advanced usage of singletons are usually tied to generics, or in this case,
 
 To see that in action, we first need a type `Singleton` as the upper bound to the type parameter. To keep it simple, let's narrow the scope down to integers. See below for `ISingletonInt` in C#,
 
-```C#
+```csharp
 public interface ISingletonInt
 {
     abstract static int Value { get; }
@@ -109,7 +109,7 @@ This is made possible in C# 11 with []"static abstract member methods in interfa
 
 Now we can use `ISingletonInt` as a bound to make `FixedSizeList`, 
 
-```C#
+```csharp
 public record struct FixedSizeList<TSize, T> where TSize : ISingletonInt
 {
     // 1: hide the public constructor and force construction through Create
@@ -140,7 +140,7 @@ One big difference between `FixedSizeList<Two, string>.Create` and designs witho
 
 Using the same technique, we can design a type `Bounded` that must be constructed with a value within range, as below,
 
-```C#
+```csharp
 public record struct Bounded<TLower, TUpper>
     where TLower : ISingletonInt
     where TUpper : ISingletonInt
