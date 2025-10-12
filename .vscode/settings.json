@@ -1,3 +1,5 @@
 {
-    "dotnet.defaultSolution": "sample/concurrency/concurrency.sln"
+    "dotnet.defaultSolution": "sample/concurrency/concurrency.sln",
+    "python-envs.defaultEnvManager": "ms-python.python:pyenv",
+    "python-envs.pythonProjects": []
 }
