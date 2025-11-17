@@ -18,7 +18,7 @@ With the exception of type casting that defeats the purpose of type safety, it s
 Empty? mustBeNull = null;
 ```
 
-This works like a simple logic puzzle, 
+Try as you may, null is the only possible value for the variable `mustBeNull`. How does it works? Well, much like a simple puzzle, 
 
 1. any nullable type `T?` accepts any value of `T` or `null`,
 2. `Empty?` accepts either a value of `Empty` or `null`,
