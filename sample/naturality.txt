@@ -1,0 +1,144 @@
+h :: forall a. f a -> g a
+
+R ⊆ A X A'
+
+(fa, fa') ∈ f(R) => (h fa, h fa') ∈ g(R), 
+
+Choose a graph relation R = graph(k),
+(a, a') ∈ R <=> a' = k a,
+
+As f is a functor, f(R) = graph(fmap k)
+
+Then (fa, fmap k fa) ∈ f(R)
+
+Apply h to f(R), we get
+
+(h fa, h (fmap k fa)) ∈ g(R)
+
+As g is also a functor, g(R) = graph(fmap k),
+
+fmap k (h fa) = h (fmap k fa)
+
+or point-free,
+
+fmap k . h = h . fmap k
+
+That's the definition of natural transformation.
+
+-- fusion
+
+f :: forall x, y. (x -> y -> y) -> y -> [x] -> y
+
+R ⊆ (X x X'), S ⊆ (Y x Y')
+
+g :: x -> y -> y
+g' :: x' -> y' -> y'
+
+(g, g') ⊆ (R -> S -> S)
+
+(x, x') ∈ R, (y, y') ∈ S, (g x y, g' x' y') ∈ S
+
+(f g y [x], f g' y' [x']) ∈ S
+
+Picking the relations R as graph(h), S as graph(k)
+let x' = h x, y' = k y,
+(g x y, g' x' y') ⊆ S
+(g x y, g' (h x) (k y)) ⊆ S
+k (g x y) = g' (h x) (k y)
+
+(f g y [x], f g' (k y) (fmap h [x])) ∈ S
+f g' (k y) (fmap h [x]) = k (f g y [x])
+
+interpretation: the result of fold with transformed initial value and mapped list, is the same as fold then transform the result.
+
+let k = id
+f g' y (fmap h [x]) = f g y [x]
+interpretation: h must be id, k and h must be related??
+
+let k = const y0
+f g' y0 (fmap h [x]) = y0
+interpretation: ??
+
+let [x] = null
+f g' (k y) [] = k (f g y [])
+interpretation: ??
+
+
+-- map
+
+f : forall a, b. (a -> b) -> [a] -> [b]
+
+R ⊆ (A X A')
+S ⊆ (B X B')
+
+(h : a -> b, h' : a' -> b') E (R -> S)
+
+(f h [a], f h' [a']) E [S]
+
+let a' = g a, b' = k b
+
+fmap k (f h [a]) = f h' [a']
+
+map k (f h [a]) = f h' (map g [a])
+
+(h a, h' a') E S, and (h a, h' (g a)) E S, so
+
+k (h a) = h' (g a), or k . h = h' . g
+
+or, as long as the below holds,
+
+k . h = h' . g
+
+then this also holds,
+
+map k (f h [a]) = f h' (map g [a])
+
+Let's say 
+
+g = id
+h' = k . h
+
+which does not break,
+
+k . h = (k . h) . id
+
+and leads to,
+
+map k (f h [a]) = f (k . h) (map id [a])
+
+map k (f h [a]) = f (k . h) [a] 
+
+this is map fusion.
+
+Now let's change this up with k . h = h' . g
+
+we'll let h' = id, and g = (k . h), so
+
+map k (f h [a]) = f id (map (k . h) [a])
+
+Because f can only act on [a] with id, the right side cannot be anything meaningfully more than map (k . h) [a]
+
+Let's try again with k . h = h' . g
+
+let k = h', h = g = id
+
+map k (f id [a]) = f k (map id [a])
+
+well, f must be map!
+
+-- lemma reversed
+
+
+-- intermediary result
+h (k . f0) = fmap k (h f0)
+
+-- with b1 = a
+k : b0 -> a
+f0: a -> b0
+k . f0 = id
+
+h id = fmap k (h f0)
+
+-- type check
+h id : F a
+h f0 : F b0

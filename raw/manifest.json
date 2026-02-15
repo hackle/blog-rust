@@ -79,5 +79,6 @@
     { "updated": "2025-08-31T19:21:00Z", "title": "Dependent? Extensible? The curious case of union type in Kotlin", "markdown":  "curious-kotlin-union.md" },
     { "updated": "2025-09-18T22:15:00Z", "title": "Type safe GADT in Kotlin - who needs Haskell?", "markdown":  "kotlin-gadt.md" },
     { "updated": "2025-10-12T01:46:00Z", "title": "Singleton types (not the design pattern!) in C#, Kotlin and others", "markdown":  "singleton-and-bounded-type.md" },
-    { "updated": "2025-11-17T10:27:00Z", "title": "The empty type - no values? no problem!", "markdown":  "the-empty-type.md" }
+    { "updated": "2025-11-17T10:27:00Z", "title": "The empty type - no values? no problem!", "markdown":  "the-empty-type.md" },
+    { "updated": "2026-02-15T10:50:00Z", "title": "Free theorems for the dummies", "markdown":  "theorems-for-free.md" }
 ]
