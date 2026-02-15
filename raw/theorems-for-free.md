@@ -1,11 +1,11 @@
 While the genius programmers excel on intuition, a simpler-minded one like myself needs more rigorous methods as safe fall-back. However, there is a misunderstanding that the rigorous methods are simply laborious and boring, bourne out of paranoia; that may be true of primitive forms such as unit testing (even which has rigorous forms); not the really good ones! My go-to example is "theorems for free": from functions with generics (or, parametric function), there is a recipe to **derive** theorems. It's mind-boggling, it's beautiful, and it's free. Well, it's not really *easy* if you go by the [original paper](https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf) by the great Philip Wadler, but I think I have an explanation for the dummies, so here we go.
 
-## natural transformation
+## Natural transformation
 
-Natural transformation (or naturality for short) states that for any two functors `f` and `g`, and a polymorphic function `h` defined as below,
+Natural transformation (or naturality for short) states that for any two functors `F` and `G`, and a polymorphic function `h` defined as below,
 
 ```Haskell
-h : forall a. f a -> g a
+h : forall a. F a -> G a
 ```
 
 It's essential that `h` is total without funny stuff like bottom, exceptions, non-termination etc. If so, then it should hold that,
@@ -98,7 +98,7 @@ Riding the excitement of natural transformation, we can now try something slight
 h : forall b. (a -> b) -> F b
 ```
 
-With `b` being a polymorphic type, `a` any fixed type, and `f` an arbitrary functor, it holds that `h` must encapsulate `F a`, or, `h` is _isomorphic_ to the values of `f a`.
+With `b` being a polymorphic type, `a` any _fixed_ type, and `f` an arbitrary functor, it holds that `h` must encapsulate `F a`, or, the result of `h` is unique determined by the values of `f a`.
 
 A smart programmer would be able to intuit this, albeit usually with some suspicions. Here is to the peace of mind: we can derive the lemma following the same process as natural transformation, such is the reach of "free theorems". This time, we need an extra step: pick a special function (that satisfies the types) to _probe_ for the theorem. 
 
@@ -296,7 +296,7 @@ fmap s . m k0 = m (s . k0)
 
 This is map fusion.
 
-## fusion with foldr
+## fold fusion
 
 The last example is shortcut fusion with `fold`. The intuition is, acting on the final result of `fold` is equivalent to acting on its initial value and each element during folding. The below code shows a flavour (whereas `reduce` in JavaScript works similarly to `fold`).
 
