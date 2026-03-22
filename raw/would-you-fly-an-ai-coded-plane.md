@@ -100,3 +100,5 @@ Great! So my job as a software engineer is safe and comfy from any disturbance? 
 The rise of mediocrity also means the floor is raised - any codebases, engineers or teams that fall below this line may be exposed and found to be inadequate or lost. Sadly, by sheer distribution of probability, the percentage will not be negligible.
 
 To add more uncertainty to the prospect, software engineering as a profession does not have any respectable reputation of doing the right thing. Consider object-oriented programming, SOAP, NoSql, microservices, serverless, the countless front-end frameworks and workflow engineers, the latest frenzies of durable functions. It's foreseeable that a percentage of executives will feel compelled to follow the hype and make a big move. Oh well, you know this has already been happening.
+
+On the positive note, any short-term disturbance aside, quality wins out eventually. Correctness, reliability and trust will be the differentiating properties of any successful software. Programmers need to switch to new vocabulary, languages, mindset and culture to prepare for this future.
