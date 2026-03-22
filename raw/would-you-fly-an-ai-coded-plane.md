@@ -99,11 +99,13 @@ However, if spec-driven coding does take over, it's easy to see this dystopic fu
 
 ## So my job is safe?
 
-Great! So my job as a software engineer is safe and comfy from any disturbance? I am afraid not. 
+Great! So my job as a software engineer is safe and comfy from any disturbance? I am afraid it's not that simple.
 
-Spec-driven agentic coding is a dead-end because it's steeped in mediocrity, but this is a case in extreme, and does not defeat the discreet, human-guided use of AI for coding in general. There is no denying the productivity gain from being able to search code and solutions by semantics, and to offload repetitive, mechanical changes (beyond the simple find-replace) that would have been too daunting to even think of, etc etc. The taking-away of such mechanical parts can be disturbingly revealing: what counts now is not speed in persisting and extending the status quo, but understanding, abstraction, rigour, and judgement that stands the scale of productivity.
+Spec-driven agentic coding is a dead-end for any project of non-trivial complexity, because it's steeped in mediocrity. However, the complexity is low (e.g. "80% of this project is yaml") and therefore search space is small, the need for human guidance may also be minimal. 
 
-The rise of mediocrity also means the floor is raised - any codebases, engineers or teams that fall below this line may be exposed and found to be inadequate or lost. In addition, any solution or technology featuring low complexity (e.g. "I write yaml / html all day long") and therefore small search space, is low-hanging fruit for coding agents. Sadly, by sheer distribution of probability, the percentage is not negligible.
+This also does not defeat the value of discreet, human-guided use of AI for coding (of any complexity) in general. There is no denying the productivity gain from many aspects: such as being able to search code and solutions by semantics, and to offload repetitive, mechanical changes (beyond the simple find-replace) that would have been too daunting to even think of, etc etc. The taking-away of such mechanical parts can be disturbingly revealing: what counts now is not speed in persisting and extending the status quo, but understanding, abstraction, rigour, and judgement that stands the scale of productivity.
+
+The rise of mediocrity is not always negative; it means the floor is raised - any codebases, engineers or teams that fall below this line may be exposed and found to be inadequate or lost. Sadly, by sheer distribution of probability, the percentage is not negligibly small.
 
 To add more uncertainty to the prospect, software engineering as a profession does not have any respectable reputation of doing the right thing. Consider object-oriented programming, SOAP, NoSql, microservices, serverless, the countless front-end frameworks and workflow engineers, the latest frenzies of durable functions. It's foreseeable that a percentage of executives will feel compelled to follow the hype and make a big move in fear of "falling behind". Oh well, you know this has already been happening.
 
