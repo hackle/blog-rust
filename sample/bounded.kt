@@ -79,9 +79,16 @@ fun main() {
     println(listOf2)
     println(listOf2Bad)
 
-    val listOf5: FixedSizeList<SingletonInt._5, Int> = listOf2!!
+    // val listOf5: FixedSizeList<SingletonInt._5, Int> = listOf2!!
     // error: initializer type mismatch: expected 'FixedSizeList<SingletonInt._5, Int>', 
     // actual 'FixedSizeList<SingletonInt._2, Int>'
 
-    println(listOf5)
+    // println(listOf5)
+
+    val doubleMax:  = 1E9
+
+    fun average(numbers: List<Int>) = numbers.sum() / numbers.size
+
+    println(doubleMax)
+    println(average(listOf(doubleMax, doubleMax, doubleMax)))
 }

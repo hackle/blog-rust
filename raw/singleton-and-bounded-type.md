@@ -163,7 +163,7 @@ var bounded = Bounded2To5.TryMake(2);
 var boundedBad = Bounded2To5.TryMake(6);
 ```
 
-## The curious case of Kotlin
+## The curious case of Kotlin companion objects
 
 Kotlin does not have an equivalent feature to "abstract static member method in interfaces". Indeed, there is no way to encode type-level constraints in an interface - it's meant only for the "instance" level. The traditional "static" methods are created on a `companion object`. As such, there is no direct translation of the C# design to Kotlin. We must find another way around.
 

@@ -4,65 +4,99 @@ Or, if you are about to say "yes", let me ask differently, would any airlines be
 
 Now you say: don't be dramatic, we don't make flight-control software, it's not a matter of life and death. Sure thing. But it's always a matter of _something_, so what's at stake?
 
-How about hospitals and doctors using [machines](https://en.wikipedia.org/wiki/Therac-25) to operate on patients? A [trading platform](https://www.reuters.com/markets/us/nyse-equities-investigating-reported-technical-issue-2024-06-03/) that deals with millions or billions of dollars on a daily basis? A banking system?
+How about hospitals and doctors using machines to operate on patients? A trading platform that deals with millions or billions of dollars on a daily basis? A banking system?
 
-Let's lower the stakes. How about an [accounting software](https://en.wikipedia.org/wiki/British_Post_Office_scandal)? How about a [password manager](https://en.wikipedia.org/wiki/2022_LastPass_data_breach)? 
+Let's lower the stakes. How about an accounting software for post offices? How about a password manager? Or even lower, a harmless CDN?
 
-Even lower. A harmless [CDN](https://blog.cloudflare.com/18-november-2025-outage/#memory-preallocation)? Or losing some "unimportant" [user data](https://www.theverge.com/news/634442/google-maps-timeline-data-deleted-cloud-backup-recovery)? Or being tripped up by [a 3rd party](https://help.salesforce.com/s/articleView?id=005134951&type=1)?
+Now you say: wait a minute, that's not fair! None of these insinuated issues were caused by AI! But you see, if AI coding is pushed too far, which seems to be the case soon (judging by the tendency of the profession to go readily to the extremes), there is a guarantee of explosion in incidents, some worse than [loss of a bit of user data](https://paddo.dev/blog/kiro-escalation/).
 
-Now you say: wait a minute! That's not fair! None of these issues were caused by AI! That's true. However, as people push AI coding harder and harder, 
-
+And it's not even hard to figure out why.
 
 == The rise of mediocrity
 
+Up to this point, the way software engineering works, at least in the mainstream, is empirical and labour-intensive: engineers, let's be gracious to say the _very good_ ones, try their best to build something, up to the point they feel _pretty good_ about it, but here is the catch: very rarely are they 100% sure that the code will work flawlessly. They deploy the change, and sure enough, it will occasionally fail; so the engineers make more changes to patch things up, until the errors stop appearing.
 
+At this point, you'd expect the engineers (note I stressed "very good ones") conclude that the software is fully correct. No way! That would be silly! It takes either full ignorance or arrogance to make such a claim. Instead, an experienced engineer will use words such as "stable", "reliable" or more colourfully, "hardened". There will _always_ be failures!
 
-You'd say "but I don't build software for plane", that's ok, it doesn't have to be about life or death, but it's always about something: how about a trading platform? Would you be OK to 
+This inability to produce correct programs, would be fairly disappointing for anyone who puts any level of faith in software engineering, but is well understood and almost taken for granted by the professionals, to an extent that is accepted as iron-clad norm. In fact, many of them may even consider any demand of correctness as offensive, claiming software engineering is not mathematics.
 
-A password manager?
+This should be stressed not only as a point of reflection, but a necessary reason for the mediocre quality of code out there in the world that any LLM would have used as training data. By the nature of distribution and probability, any generated code, especially in non-trivial volume, is necessarily bog average (up to the quality of the prompt and local context).
 
-How many incidents can you tolerate?
+This would have been clear to any sober minds, but it's worth calling out so we can now reason with the consequences.
 
-Software is labour intensive. Hope it works, and iterate on errors. How this is managed is by adding more humans, or reduce the blast radius.
+== The simple math of failures
 
-One possibility to look at the big-corp incident is, the agents have actually been doing a great job, the quantity is 10x as before, with about the quality as before (or to be gracious, we may even say slightly better than before). However, by simple calculation, if they have 1 incidents every month, by proportion, without 900% decrease in error rate, they should have 10 incidents every month. It's nobody's fault, least of them AI!
+Maybe with some level of schadenfreude, we can foresee plenty of people blaming any software incidents on agentic coding tools. An example is the recent AWS outage and Kiro, its internal agentic coding tool (while AWS contended it's an user error).
 
-Dijkstra is old as Euler is old, not the same as Java 5 or Angular 1 is old.
+Yet there is a different angle to this - the agents have actually been doing a decent job, let's be graceful again and say that the output has been 10x of the previous volume, and with pretty impressive quality that may just be _slightly under par_ to the labour-intensive output of 10x of humans (that we have also assumed to be top-draw). So far so good, everyone should be happy.
 
-Correctness is not "it works!", definition, example
+However, the point that people seem to conveniently leave out of the equation is error rate (that is relative) and volume of incidents (an absolute value). Let's say prior to the 10x productivity gain, a software team produces and handles one incident per month; by simple math, with about the same quality and error rate, the same team should expect to handle 10 incidents!
 
-Software is about managing complexity. Halting problem? P vs NP?
+In case you aren't aware, the cost of incidents is multi-fold: user experience, monetary, reputation, trust; but let's address the simple aspect of productivity. For a run-of-the-mill, note-worthy once-in-a-month incident, it's not unusual to require the attention of a dozen engineers for the better part of day; for worse ones let's say once-in-a-quarter, a few dozens of engineers for a week. For a once-in-a-year incident (which becomes 10 times a year), I've seen the continued involvement of hundreds of engineers over multiple weeks.
 
-The answer to any challenge is, "just add more agents".
+Terrified? Explanatory? And no one should _really_ be surprised! The coding agents do not change the equation, and remember, we have been very gracious with our assumptions. In reality, not all teams have top-draw engineers, and not all agent code produce top-draw output, so many teams will be staring at the barrel of an explosion of incidents.
 
-Obviously no deficiencies or no obvious deficiencies.
-Slapping more Python or Java together is a romantically ignorant dead-end
+== "It works, and there are _tests_!"
 
-Spec as the language, but it becomes a programming language when it starts to be infested with conditionals, or "go to step 5", or repeat until X - just an awful, tedious and error-prone
+When challenged on the correctness of agentic code, many enthusiasts reach to a righteous retort: it works! Pressed harder, the answer is usually - there are tests! Which, of course, are also written by agents.
 
-Agents become spec-compilers, into existing languages which become assembly or intermediary. This shows arrogance and ignorance to making of a compiler. The more modern languages are heavily researched with rigorous academic background. It is also silly - if humans are out of the loop, why don't compile directly to machine code for significant performance gain? If humans are still in the loop, who is going to deal with the indeterministic generated mess?
+The same enthusiasts usually share the misunderstanding of correctness, which is believed to be about pure aesthetics, design pattern, use of interfaces, or endless head-spinning "abstraction". They are likely not aware that Math is being formalised in Lean, or some flight-control systems have been formally verified. Instead, they are likely to hold the firm belief that how code is written in Java, Python or "insert any mainstream language" has been the peak of programming, and should be how software should be built till the end of time.
 
+Typically they either unaware of, or do not fully comprehend Dijkstra's well-known statement from ["The Humble Programmer
+"](https://www.cs.utexas.edu/~EWD/transcriptions/EWD03xx/EWD340.html),
 
-Microservices -> Monolith
+> program testing can be a very effective way to show the presence of bugs, but is hopelessly inadequate for showing their absence. The only effective way to raise the confidence level of a program significantly is to give a convincing proof of its correctness.
 
-Highly structured, proof-carrying code
+The argument is dead simple: even a simple `Double.average()` function has too many input to be exhaustively tested within reasonable time, so any test must be selective with its input and expected output to find "bugs" such as the dreaded number overflow (even if each element is within range). Testing is therefore at best a bug-reduction method, not a bug prevention method.
 
-So it doesn't work at all?
+A rigorous implementation may guard against overflow inductively, and communicate failure clearly such as by returning `Double?` or an error, instead of silently returning sentinel values such as `Infinity`, or wrapped values that is a form of corrupt data. 
 
-Not so if the existing code is already a hot mess. Honestly, a fair portion of software fall way below the average. Agents tend to produce (or slightly above) average code. If your code is poorly written, or even without proper unit tests, then sure, agents will give you a significant boost.
+Needless to say, in complex real-life applications, gaps in correctness are larger, more expensive, and time-consuming to address. Hoping that agents steeped in mediocrity to magically fix any correctness issues is wishful (if not delusional) at best. This is the intrinsic problem of spec-driven (or test-driven for that case) development: regardless of the quality of the specs, the generated code and tests are by probability bog average, and unlikely to be correct.
 
-So our jobs are safe?
+== Specs compiled to existing languages
 
-Even with the oversimplification of AI as a uber assistant, the productivity boost is nothing to sneeze at. In the good case this creates more demand for engineers because the world is hungry for more software; otherwise, it's foreseeable that when scaling average agents by quantity is trivial, quality will become the key differentiator: everything else being equal, software that works the most reliably and securely earns and keeps the market share.
+A seemingly more plausible trope of thoughts is that coding agents will be able to "compile" natural language specs into Java or Python, which becomes the new "assembly language" of programming, whereas the specs become the new high-level programming language.
 
-Unfortunately decisions are not always made to rationality, or with long term consequences in consideration. Hype, trends, emotions, market sentiments could all swing decisions in unpredictable ways.
+It's important to differentiate the said natural language "specs" against the formal specifications such as [TLA+](https://learntla.com/core/pluscal.html). The latter, being precise and formal, would of course be too nerdy, therefore counter-productive to the cause of hyping up agentic coding.
 
-How would it work? The worst case.
+This trope is flawed on multiple, if not all levels.
 
-1. sell the hype to get people on board with the spec-first development, do whatever to create a new job market and claim anything lesser is "old-school" or degenerate
-2. before this scheme collapses, create a general purpose programming language as the standardised spec language, and claim revolutionary victory
-3. sell more hype and sell hard to create a "community"; create tooling, an entire eco-system to lock in users to achieve monopoly
+First, natural languages are tedious, imprecise, and terrible for expressing anything of non-trivial complexity. This is best put by Dijkstra in this [On the foolishness of "natural language programming"](https://www.cs.utexas.edu/~EWD/transcriptions/EWD06xx/EWD667.html) that should really be required reading by any software engineer at this point of time.
 
-The best case: saner heads prevail to see through this scheme, which collapses after a new damaging incidents.
+> ... it was argued, by letting the machine carry a larger share of the burden, life would become easier for us. It sounds sensible provided you blame the obligation to use a formal symbolism as the source of your difficulties. But is the argument valid? I doubt.
+> A short look at the history of mathematics shows how justified this challenge is. Greek mathematics got stuck because it remained a verbal, pictorial activity, Moslem "algebra", after a timid attempt at symbolism, died when it returned to the rhetoric style, and the modern civilized world could only emerge —for better or for worse— when Western Europe could free itself from the fetters of medieval scholasticism —a vain attempt at verbal precision!— thanks to the carefully, or at least consciously designed formal symbolisms that we owe to people like Vieta, Descartes, Leibniz, and (later) Boole.
 
-What will likely happen: the scheme continues for a year or two, wrecking a small havoc to the profession, and the products as well as the finance of the most ardent followers.
+The hyped argument that complex software could be built from imprecise specs, with agents magically making up the missing pieces, should not pass the eye test of any sane technologist with adequate literacy. Anyone contending that using natural language is a for programming is either ignorant or dishonest. It would be giant step backwards if this agenda is pushed forward.
+
+Secondly, the natural-language specs enthusiasts may contend that it's possible to write precise specs in a standardised way. As an example, let's look at part of the SPEC.md of OpenAI's [Symphony](https://github.com/openai/symphony/blob/main/SPEC.md#85-active-run-reconciliation),
+
+> For each running issue:
+> If tracker state is terminal: terminate worker and clean workspace.
+> If tracker state is still active: update the in-memory issue snapshot.
+> If tracker state is neither active nor terminal: terminate worker without workspace cleanup.
+
+What does that remind you of? A loop with if / else statements, and references to other components by words. This may make some borderline "technologies" excited, but should put a programmer with any level of experience on high alarm: with moderate increase in complexity, this word salad will quickly turn into a hot mess, infested with the most tedious conditionals, wildly uncontrolled cross-references with half-hearted attempt at completeness or precision.
+
+To the rescue, it's foreseeable that the spec enthusiasts may even create excellent spec tooling (equally agentic and mediocre): checking undefined components; click to jump to a definition; parse the syntax tree to find inconsistencies. Or why not, build a spec language server. Great, betraying the original promises, the supposed natural-language now morphs into a turing complete programming language, just a ugly, leaky and disgusting one that saps the energy out of even the most zealous supporters.
+
+Thirdly, this trope shows ignorance of the rigour required to make even any passably decent compiler. At a minimum, the requirement of strict semantics preservation is already at odds with the probability-based nature of coding agents; there is no viable answer to how optimisation, type checking, error-reporting and debugging through intermediary languages could be implemented when the source language is a _natural language_! Obviously, the hope is most people don't have a clue what "compile" means, so why not simply make it the same as magic? After all, the agents will take of them all!
+
+Lastly, if the agents do have super power to read minds and turn wishy-washy natural language into deterministic output, then what's the point of compiling to Java or Python? Why not compile directly to machine code for mad performance gain, it's such low-hanging fruit! But of course, there is not enough training data for this direct compilation, so we must settle for the golden mediocrity.
+
+== Just another agent, and the steady decline
+
+The go-to answer of the spec-driven enthusiasts, when challenged to show any rigour, is "just add another agent", from architecture, to design, code review, operations, debugging, or indeed, incident resolution or disaster recovery. However, if the cooler heads are to prevail, then the world should see through such unfalsifiable claims as pure charlatanry. Layers over layers of slapped-together mediocre Java and Python that enthusiasts contend "it just works", is nothing more than "hope is the strategy". A bit of literacy helps to drive the point home, from the great Tony Hoare,
+
+> There are two ways of constructing a software design: One way is to make it so simple that there are obviously no deficiencies, and the other way is to make it so complicated that there are no obvious deficiencies.
+
+It's also a certainty that the world, at least a sizeable portion of it, needs to run on demonstrably, verifiable correct software. The sheer pursuit of quantity without addressing correctness, or at least making significantly improvements therein, is a dead-end. In this sense, any established software products bent on adopting spec-driven development in panic, is more likely to die out of grave quality degradation and bankruptcy of trust, than slowness in delivering the next killer feature.
+
+However, if spec-driven coding does take over, it's easy to see this dystopia future: with the proliferation of mediocre code, which is used as training data for the next iteration, or indeed regurgitation of code, the quality of software will be on the course of a slow, steady and almost irreversible decline. Eventually, non-agentic code will account for a negligibly small percentage, any flaws in software will be incestuously perpetuated. A sad prospect indeed.
+
+== So my job is safe?
+
+Great! So my job as a software engineer is safe and comfy from any disturbance? I am afraid not. Spec-driven agentic coding is a dead-end because it's steeped in mediocrity, but this is a case in extreme, and does not defeat the use of AI for coding in general. There is no denying the productivity gain from being able to search code and solutions by semantics, and to offload repetitive, mechanical changes (beyond the simple find-replace) that would have been too daunting to even think of, etc etc. The taking-away of such mechanical parts can be disturbingly revealing: what counts now is not speed in persisting and extending the status quo, but understanding, abstraction, rigour, and judgement that stands the scale of productivity.
+
+The rise of mediocrity also means the floor is raised - any codebases, engineers or teams that fall below this line may be exposed and found to be inadequate or lost. Sadly, by sheer distribution of probability, the percentage will not be negligible.
+
+To add more uncertainty to the prospect, software engineering as a profession does not have any respectable reputation of doing the right thing. Consider object-oriented programming, SOAP, NoSql, microservices, serverless, the countless front-end frameworks and workflow engineers, the latest frenzies of durable functions. It's foreseeable that a percentage of executives will feel compelled to follow the hype and make a big move. Oh well, you know this has already been happening.
